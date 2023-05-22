@@ -30,6 +30,16 @@
 <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
   </head>
   <body class="full-wrapper">
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
     <!-- ? Preloader Start -->
     {{-- <div id="preloader-active">
       <div class="preloader d-flex align-items-center justify-content-center">
@@ -529,39 +539,44 @@
           <div class="cart-header login">
             <h2>Log in</h2>
           </div>
-          <form class="formlogin" action="profile.php">
+          <form class="formlogin" action="{{ route('login') }}" method="POST">
+            @csrf
             <div class="form-group mt-20">
-              <input type="email" class="form-control" id="inputEmail" required placeholder="Username or email address *" aria-describedby="emailHelp">
+                <input type="email" class="form-control" name="customer_email" required placeholder="Username or email address *" aria-describedby="emailHelp">
             </div>
             <div class="form-group mt-20">
-              <input type="password" class="form-control" required placeholder="Password *" id="inputPassword">
+                <input type="password" class="form-control" name="customer_password" required placeholder="Password *" id="inputPassword">
             </div>
-            <div class="form-group form-check mt-10">
-              <input type="checkbox" class="form-check-input" id="checkboxRemember">
-              <label class="form-check-label remember" for="exampleCheck1">Remember me</label>
-            </div>
+            <!-- Tambahkan elemen lain yang diperlukan untuk form login -->
             <button type="submit" class="btn btn-primary mt-10 login">LOG IN</button>
             <p class="signuphere mt-3">Don't have an account? <a href="#"><u>Sign Up</u></a> Here</p>
-          </form>
+        </form>
+        
         </div>
         <div class="col-12 isisignup">
           <div class="cart-header login">
-            <h2>Sign Up</h2>
+              <h2>Sign Up</h2>
           </div>
-          <form class="formsignup" action="profile.php">
-            <div class="form-group mt-20">
-            <input type="email" class="form-control" id="inputEmailRegis" required placeholder="Email address *" aria-describedby="emailHelp">
+          <form class="formsignup" action="{{ route('register') }}" method="POST">
+              @csrf
+              <div class="form-group mt-20">
+                <label for="inputEmailRegis">Name *</label>
+                <input type="text" class="form-control" id="inputNameRegis" name="customer_name" required aria-describedby="emailHelp">
             </div>
-            <div class="form-group mt-20">
-            <input type="password" class="form-control" required placeholder="Password *" id="inputPasswordRegis">
-            </div>
-            <small id="info" class="form-text">By providing your personal information, you allow us to enhance your shopping experience and securely manage your account.</small>
-            <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
-            <a href="#" class="backlogin mt-3"><u>Back to Login</u></a>
-        </form>
-        </div>
+              <div class="form-group mt-20">
+                  <label for="inputEmailRegis">Email address *</label>
+                  <input type="email" class="form-control" id="inputEmailRegis" name="customer_email" required aria-describedby="emailHelp">
+              </div>
+              <div class="form-group mt-20">
+                  <label for="inputPasswordRegis">Password *</label>
+                  <input type="password" class="form-control" id="inputPasswordRegis" name="customer_password" required>
+              </div>
+              <small id="info" class="form-text">By providing your personal information, you allow us to enhance your shopping experience and securely manage your account.</small>
+              <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
+              <a href="#" class="backlogin mt-3"><u>Back to Login</u></a>
+          </form>
       </div>
-    </div>
+      
   <!-- cart login end -->
  
   <!-- cart -->

@@ -1,11 +1,13 @@
 <?php
-  session_start();
-  
-  if (isset($_POST['link'])) {
+  use Illuminate\Support\Facades\Session;
+
+if (isset($_POST['link'])) {
     $link = $_POST['link'];
-    $_SESSION['link_tes'] = $link;
+    Session::put('link_tes', $link);
     
-    echo 'Data berhasil disimpan ke session.';
+    echo 'Data berhasil disimpan ke sesi.';
+}
+
 
 
 //   }
@@ -13,11 +15,11 @@
 //     echo  $_SESSION['link_tes'];
 //   } else {
 //     echo 'Belum yang disimpan di session.';
-  }
-  elseif (isset($_POST['relatedproduct'])) {
-    $relatedproduct = $_POST['relatedproduct'];
-    $_SESSION['related_product'] = $relatedproduct;
-}
+  
+//   elseif (isset($_POST['relatedproduct'])) {
+//     $relatedproduct = $_POST['relatedproduct'];
+//     $_SESSION['related_product'] = $relatedproduct;
+// }
 
   
   // session_unset();
@@ -53,7 +55,7 @@
     
 </head>
 <body class="full-wrapper">
-<?php require('header.php'); ?>
+  @include('header')
     <main>
         <!-- breadcrumb Start-->
         <div class="page-notification">
@@ -75,7 +77,30 @@
         <!--?  Details start -->
         <div class="new-arrival new-arrival2">
         <?php
-        include 'connection.php';
+    //  use Illuminate\Support\Facades\DB;
+    //     if (isset($_SESSION['link_tes'] )) {
+    //       $sql = "SELECT DISTINCT product_name, product_id, product_price, product_url, product_detail, category_id FROM product WHERE product_id = (select product_id from product where product_name LIKE '%".$_SESSION['link_tes']."%' limit 1);";
+    //       $sql2 = "SELECT DISTINCT product_id FROM product WHERE product_name  LIKE '%".$_SESSION['link_tes']."%' order by product_id desc";
+          
+    //       // $_SESSION['link_tes']="";
+    //     }
+       
+
+        
+    //     $result = DB::select($sql);
+    //     $result2 = DB::select($sql2);
+
+        
+    //     if ($result->num_rows > 0) {
+    //         while ($row = $result->fetch_assoc()) {
+    //             $product_name = $row['product_name'];
+    //             $category_id = $row['category_id'];
+    //             $product_price = $row['product_price'];
+    //             $product_url = $row['product_url'];
+    //             $product_detail = $row['product_detail'];
+    use Illuminate\Support\Facades\DB;
+
+
         if (isset($_SESSION['link_tes'] )) {
           $sql = "SELECT DISTINCT product_name, product_id, product_price, product_url, product_detail, category_id FROM product WHERE product_id = (select product_id from product where product_name LIKE '%".$_SESSION['link_tes']."%' limit 1);";
           $sql2 = "SELECT DISTINCT product_id FROM product WHERE product_name  LIKE '%".$_SESSION['link_tes']."%' order by product_id desc";
@@ -83,8 +108,9 @@
           // $_SESSION['link_tes']="";
         }
         
-        $result = $conn->query($sql);
-        $result2 = $conn->query($sql2);
+        $result = DB::select($sql);
+  $result2 = DB::select($sql2);
+
         
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
@@ -130,6 +156,8 @@
             }
         }
         echo '</div>';
+      }
+    }
     }
 ?>
 
@@ -290,7 +318,7 @@
                         } else {
                             // Tampilkan pesan jika tidak ada produk dengan product_id yang sesuai
                             echo "Product not found";
-                        }}}
+                        }
                         ?>
         <style>
           .product-info:hover {
@@ -945,18 +973,38 @@
           updateNavbar(window.innerWidth);
       });
 
-  $('h3 a').click(function() {
-          // Mengambil isi dari elemen a yang diklik
-          let isiLink = $(this).text();
-          $.ajax({
-          type: "POST",
-          url: "product_details.php",
-          data: { link: isiLink },
-          success: function() {
-            console.log("tessssss berhasill");
-          }
-        });
-        });
+  // $('h3 a').click(function() {
+  //         // Mengambil isi dari elemen a yang diklik
+  //         let isiLink = $(this).text();
+  //         $.ajax({
+  //         type: "POST",
+  //         url: "product_details.php",
+  //         data: { link: isiLink },
+  //         success: function() {
+  //           console.log("tessssss berhasill");
+  //         }
+  //       });
+  //       });
+        
+        $('h3 a').click(function(event) {
+    event.preventDefault(); // Mencegah aksi default dari elemen a
+
+    // Mengambil isi dari elemen a yang diklik
+    let isiLink = $(this).text();
+
+    $.ajax({
+        type: "POST",
+        url: "{{ route('product.details') }}",
+        data: { link: isiLink },
+        success: function(response) {
+            console.log(response.message);
+        },
+        error: function(xhr, status, error) {
+            console.log('Terjadi kesalahan:', error);
+        }
+    });
+});
+
 
         $('h3 a').click(function() {
           // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
