@@ -6,28 +6,24 @@
     <title>Ever After | Fashion</title>
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="manifest" href="site.webmanifest" />
-    <link
-      rel="shortcut icon"
-      type="image/x-icon"
-      href="assets/img/favicon.ico"
-    />
+    <link rel="manifest" href="{{ asset('site.webmanifest')}}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/favicon.ico') }}" />
 
     <!-- CSS here -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
   </head>
   <body class="full-wrapper">
     @if ($errors->any())
@@ -751,9 +747,9 @@
       <a title="Go to Top" href="#"> <i class="fas fa-level-up-alt"></i></a>
     </div>
 
-    <!-- JS here -->
-    <!-- Jquery, Popper, Bootstrap -->
-    <script src="{{ asset('assets/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+<!-- JS here -->
+<!-- Jquery, Popper, Bootstrap -->
+<script src="{{ asset('assets/js/vendor/modernizr-3.5.0.min.js') }}"></script>
 <script src="{{ asset('assets/js/vendor/jquery-1.12.4.min.js') }}"></script>
 <script src="{{ asset('assets/js/popper.min.js') }}"></script>
 <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
@@ -842,18 +838,12 @@
                 full.style.overflow = 'visible';
                 containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
-              logocart.addEventListener('mouseenter', function(event) {
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
-              // logocartlogin.addEventListener('mouseenter', function(event) {
-              //     event.preventDefault();
-              //     // containercart.style.display = 'none';
-              //     full.style.overflow = 'visible';
-              //     containercart.style.animation = 'slideInToRightMobile 1s forwards';
-              // });
 
               $(".close.cart").on('click', function(event) {
                 event.preventDefault();
@@ -874,24 +864,11 @@
           
           else if (window.innerWidth < 415) { // media query condition
               navprofile.style.display = 'block';
-              logocart.addEventListener('mouseenter', function(event) {
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              });
-              // logocartlogin.addEventListener('mouseenter', function(event) {
-              //     event.preventDefault();
-              //     // containercart.style.display = 'none';
-              //     full.style.overflow = 'visible';
-              //     containercart.style.animation = 'slideInToRightMobile 1s forwards';
-              // });
-              
-              containercart.addEventListener('mouseleave', function(event) {
-                  event.preventDefault();
-                  // containercart.style.display = 'none';
-                  full.style.overflow = 'visible';
-                  containercart.style.animation = 'slideInToRightMobile 1s forwards';
               });
 
               logocartlogin.addEventListener('click', function(event) {
@@ -916,59 +893,45 @@
               });
           } else {
               navprofile.style.display = 'none';
-              logocart.addEventListener('mouseenter', function(event) {
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
-              // logocartlogin.addEventListener('mouseenter', function(event) {
-              //     event.preventDefault();
-              //     // containercart.style.display = 'none';
-              //     full.style.overflow = 'visible';
-              //     containercart.style.animation = 'slideInToRightMobile 1s forwards';
-              // });
-              
-              containercart.addEventListener('mouseleave', function(event) {
-                  event.preventDefault();
-                  // containercart.style.display = 'none';
-                  full.style.overflow = 'visible';
-                  containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                  if($('.logocart-login').hasClass('active')){
-                    full.style.overflow = 'hidden';
-                    
-                  }
+              $(".close.cart").on('click', function(event) {
+                event.preventDefault();
+                containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                full.style.overflow = 'visible';
+                if($('.logocart-login').hasClass('active')){
+                  full.style.overflow = 'hidden';
+                }
               });
 
               logocartlogin.addEventListener('click', function(event) {
               event.preventDefault();
               full.style.overflow = 'hidden';
               containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              $('.cart-container-login').one('animationend', function() {
-                  $(document).on('click', function(event) {
-                      if ($('.cart-container-login').css('right') === '0px') {
-                      const container = $('.cart-container-login');
-                      const iconcart = $('.logocart-login');
+              // $('.cart-container-login').one('animationend', function() {
+              //     $(document).on('click', function(event) {
+              //         if ($('.cart-container-login').css('right') === '0px') {
+              //         const container = $('.cart-container-login');
+              //         const iconcart = $('.logocart-login');
 
-                      if (!container.is(event.target) && container.has(event.target).length === 0 && !iconcart.is(event.target) && iconcart.has(event.target).length === 0) {
-                          // Click was outside the div, do something here
-                          event.preventDefault();
-                          containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-                          isiSignup.style.display = 'none';
-                          login.style.display="block";
-                          full.style.overflow = 'visible';
-                      }
-                      }
-                  });
-              });
+              //         if (!container.is(event.target) && container.has(event.target).length === 0 && !iconcart.is(event.target) && iconcart.has(event.target).length === 0) {
+              //             // Click was outside the div, do something here
+              //             event.preventDefault();
+              //             containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+              //             isiSignup.style.display = 'none';
+              //             login.style.display="block";
+              //             full.style.overflow = 'visible';
+              //         }
+              //         }
+              //     });
+              // });
               
               });
-              // navprofile.addEventListener('click', function(event) {
-              // event.preventDefault();
-              // full.style.overflow = 'hidden';
-              // containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              // });
 
               btnclose.addEventListener('click', function(event) {
               event.preventDefault();
@@ -1048,6 +1011,21 @@
             data: { shopnow: "" },
             success: function() {
               console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+            }
+          });
+        });
+
+        $('h3 a').click(function() {
+          // Mengambil isi dari elemen a yang diklik
+          let isiLink = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "product_details.php",
+            data: {
+              link: isiLink
+            },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
             }
           });
         });

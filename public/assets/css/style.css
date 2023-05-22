@@ -126,7 +126,7 @@ p {
 
 .card-address p{
   margin: 5px 0 0 10px;
-  font-size:10px; 
+  font-size:11px; 
 }
 .card-address div.preview-add{
   padding-bottom: 5px;
@@ -6575,7 +6575,7 @@ small{
 
 .card-header{
   display : flex;
-  font-size: 10px;
+  font-size: 11px;
   justify-content : space-between;
   align-items : center;
 }
@@ -6916,16 +6916,6 @@ p.header-transaction{
 
 div.col-7.item-details {
   padding-top: 20px;
-}
-
-.close.cart{
-  display: none;
-}
-
-@media (max-width: 576px) {
-  .close.cart{
-    display: block;
-  }
 }
 
 .change-my-color {

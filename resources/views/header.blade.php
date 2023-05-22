@@ -7,8 +7,9 @@
           </div>
         </div>
       </div>
-    </div>
+</div>
     <!-- Preloader Start-->
+    
     <header>
       <!-- Header Start -->
       <div class="header-area">
