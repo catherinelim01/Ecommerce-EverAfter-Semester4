@@ -1,5 +1,4 @@
 <?php
-include 'connection.php';
 // if (!isset($_SESSION['order_id'])) {
 //   $_SESSION['order_id'] = "ORD00014";
 // }
@@ -8,29 +7,32 @@ include 'connection.php';
 <html class="no-js" lang="zxx">
 
 <head>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
   <meta charset="utf-8" />
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <title>Ever After | Fashion</title>
   <meta name="description" content="" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="manifest" href="site.webmanifest" />
-  <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+  <link rel="manifest" href="{{ asset('site.webmanifest')}}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/favicon.ico') }}" />
 
-  <!-- CSS here -->
-  <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="assets/css/owl.carousel.min.css" />
-  <link rel="stylesheet" href="assets/css/slicknav.css" />
-  <link rel="stylesheet" href="assets/css/flaticon.css" />
-  <link rel="stylesheet" href="assets/css/progressbar_barfiller.css" />
-  <link rel="stylesheet" href="assets/css/gijgo.css" />
-  <link rel="stylesheet" href="assets/css/animate.min.css" />
-  <link rel="stylesheet" href="assets/css/animated-headline.css" />
-  <link rel="stylesheet" href="assets/css/magnific-popup.css" />
-  <link rel="stylesheet" href="assets/css/fontawesome-all.min.css" />
-  <link rel="stylesheet" href="assets/css/themify-icons.css" />
-  <link rel="stylesheet" href="assets/css/slick.css" />
-  <link rel="stylesheet" href="assets/css/nice-select-profile.css" />
-  <link rel="stylesheet" href="assets/css/style.css" />
+    <!-- CSS here -->
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select-profile.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
 
   <style type="text/css">
         .popup {
@@ -205,7 +207,7 @@ include 'connection.php';
 </head>
 
 <body class="full-wrapper">
-  <?php require('header.php'); ?>
+@include('header')
   <main>
     <div class="row">
       <div class="col-12 col-md-4">
@@ -362,24 +364,25 @@ include 'connection.php';
         </div>
         
       <?php 
-          $sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, p.product_price, po.qty ,d.delivery_name,d.delivery_cost, a.address ,format(((o.grand_total*qty) - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url from `order` o, product_order po , product p , delivery d, address a where o.order_id = po.order_id and po.product_id = p.product_id and d.delivery_id = o.delivery_id and a.CUSTOMER_ID = o.CUSTOMER_ID  order by o.order_date desc";
-          $result=$conn->query($sql);
+          $sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, p.product_price, po.qty ,d.delivery_name,d.delivery_cost, a.address ,format(((o.grand_total*qty) - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url from `order` o, product_order po , product p , delivery d, address a where o.order_id = po.order_id and po.product_id = p.product_id and d.delivery_id = o.delivery_id and a.CUSTOMER_ID = o.CUSTOMER_ID  order by 2 desc";
+          $result= DB::select($sql);
         
-          if($result->num_rows > 0){
-            $response=array();
-            while ($row=$result->fetch_assoc()){
-              $dt['tanggal']= $row["tanggal"];
-              $dt['order_id']= $row["order_id"];
-              $dt['product_name']= $row["product_name"];
-              $dt['size']= $row["size"];
-              $dt['product_price']= $row["product_price"];
-              $dt['qty']= $row["qty"];
-              $dt['delivery_name']= $row["delivery_name"];
-              $dt['delivery_cost']= $row["delivery_cost"];
-              $dt['address']= $row["address"];
-              $dt['total']= $row["total"];
-              $dt['product_url']= $row["product_url"];
-              array_push($response,$dt);
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->tanggal = $row->tanggal;
+                $dt->order_id = $row->order_id;
+                $dt->product_name = $row->product_name;
+                $dt->size = $row->size;
+                $dt->product_price = $row->product_price;
+                $dt->qty = $row->qty;
+                $dt->delivery_name = $row->delivery_name;
+                $dt->delivery_cost = $row->delivery_cost;
+                $dt->address = $row->address;
+                $dt->total = $row->total;
+                $dt->product_url = $row->product_url;
+                $response[] = $dt;
             }
             
             $hasil_json=json_encode($response);
@@ -421,7 +424,7 @@ include 'connection.php';
               </div>  
             <?php } ?>
             <?php } ?>
-        <?php $conn->close(); ?>
+
         
       <hr class="hr-order">
 
@@ -500,7 +503,8 @@ include 'connection.php';
       <div class="cart-items">
         <div class="row cart-item">
           <div class="col-5 item-image">
-            <img src="assets/images/denim/2.jpg" alt="Product Image">
+            <img src="{{ asset('assets/images/denim/2.jpg') }}" alt="Product Image">
+            
           </div>
           <div class=" col-7 item-details">
             <h3>Kai Ripped Jacket</h3>
@@ -513,7 +517,7 @@ include 'connection.php';
 
         <div class="row cart-item">
           <div class="col-5 item-image">
-            <img src="assets/images/tops/7.jpg" alt="Product Image">
+            <img src="{{ asset('assets/images/tops/7.jpg') }}" alt="Product Image">
           </div>
           <div class="col-7 item-details">
             <h3>Kaelyn Checkered Sheer Top</h3>
@@ -562,7 +566,7 @@ include 'connection.php';
               <div class="single-footer-caption mb-30">
                 <!-- logo -->
                 <div class="footer-logo mb-35">
-                  <a href="index.html"><img src="assets/images/logo/logo_putih.png" alt="" /></a>
+                  <a href="index.html"><img src="{{ asset('assets/images/logo/logo_putih.png') }}" alt="" /></a>
                 </div>
                 <div class="footer-tittle">
                   <div class="footer-pera">
@@ -665,44 +669,44 @@ include 'connection.php';
   </div>
 
   <!-- JS here -->
-  <!-- Jquery, Popper, Bootstrap -->
-  <script src="./assets/js/vendor/modernizr-3.5.0.min.js"></script>
-  <script src="./assets/js/vendor/jquery-1.12.4.min.js"></script>
-  <script src="./assets/js/popper.min.js"></script>
-  <script src="./assets/js/bootstrap.min.js"></script>
+<!-- Jquery, Popper, Bootstrap -->
+<script src="{{ asset('assets/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+<script src="{{ asset('assets/js/vendor/jquery-1.12.4.min.js') }}"></script>
+<script src="{{ asset('assets/js/popper.min.js') }}"></script>
+<script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
 
-  <!-- Slick-slider , Owl-Carousel ,slick-nav -->
-  <script src="./assets/js/owl.carousel.min.js"></script>
-  <script src="./assets/js/slick.min.js"></script>
-  <script src="./assets/js/jquery.slicknav.min.js"></script>
+<!-- Slick-slider , Owl-Carousel ,slick-nav -->
+<script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+<script src="{{ asset('assets/js/slick.min.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.slicknav.min.js') }}"></script>
 
-  <!-- One Page, Animated-HeadLin, Date Picker -->
-  <script src="./assets/js/wow.min.js"></script>
-  <script src="./assets/js/animated.headline.js"></script>
-  <script src="./assets/js/jquery.magnific-popup.js"></script>
-  <script src="./assets/js/gijgo.min.js"></script>
+<!-- One Page, Animated-HeadLin, Date Picker -->
+<script src="{{ asset('assets/js/wow.min.js') }}"></script>
+<script src="{{ asset('assets/js/animated.headline.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.magnific-popup.js') }}"></script>
+<script src="{{ asset('assets/js/gijgo.min.js') }}"></script>
 
-  <!-- Nice-select, sticky,Progress -->
-  <script src="./assets/js/jquery.nice-select.min.js"></script>
-  <script src="./assets/js/jquery.sticky.js"></script>
-  <script src="./assets/js/jquery.barfiller.js"></script>
+<!-- Nice-select, sticky,Progress -->
+<script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.sticky.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.barfiller.js') }}"></script>
 
-  <!-- counter , waypoint,Hover Direction -->
-  <script src="./assets/js/jquery.counterup.min.js"></script>
-  <script src="./assets/js/waypoints.min.js"></script>
-  <script src="./assets/js/jquery.countdown.min.js"></script>
-  <script src="./assets/js/hover-direction-snake.min.js"></script>
+<!-- counter , waypoint,Hover Direction -->
+<script src="{{ asset('assets/js/jquery.counterup.min.js') }}"></script>
+<script src="{{ asset('assets/js/waypoints.min.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.countdown.min.js') }}"></script>
+<script src="{{ asset('assets/js/hover-direction-snake.min.js') }}"></script>
 
-  <!-- contact js -->
-  <script src="./assets/js/contact.js"></script>
-  <script src="./assets/js/jquery.form.js"></script>
-  <script src="./assets/js/jquery.validate.min.js"></script>
-  <script src="./assets/js/mail-script.js"></script>
-  <script src="./assets/js/jquery.ajaxchimp.min.js"></script>
+<!-- contact js -->
+<script src="{{ asset('assets/js/contact.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.form.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.validate.min.js') }}"></script>
+<script src="{{ asset('assets/js/mail-script.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.ajaxchimp.min.js') }}"></script>
 
-  <!-- Jquery Plugins, main Jquery -->
-  <script src="./assets/js/plugins.js"></script>
-  <script src="./assets/js/main.js"></script>
+<!-- Jquery Plugins, main Jquery -->
+<script src="{{ asset('assets/js/plugins.js') }}"></script>
+<script src="{{ asset('assets/js/main.js') }}"></script>
   <script>
     const logocartlogin = document.querySelector('.logocart-login');
       const containercartlogin = document.querySelector('.cart-container-login');
@@ -983,22 +987,35 @@ include 'connection.php';
         }
       });
     });
+
+    $.ajaxSetup({
+  headers: {
+    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+  }
+});
     $('.details').click(function() {
-      // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-      let isiorderid = $(this).closest('.row').prev().find('.orderid').text()
-      let substrisiorder= isiorderid.substring(4);
-      $.ajax({
-        type: "POST",
-        url: "order_detail.php",
-        data: {
+  // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+  let isiorderid = $(this).closest('.row').prev().find('.orderid').text()
+  let substrisiorder = isiorderid.substring(4);
+
+  $.ajax({
+    method: "POST",
+    url: '/order_detail', // Menggunakan URL dengan parameter
+    data: {
           orderid: substrisiorder
         },
         success: function(response) {
           // Menampilkan div dengan hasil respons di dalamnya
-          $(".popup").html(response).show();
-        }
-      });
-    });
+          console.log(response);
+          // $(".popup").html(response).show();
+          $(".popup").html(response.content).show();
+        },
+    error: function(xhr, status, error) {
+      console.error(error);
+    }
+  });
+});
+
   </script>
 </body>
 

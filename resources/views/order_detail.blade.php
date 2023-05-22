@@ -1,37 +1,34 @@
 <?php 
 session_start();
-include 'connection.php';
-if (isset($_POST['orderid'])) {
-    $orderid = $_POST['orderid'];
-    $_SESSION['order_id'] = $orderid;    
-}
+$orderid = $_POST['orderid'];
   
-$sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, pa.payment_method, format(o.grand_total,0) as grand_total, ca.category_name,format(o.total_potongan,0) as total_potongan ,format(convert((5/100)*o.GRAND_TOTAL,int),0) as pajak, format(p.product_price,0) as product_price, po.qty ,d.delivery_name, format(d.delivery_cost,0) as delivery_cost, a.address ,format((o.grand_total - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url from `order` o, product_order po , product p , delivery d, address a, category ca, payment pa where o.order_id = po.order_id and po.product_id = p.product_id and d.delivery_id = o.delivery_id and a.CUSTOMER_ID = o.CUSTOMER_ID and ca.CATEGORY_ID = p.CATEGORY_ID and pa.payment_id = o.payment_id and po.order_id  = '" . $_SESSION['order_id'] . "' order by o.order_date desc";
+$sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, pa.payment_method, format(o.grand_total,0) as grand_total, ca.category_name,format(o.total_potongan,0) as total_potongan ,format(convert((5/100)*o.GRAND_TOTAL,int),0) as pajak, format(p.product_price,0) as product_price, po.qty ,d.delivery_name, format(d.delivery_cost,0) as delivery_cost, a.address ,format((o.grand_total - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url from `order` o, product_order po , product p , delivery d, address a, category ca, payment pa where o.order_id = po.order_id and po.product_id = p.product_id and d.delivery_id = o.delivery_id and a.CUSTOMER_ID = o.CUSTOMER_ID and ca.CATEGORY_ID = p.CATEGORY_ID and pa.payment_id = o.payment_id and po.order_id  = '" . $orderid . "' order by 2 desc";
 
 
 
-$result=$conn->query($sql);
+$result= DB::select($sql);
 
-if($result->num_rows > 0){
-$response=array();
-while ($row=$result->fetch_assoc()){
-    $dt['tanggal']= $row["tanggal"];
-    $dt['order_id']= $row["order_id"];
-    $dt['product_name']= $row["product_name"];
-    $dt['size']= $row["size"];
-    $dt['grand_total']= $row["grand_total"];
-    $dt['payment_method']= $row["payment_method"];
-    $dt['category_name']= $row["category_name"];
-    $dt['total_potongan']= $row["total_potongan"];
-    $dt['pajak']= $row["pajak"];
-    $dt['product_price']= $row["product_price"];
-    $dt['qty']= $row["qty"];
-    $dt['delivery_name']= $row["delivery_name"];
-    $dt['delivery_cost']= $row["delivery_cost"];
-    $dt['address']= $row["address"];
-    $dt['total']= $row["total"];
-    $dt['product_url']= $row["product_url"];
-    array_push($response,$dt);
+if (count($result) > 0) {
+    $response = [];
+    foreach ($result as $row) {
+    $dt = new stdClass();
+    $dt->tanggal = $row->tanggal;
+    $dt->order_id = $row->order_id;
+    $dt->product_name = $row->product_name;
+    $dt->size = $row->size;
+    $dt->grand_total = $row->grand_total;
+    $dt->payment_method = $row->payment_method;
+    $dt->category_name = $row->category_name;
+    $dt->total_potongan = $row->total_potongan;
+    $dt->pajak = $row->pajak;
+    $dt->product_price = $row->product_price;
+    $dt->qty = $row->qty;
+    $dt->delivery_name = $row->delivery_name;
+    $dt->delivery_cost = $row->delivery_cost;
+    $dt->address = $row->address;
+    $dt->total = $row->total;
+    $dt->product_url = $row->product_url;
+    $response[] = $dt;
 }
 
 $hasil_json=json_encode($response);

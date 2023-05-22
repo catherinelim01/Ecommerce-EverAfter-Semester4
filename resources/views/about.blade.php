@@ -6,29 +6,29 @@
     <title>Ever After | Fashion</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="manifest" href="site.webmanifest">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+    <link rel="manifest" href="{{ asset('site.webmanifest')}}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/favicon.ico') }}">
 
     <!-- CSS here -->
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="assets/css/slicknav.css">
-    <link rel="stylesheet" href="assets/css/flaticon.css">
-    <link rel="stylesheet" href="assets/css/progressbar_barfiller.css">
-    <link rel="stylesheet" href="assets/css/gijgo.css">
-    <link rel="stylesheet" href="assets/css/animate.min.css">
-    <link rel="stylesheet" href="assets/css/animated-headline.css">
-    <link rel="stylesheet" href="assets/css/magnific-popup.css">
-    <link rel="stylesheet" href="assets/css/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/css/themify-icons.css">
-    <link rel="stylesheet" href="assets/css/slick.css">
-    <link rel="stylesheet" href="assets/css/nice-select.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
     
     
 </head>
 <body class="full-wrapper abthtml">
-    <?php require('header.php'); ?>
+@include('header')
     <main>
         <!-- breadcrumb Start-->
         <div class="page-notification">
@@ -59,7 +59,8 @@
                     </div>
                     <div class="col-lg-12">
                         <div class="about-img pb-bottom">
-                            <img src="assets/images/about/about1.jpg" alt="" class="w-100">
+                            <img src="{{ asset('assets/images/about/about1.jpg') }}" alt="" class="w-100">
+                            
                         </div>
                     </div>
                 </div>
@@ -76,7 +77,7 @@
                     </div>
                     <div class="col-lg-12">
                         <div class="about-img pb-bottom">
-                            <img src="assets/images/about/about2.jpg" alt="" class="w-100">
+                            <img src="{{ asset('assets/images/about/about2.jpg') }}" alt="" class="w-100">
                         </div>
                     </div>
                 </div>
@@ -157,7 +158,7 @@
     <div class="cart-items">
       <div class="row cart-item">
         <div class="col-5 item-image">
-          <img src="assets/images/denim/2.jpg" alt="Product Image">
+          <img src="{{ asset('assets/images/denim/2.jpg') }}" alt="Product Image">
         </div>
         <div class=" col-7 item-details">
           <h3>Kai Ripped Jacket</h3>
@@ -170,7 +171,7 @@
       
       <div class="row cart-item">
         <div class="col-5 item-image">
-          <img src="assets/images/tops/7.jpg" alt="Product Image">
+          <img src="{{ asset('assets/images/tops/7.jpg') }}" alt="Product Image">
         </div>
         <div class="col-7 item-details">
           <h3>Kaelyn Checkered Sheer Top</h3>
@@ -217,7 +218,7 @@
                   <!-- logo -->
                   <div class="footer-logo mb-35">
                     <a href="index.html"
-                      ><img src="assets/images/logo/logo_putih.png" alt=""
+                      ><img src="{{ asset('assets/images/logo/logo_putih.png') }}" alt=""
                     /></a>
                   </div>
                   <div class="footer-tittle">
@@ -329,43 +330,43 @@
 
 <!-- JS here -->
 <!-- Jquery, Popper, Bootstrap -->
-<script src="./assets/js/vendor/modernizr-3.5.0.min.js"></script>
-<script src="./assets/js/vendor/jquery-1.12.4.min.js"></script>
-<script src="./assets/js/popper.min.js"></script>
-<script src="./assets/js/bootstrap.min.js"></script>
+<script src="{{ asset('assets/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+<script src="{{ asset('assets/js/vendor/jquery-1.12.4.min.js') }}"></script>
+<script src="{{ asset('assets/js/popper.min.js') }}"></script>
+<script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
 
 <!-- Slick-slider , Owl-Carousel ,slick-nav -->
-<script src="./assets/js/owl.carousel.min.js"></script>
-<script src="./assets/js/slick.min.js"></script>
-<script src="./assets/js/jquery.slicknav.min.js"></script>
+<script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+<script src="{{ asset('assets/js/slick.min.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.slicknav.min.js') }}"></script>
 
 <!-- One Page, Animated-HeadLin, Date Picker -->
-<script src="./assets/js/wow.min.js"></script>
-<script src="./assets/js/animated.headline.js"></script>
-<script src="./assets/js/jquery.magnific-popup.js"></script>
-<script src="./assets/js/gijgo.min.js"></script>
+<script src="{{ asset('assets/js/wow.min.js') }}"></script>
+<script src="{{ asset('assets/js/animated.headline.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.magnific-popup.js') }}"></script>
+<script src="{{ asset('assets/js/gijgo.min.js') }}"></script>
 
 <!-- Nice-select, sticky,Progress -->
-<script src="./assets/js/jquery.nice-select.min.js"></script>
-<script src="./assets/js/jquery.sticky.js"></script>
-<script src="./assets/js/jquery.barfiller.js"></script>
+<script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.sticky.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.barfiller.js') }}"></script>
 
 <!-- counter , waypoint,Hover Direction -->
-<script src="./assets/js/jquery.counterup.min.js"></script>
-<script src="./assets/js/waypoints.min.js"></script>
-<script src="./assets/js/jquery.countdown.min.js"></script>
-<script src="./assets/js/hover-direction-snake.min.js"></script>
+<script src="{{ asset('assets/js/jquery.counterup.min.js') }}"></script>
+<script src="{{ asset('assets/js/waypoints.min.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.countdown.min.js') }}"></script>
+<script src="{{ asset('assets/js/hover-direction-snake.min.js') }}"></script>
 
 <!-- contact js -->
-<script src="./assets/js/contact.js"></script>
-<script src="./assets/js/jquery.form.js"></script>
-<script src="./assets/js/jquery.validate.min.js"></script>
-<script src="./assets/js/mail-script.js"></script>
-<script src="./assets/js/jquery.ajaxchimp.min.js"></script>
+<script src="{{ asset('assets/js/contact.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.form.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.validate.min.js') }}"></script>
+<script src="{{ asset('assets/js/mail-script.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.ajaxchimp.min.js') }}"></script>
 
-<!-- Jquery Plugins, main Jquery -->	
-<script src="./assets/js/plugins.js"></script>
-<script src="./assets/js/main.js"></script>
+<!-- Jquery Plugins, main Jquery -->
+<script src="{{ asset('assets/js/plugins.js') }}"></script>
+<script src="{{ asset('assets/js/main.js') }}"></script>
   <script>
       const logocartlogin = document.querySelector('.logocart-login');
       const containercartlogin = document.querySelector('.cart-container-login');

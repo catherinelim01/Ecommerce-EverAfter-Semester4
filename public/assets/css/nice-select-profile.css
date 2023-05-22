@@ -9,7 +9,7 @@
   display: block;
   float: left;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: normal;
   line-height: 30px;
   outline: none;
@@ -25,6 +25,7 @@
   user-select: none;
   white-space: nowrap;
   width: 100%;
+  height: auto;
 }
 .nice-select:hover {
   border-color: #dbdbdb;
