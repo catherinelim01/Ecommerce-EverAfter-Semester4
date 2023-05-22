@@ -21,7 +21,7 @@
               <div class="header-left d-flex align-items-center">
                 <!-- Logo -->
                 <div class="logo">
-                  <a href="index.html">
+                  <a href="{{ url('index') }}">
                     <img src="{{ asset('assets/images/logo/logo.png') }}" alt="" />
                   </a>
                 </div>
@@ -59,7 +59,7 @@
                       </form>
                     </li>
                     <li>
-                      <a href="wishlist.php">
+                      <a href="{{ url('wishlist') }}">
                       <div class="card-stor mx-3">
                         <img id="heart" src="{{ asset('assets/images/logo/heart.svg') }}" media="(min-width: 800px)" alt="" />
                         <span>0</span>

@@ -1,20 +1,20 @@
 <?php
 
-include 'connection.php';
+
 session_start();
 
 // Menyimpan nilai filter ke dalam session saat filter dipilih
-if (isset($_GET['select2'])) {
-  $_SESSION['selected_category'] = $_GET['select2'];
-}
+// if (isset($_GET['select2'])) {
+//   $_SESSION['selected_category'] = $_GET['select2'];
+// }
 
-if (isset($_GET['select3'])) {
-  $_SESSION['selected_size'] = $_GET['select3'];
-}
+// if (isset($_GET['select3'])) {
+//   $_SESSION['selected_size'] = $_GET['select3'];
+// }
 
-if (isset($_GET['select4'])) {
-  $_SESSION['selected_price_range'] = $_GET['select4'];
-}
+// if (isset($_GET['select4'])) {
+//   $_SESSION['selected_price_range'] = $_GET['select4'];
+// }
 
 // Mendapatkan nilai filter dari session
 $selected_category = $_SESSION['selected_category'] ?? '';
@@ -30,24 +30,25 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
   <title>Ever After | Fashion</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="manifest" href="site.webmanifest">
   <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
 
-  <!-- CSS here -->
-  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-  <link rel="stylesheet" href="assets/css/owl.carousel.min.css">
-  <link rel="stylesheet" href="assets/css/slicknav.css">
-  <link rel="stylesheet" href="assets/css/flaticon.css">
-  <link rel="stylesheet" href="assets/css/progressbar_barfiller.css">
-  <link rel="stylesheet" href="assets/css/gijgo.css">
-  <link rel="stylesheet" href="assets/css/animate.min.css">
-  <link rel="stylesheet" href="assets/css/animated-headline.css">
-  <link rel="stylesheet" href="assets/css/magnific-popup.css">
-  <link rel="stylesheet" href="assets/css/fontawesome-all.min.css">
-  <link rel="stylesheet" href="assets/css/themify-icons.css">
-  <link rel="stylesheet" href="assets/css/slick.css">
-  <link rel="stylesheet" href="assets/css/nice-select.css">
-  <link rel="stylesheet" href="assets/css/style.css">
+     <!-- CSS here -->
+     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
 
 </head>
 <script>
@@ -65,11 +66,13 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
 </script>
 
 <body class="full-wrapper">
-  <?php require('header.php'); ?>
+  @csrf
+  @include('header')
   <main>
     <!-- breadcrumb Start-->
     <div class="page-notification">
       <div class="container">
+       
         <div class="row">
           <div class="col-lg-12">
             <nav aria-label="breadcrumb">
@@ -90,15 +93,14 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
           <div class="section-tittle mb-50">
             <h2>Shop with us</h2>
             <?php
-            include 'connection.php';
-            $sql = "SELECT COUNT(DISTINCT product_name) as total FROM product";
-            $result = $conn->query($sql);
-            if ($result->num_rows > 0) {
-              $row = $result->fetch_assoc();
-              $total_products = $row['total'];
-              echo '<p>Browse from ' . $total_products . ' latest items</p>';
+
+            use Illuminate\Support\Facades\DB;
+            
+            $totalProducts = DB::table('product')->select(DB::raw('COUNT(DISTINCT product_name) as total'))->first();
+            if ($totalProducts) {
+                echo '<p>Browse from ' . $totalProducts->total . ' latest items</p>';
             }
-            $conn->close();
+            
             ?>
           </div>
         </div>
@@ -121,17 +123,22 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
         <select name="select2" onchange="this.form.submit()">
             <option value="">Category</option>
             <?php
-            include 'connection.php';
-            $sql = "SELECT category_name FROM category";
-            $result = $conn->query($sql);
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    $category_name = $row['category_name'];
-                    $selected = (isset($_GET['select2']) && $_GET['select2'] === $category_name) ? 'selected' : '';
-                    echo "<option value='$category_name' $selected>$category_name</option>";
-                }
+
+            
+            
+            $categories = DB::table('category')->pluck('category_name');
+            
+            foreach ($categories as $category) {
+              if(session('shop_now')){
+                $selected = (session('shop_now') === $category) ? 'selected' : '';
+                
+              }
+              else{
+                $selected = (isset($_GET['select2']) && $_GET['select2'] === $category) ? 'selected' : '';
+              }
+              echo "<option value='$category' $selected>$category</option>";
             }
-            $conn->close();
+            
             ?>
         </select>
     </div>
@@ -151,39 +158,32 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
   <select name="select4"onchange="this.form.submit()">
     <option value="">Price range</option>
     <?php
-    include 'connection.php';
 
-    $sql = "SELECT DISTINCT product_price FROM product ORDER BY product_price ASC";
-    $result = $conn->query($sql);
+$prices = DB::table('product')
+    ->select('product_price')
+    ->distinct()
+    ->orderBy('product_price', 'asc')
+    ->get();
 
-    if ($result->num_rows > 0) {
-      $price = array();
-      while ($row = $result->fetch_assoc()) {
-        $dt['product_price'] = $row['product_price'];
-        array_push($price, $dt);
-      }
+$previous_price = null;
 
-      $hasil_json2 = json_encode($price);
-      $data2 = json_decode($hasil_json2, true);
+foreach ($prices as $row) {
+    $price = $row->product_price;
 
-      $previous_price = null;
-      foreach ($data2 as $row) {
-        $price = $row['product_price'];
+    if ($previous_price !== null) {
+        $price_min = number_format($previous_price, 0, ",", ".");
+        $price_max = number_format($price - 1, 0, ",", ".");
+        $price_range = $price_min . '-' . $price_max;
+        $selected = (isset($_GET['select4']) && $_GET['select4'] === $price_range) ? 'selected' : '';
+        echo '<option value="' . $price_range . '" ' . $selected . '>';
+        echo 'Rp' . $price_min . ' - Rp' . $price_max;
+        echo '</option>';
 
-        if ($previous_price !== null) {
-          $price_min = number_format($previous_price, 0, ",", ".");
-          $price_max = number_format($price - 1, 0, ",", ".");
-          $price_range = $price_min . '-' . $price_max;
-          $selected = (isset($_GET['select4']) && $_GET['select4'] === $price_range) ? 'selected' : '';
-          echo '<option value="' . $price_range . '" ' . $selected . '>';
-          echo 'Rp' . $price_min . ' - Rp' . $price_max;
-          echo '</option>';
+        // Calculate number of intermediate price ranges
+        $num_ranges = ($price - $previous_price - 1) / 100000;
 
-          // Calculate number of intermediate price ranges
-          $num_ranges = ($price - $previous_price - 1) / 100000;
-
-          // Add intermediate price ranges
-          for ($i = 1; $i <= $num_ranges; $i++) {
+        // Add intermediate price ranges
+        for ($i = 1; $i <= $num_ranges; $i++) {
             $range_min = number_format($previous_price + ($i * 100000), 0, ",", ".");
             $range_max = number_format($previous_price + (($i + 1) * 100000) - 1, 0, ",", ".");
             $range = $range_min . '-' . $range_max;
@@ -191,25 +191,23 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
             echo '<option value="' . $range . '" ' . $selected . '>';
             echo 'Rp' . $range_min . ' - Rp' . $range_max;
             echo '</option>';
-          }
         }
-
-        $previous_price = $price;
-      }
-
-      // Handle last price range
-      if ($previous_price !== null) {
-        $price_min = number_format($previous_price, 0, ",", ".");
-        $price_max = number_format($previous_price + 99999, 0, ",", ".");
-        $price_range = $price_min . '-' . $price_max;
-        $selected = (isset($_GET['select4']) && $_GET['select4'] === $price_range) ? 'selected' : '';
-        echo '<option value="' . $price_range . '" ' . $selected . '>';
-        echo 'Rp' . $price_min . ' - Rp' . $price_max;
-        echo '</option>';
-      }
     }
-    
-    $conn->close();
+
+    $previous_price = $price;
+}
+
+// Handle last price range
+if ($previous_price !== null) {
+    $price_min = number_format($previous_price, 0, ",", ".");
+    $price_max = number_format($previous_price + 99999, 0, ",", ".");
+    $price_range = $price_min . '-' . $price_max;
+    $selected = (isset($_GET['select4']) && $_GET['select4'] === $price_range) ? 'selected' : '';
+    echo '<option value="' . $price_range . '" ' . $selected . '>';
+    echo 'Rp' . $price_min . ' - Rp' . $price_max;
+    echo '</option>';
+}
+
     ?>
   </select>
 </div>
@@ -244,158 +242,245 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
         <!-- PRODUCT -->
         <div class="new-arrival new-arrival2">
           <div class="row">
-          <br>
-
-            <?php
-            include 'pagination.php';
-            ?>
-            <!-- HTML -->
-            <div class="col-xl-9 col-lg-9 col-md-8 offset-md-1">
-              <!-- HTML -->
-              <div class="row justify-content-center">
-                <div class="room-btn mt-20">
-                  <?php
-                  // Tampilkan tombol sebelumnya jika tidak di halaman pertama
-                  if ($current_page > 1) {
-                    echo '<a style="padding-top: 5px;color:black;" href="shop.php?page=' . ($current_page - 1) . '" class="page-btn"><i class="fas fa-chevron-left"></i></a>';
+        
+          <?php
+          $limit = 15;
+          $current_page = isset($_GET['page']) ? $_GET['page'] : 1;
+          $offset = ($current_page - 1) * $limit;
+          
+          if (!session()->has('shop_now')) {
+              session()->put('shop_now', "");
+          }
+          
+          if (session()->get('shop_now') == "") {
+              $selected_category = request()->get('select2') ?? '';
+              $selected_size = request()->get('select3') ?? '';
+              $selected_price_range = request()->get('select4') ?? '';
+              $price_range = explode('-', $selected_price_range);
+              $price_min = str_replace(['Rp', '.'], '', $price_range[0]);
+              $price_max = str_replace(['Rp', '.'], '', $price_range[0]);
+          
+              if (empty($selected_category) && empty($selected_size) && empty($selected_price_range)) {
+                  $total_products = DB::table('product')->distinct('product_name')->count();
+                  $results = DB::table('product')->distinct('product_name')
+                      ->select('product_name', 'product_price', 'product_url', 'product_detail')
+                      ->limit($limit)
+                      ->offset($offset)
+                      ->get();
+              } else {
+                  $query = DB::table('product')->distinct('product_name');
+          
+                  if (!empty($selected_category)) {
+                      $category_id = DB::table('category')
+                          ->where('category_name', $selected_category)
+                          ->value('category_id');
+                      $query->where('category_id', $category_id);
                   }
-                  ?>
-                  <?php if ($result->num_rows > 0): ?>
-                    <div class="page-numbers">
-                        <?php
-                        // Batasi jumlah halaman yang ditampilkan
-                        $max_pages = 5;
-                        $start_page = max($current_page - 2, 1);
-                        $end_page = min($current_page + 2, $total_pages);
-                        // Tampilkan tombol halaman jika masih ada halaman tersedia
-                        for ($i = $start_page; $i <= $end_page; $i++) {
-                          // Highlight tombol halaman saat ini
-                          if ($i == $current_page) {
-                            echo '<a href="#" class="page-numbers current">' . $i . '</a>';
-                          } else {
-                            echo '<a href="shop.php?page=' . $i . '" class="page-numbers">' . $i . '</a>';
-                          }
-                        }
-                        ?>
-                      </div>
-                    <?php endif; ?>
-                  </div>
-                  <div class="row justify-content-center">
-                    <div class="room-btn mb-50">
-
-                      <?php
-                      // Tampilkan tombol berikutnya jika tidak di halaman terakhir
-
-                      if ($current_page < $total_pages) {
-                        echo '<a style="color:black;" href="shop.php?page=' . ($current_page + 1) . '" class="page-btn"><i class="fas fa-chevron-right"></i></a>';
+          
+                  if (!empty($selected_size)) {
+                      if ($selected_size == "All Size") {
+                          $query->whereRaw("SUBSTR(product_id, 5, 1) = '0'");
+                      } else {
+                          $query->whereRaw("SUBSTR(product_id, 5, 1) LIKE '$selected_size%'");
                       }
-                      ?>
-                    </div>
+                  }
+          
+                  if (!empty($selected_price_range)) {
+                      $query->whereBetween('product_price', [$price_min, $price_max]);
+                  }
+          
+                  $total_products = $query->count();
+                  $results = $query->select('product_name', 'product_price', 'product_url', 'product_detail')
+                      ->limit($limit)
+                      ->offset($offset)
+                      ->get();
+              }
+          } else {
+              $selected_category = session()->get('shop_now');
+              $selected_size = request()->get('select3') ?? '';
+              $selected_price_range = request()->get('select4') ?? '';
+              $category_id = DB::table('category')
+                  ->where('category_name', $selected_category)
+                  ->value('category_id');
+          
+              $query = DB::table('product')->distinct('product_name')->where('category_id', $category_id);
+          
+              if (!empty($selected_size)) {
+                  if ($selected_size == "All Size") {
+                      $query->whereRaw("SUBSTR(product_id, 5, 1) = '0'");
+                  } else {
+                      $query->whereRaw("SUBSTR(product_id, 5, 1) LIKE '$selected_size%'");
+                  }
+              }
+          
+              if (!empty($selected_price_range)) {
+                  $price_range = explode('-', $selected_price_range);
+                  $price_min = str_replace(['Rp', '.'], '', $price_range[0]);
+                  $price_max = str_replace(['Rp', '.'], '', $price_range[1]);
+                  $query->whereBetween('product_price', [$price_min, $price_max]);
+              }
+          
+              $total_products = $query->count();
+              $results = $query->select('product_name', 'product_price', 'product_url', 'product_detail')
+                  ->limit($limit)
+                  ->offset($offset)
+                  ->get();
+          }
+          
+          if ($results->count() > 0) {
+              echo '<div class="row">';
+              foreach ($results as $i => $row) {
+                  $product_name = $row->product_name;
+                  $product_price = $row->product_price;
+                  $product_url = $row->product_url;
+                  $product_detail = $row->product_detail;
+                  ?>
+          
+                  <div class="col-md-4">
+                      <div class="single-new-arrival mb-50 text-center">
+                          <div class="popular-img">
+                              <img src="{{ $product_url }}" alt="">
+                              <div class="favorit-items">
+                                  <img src="assets/images/logo/love.png" alt="" class="favorite" id="favorite-{{ $i }}" onclick="toggleImage(this)">
+                              </div>
+                          </div>
+                          <div class="popular-caption">
+                            
+                            <h3><a href="{{ url('product_details') }}">{{ $product_name }}</a></h3>
+
+                          
+                            <span>Rp. {{ number_format($product_price, 0, ',', '.') }}</span>
+                            <div id="product-info"></div>
+                        </div>
+                        
+                      </div>
+                      <script>
+                          function toggleImage(elem) {
+                              var image = elem;
+                              var index = image.id.substring(9);
+                              var favoriteStatus = sessionStorage.getItem("favorite-" + index);
+                              if (favoriteStatus == "true") {
+                                  sessionStorage.setItem("favorite-" + index, "false");
+                                  image.src = "assets/images/logo/love.png";
+                              } else {
+                                  sessionStorage.setItem("favorite-" + index, "true");
+                                  image.src = "assets/images/logo/love-full1.png";
+                                  var product_name = elem.closest(".popular-caption").querySelector("h3").innerText;
+                                  var product_id_query = "SELECT PRODUCT_ID FROM product WHERE PRODUCT_NAME = '" + product_name + "'";
+                                  $.ajax({
+                                      url: "insert_wishlist.php",
+                                      type: "POST",
+                                      data: { product_id_query: product_id_query },
+                                      success: function(data) {
+                                          console.log(data);
+                                      }
+                                  });
+                              }
+                          }
+                      </script>
                   </div>
-                </div>
+                  
+                  <?php
+                  if (($i + 1) % 3 == 0) {
+                      echo '</div><div class="row">';
+                  }
+              }
+              echo '</div>';
+          } else {
+              echo "No product found";
+          }
+          
+          $total_pages = ceil($total_products / $limit);
+          ?>
+          
+          <!-- HTML -->
+          <div class="col-xl-9 col-lg-9 col-md-8 offset-md-1">
+              <!-- HTML -->
+              <div class="row justify-content-center" style="margin-bottom: 15px;">
+                  <div class="room-btn mt-20">
+                      <?php if ($current_page > 1): ?>
+                          <a style="padding-top: 2px;color:black;" href="{{ route('shop', ['page' => ($current_page - 1)]) }}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
+                      <?php endif; ?>
+          
+                      <?php if ($results->count() > 0): ?>
+                          <div class="page-numbers">
+                              <?php
+                              $max_pages = 5;
+                              $start_page = max($current_page - 2, 1);
+                              $end_page = min($current_page + 2, $total_pages);
+                              ?>
+                              <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                  <?php if ($i == $current_page): ?>
+                                      <a href="#" class="page-btn current-page">{{ $i }}</a>
+                                  <?php else: ?>
+                                      <a href="{{ route('shop', ['page' => $i]) }}" class="page-btn">{{ $i }}</a>
+                                  <?php endif; ?>
+                              <?php endfor; ?>
+                          </div>
+                      <?php endif; ?>
+          
+                      <?php if ($current_page < $total_pages): ?>
+                          <a style="padding-top: 5px;color:black;" href="{{ route('shop', ['page' => ($current_page + 1)]) }}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                      <?php endif; ?>
+                  </div>
               </div>
+          </div>
+          
+        </div>
+          
+          
 
               <!-- CSS -->
               <style>
                 .room-btn {
-                  display: flex;
-                  justify-content: flex-end;
-                  align-items: flex-start;
-                  margin-top: 5px;
-
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: flex-start;
+                    margin-top: 5px;
                 }
 
                 .page-btn {
-                  background-color: transparent;
-                  border: none;
-                  color: #333;
-                  font-weight: bold;
-                  text-decoration: none;
-                  margin-left: 10px;
+                    background-color: transparent;
+                    border: none;
+                    color: #333;
+                    font-weight: bold;
+                    text-decoration: none;
+                    margin-left: 10px;
                 }
 
                 .page-numbers {
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
                 }
 
                 .page-numbers a {
-                  background-color: transparent;
-                  border: none;
-                  color: #333;
-                  font-weight: bold;
-                  text-decoration: none;
-                  margin: 0 5px;
-                  padding: 5px 10px;
-                  border-radius: 5px;
+                    background-color: transparent;
+                    border: none;
+                    color: #333;
+                    font-weight: bold;
+                    text-decoration: none;
+                    margin: 0 5px;
+                    padding: 5px 10px;
+                    border-radius: 5px;
                 }
 
                 .page-numbers a:hover {
-                  background-color: #333;
-                  color: #fff;
+                    background-color: #333;
+                    color: #fff;
                 }
 
-                .page-numbers .current {
-                  background-color: #333;
-                  color: #fff;
-                  border-radius: 5px;
-                  padding: 5px 10px;
+                .page-numbers .current-page {
+                    background-color: #333; /* Tambahkan atribut background-color */
+                    color: #fff;
+                    border-radius: 5px;
+                    padding: 5px 10px;
                 }
+
               </style>
-              <script>
-                // select the new arrival container with class "new-arrival2"
-                const newArrivalContainer = document.querySelector('.new-arrival2');
+           
 
-                // select all product items with class "select-job-items2"
-                const productItems = newArrivalContainer.querySelectorAll('.select-job-items2');
-
-                // create an array to store filtered product items
-                let filteredProducts = [];
-
-                // loop through all product items and filter by category_id
-                for (let i = 0; i < productItems.length; i++) {
-                  const category_id = productItems[i].dataset.category_id;
-
-                  if (category_id === '<?php echo $category_id ?>') {
-                    filteredProducts.push(productItems[i]);
-                  }
-                }
-
-                // filter by product_id
-                filteredProducts = filteredProducts.filter(productItem => {
-                  const product_id = productItem.dataset.product_id;
-                  const size = product_id[4];
-
-                  if ('<?php echo $size ?>' === '0' || size === '<?php echo $size ?>') {
-                    return true;
-                  }
-
-                  return false;
-                });
-
-                // filter by product_price
-                filteredProducts = filteredProducts.filter(productItem => {
-                  const product_price = productItem.dataset.product_price;
-
-                  if ('<?php echo $price ?>' === '1' && product_price >= 100000 && product_price <= 200000) {
-                    return true;
-                  } else if ('<?php echo $price ?>' === '2' && product_price >= 200000 && product_price <= 300000) {
-                    return true;
-                  } else if ('<?php echo $price ?>' === '3' && product_price >= 300000 && product_price <= 400000) {
-                    return true;
-                  }
-
-                  return false;
-                });
-
-                // display filtered product items
-                filteredProducts.forEach(productItem => {
-                  productItem.style.display = 'block';
-                });
-              </script>
-
-
+           <?php session()->forget('shop_now') ?>
             </div>
           </div>
         </div>
@@ -746,44 +831,44 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
   </div>
 
   <!-- JS here -->
-  <!-- Jquery, Popper, Bootstrap -->
-  <script src="./assets/js/vendor/modernizr-3.5.0.min.js"></script>
-  <script src="./assets/js/vendor/jquery-1.12.4.min.js"></script>
-  <script src="./assets/js/popper.min.js"></script>
-  <script src="./assets/js/bootstrap.min.js"></script>
-
-  <!-- Slick-slider , Owl-Carousel ,slick-nav -->
-  <script src="./assets/js/owl.carousel.min.js"></script>
-  <script src="./assets/js/slick.min.js"></script>
-  <script src="./assets/js/jquery.slicknav.min.js"></script>
-
-  <!-- One Page, Animated-HeadLin, Date Picker -->
-  <script src="./assets/js/wow.min.js"></script>
-  <script src="./assets/js/animated.headline.js"></script>
-  <script src="./assets/js/jquery.magnific-popup.js"></script>
-  <script src="./assets/js/gijgo.min.js"></script>
-
-  <!-- Nice-select, sticky,Progress -->
-  <script src="./assets/js/jquery.nice-select.min.js"></script>
-  <script src="./assets/js/jquery.sticky.js"></script>
-  <script src="./assets/js/jquery.barfiller.js"></script>
-
-  <!-- counter , waypoint,Hover Direction -->
-  <script src="./assets/js/jquery.counterup.min.js"></script>
-  <script src="./assets/js/waypoints.min.js"></script>
-  <script src="./assets/js/jquery.countdown.min.js"></script>
-  <script src="./assets/js/hover-direction-snake.min.js"></script>
-
-  <!-- contact js -->
-  <script src="./assets/js/contact.js"></script>
-  <script src="./assets/js/jquery.form.js"></script>
-  <script src="./assets/js/jquery.validate.min.js"></script>
-  <script src="./assets/js/mail-script.js"></script>
-  <script src="./assets/js/jquery.ajaxchimp.min.js"></script>
-
-  <!-- Jquery Plugins, main Jquery -->
-  <script src="./assets/js/plugins.js"></script>
-  <script src="./assets/js/main.js"></script>
+   <!-- Jquery, Popper, Bootstrap -->
+   <script src="{{ asset('assets/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+   <script src="{{ asset('assets/js/vendor/jquery-1.12.4.min.js') }}"></script>
+   <script src="{{ asset('assets/js/popper.min.js') }}"></script>
+   <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+   
+   <!-- Slick-slider , Owl-Carousel ,slick-nav -->
+   <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+   <script src="{{ asset('assets/js/slick.min.js') }}"></script>
+   <script src="{{ asset('assets/js/jquery.slicknav.min.js') }}"></script>
+   
+   <!-- One Page, Animated-HeadLin, Date Picker -->
+   <script src="{{ asset('assets/js/wow.min.js') }}"></script>
+   <script src="{{ asset('assets/js/animated.headline.js') }}"></script>
+   <script src="{{ asset('assets/js/jquery.magnific-popup.js') }}"></script>
+   <script src="{{ asset('assets/js/gijgo.min.js') }}"></script>
+   
+   <!-- Nice-select, sticky,Progress -->
+   <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
+   <script src="{{ asset('assets/js/jquery.sticky.js') }}"></script>
+   <script src="{{ asset('assets/js/jquery.barfiller.js') }}"></script>
+   
+   <!-- counter , waypoint,Hover Direction -->
+   <script src="{{ asset('assets/js/jquery.counterup.min.js') }}"></script>
+   <script src="{{ asset('assets/js/waypoints.min.js') }}"></script>
+   <script src="{{ asset('assets/js/jquery.countdown.min.js') }}"></script>
+   <script src="{{ asset('assets/js/hover-direction-snake.min.js') }}"></script>
+   
+   <!-- contact js -->
+   <script src="{{ asset('assets/js/contact.js') }}"></script>
+   <script src="{{ asset('assets/js/jquery.form.js') }}"></script>
+   <script src="{{ asset('assets/js/jquery.validate.min.js') }}"></script>
+   <script src="{{ asset('assets/js/mail-script.js') }}"></script>
+   <script src="{{ asset('assets/js/jquery.ajaxchimp.min.js') }}"></script>
+   
+   <!-- Jquery Plugins, main Jquery -->
+   <script src="{{ asset('assets/js/plugins.js') }}"></script>
+   <script src="{{ asset('assets/js/main.js') }}"></script>
   <script>
     const logocartlogin = document.querySelector('.logocart-login');
       const containercartlogin = document.querySelector('.cart-container-login');
@@ -945,55 +1030,34 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
       window.addEventListener("resize", function() {
           updateNavbar(window.innerWidth);
       });
+   // Mengambil token CSRF dari meta tag
+   $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
 
-    $('h3 a').click(function() {
-      // Mengambil isi dari elemen a yang diklik
-      let isiLink = $(this).text();
-      $.ajax({
-        type: "POST",
-        url: "product_details.php",
-        data: {
-          link: isiLink
-        },
-        success: function() {
-          console.log("Data berhasil dikirim ke PHP");
-        }
-      });
-    });
+let csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-    $('select[name="select2"]').change(function() {
-      // mengambil nilai select option yang dipilih
-      let category = $(this).text();
+$('h3 a').click(function(event) {
+  let isiLink = $(this).text();
 
-      // memanggil AJAX
-      $.ajax({
-        type: "POST",
-        url: "shop.php",
-        data: {
-          category: category
-        },
-        success: function() {
-          console.log("Data berhasil dikirim ke PHPP");
-        }
-      });
-    });
+  // Mengirim permintaan AJAX dengan token CSRF
+  $.ajax({
+    method: "POST",
+    url: "/product_details",
+    data: {
+      _token: csrfToken, // Menyertakan token CSRF dalam data permintaan
+      link: isiLink
+    }
+    
+  });
+});
 
 
 
-    $('h3 a').click(function() {
-      // Mengambil isi dari elemen a yang diklik
-      let isiLink = $(this).text();
-      $.ajax({
-        type: "POST",
-        url: "product_details.php",
-        data: {
-          link: isiLink
-        },
-        success: function() {
-          console.log("Data berhasil dikirim ke PHP");
-        }
-      });
-    });
+
+
 
 
     function updateImageSrc(screenWidth) {

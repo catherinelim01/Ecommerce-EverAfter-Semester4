@@ -38,7 +38,7 @@ $data = json_decode($hasil_json,true);
 <!-- popup -->
 
     <div class="popup-inner">
-    <a href="#" class="box-close"><button onclick="document.querySelector('.popup').style.display = 'none'" style="border:none;color: #EEA2A2;background-color: #fff; cursor: pointer;">×</button>
+    <a href="javascript:void(0)" class="box-close"><button onclick="document.querySelector('.popup').style.display = 'none';document.querySelector('.full-wrapper').style.overflow = 'visible'" style="border:none;color: #EEA2A2;background-color: #fff; cursor: pointer;">×</button>
     </a>
     <h2 class="pl-20 pt-20 pr-20 pb-20">Order Detail</h2>
 
@@ -52,7 +52,7 @@ $data = json_decode($hasil_json,true);
 
                 <div class="d-flex justify-content-between align-items-center mb-5" style="justify-content: space-between;">
                     <div>
-                    <h5 class="mb-0">INVOICE <span class="font-weight-bold;" style="color:#EEA2A2;">INV/<?php echo $_SESSION['order_id'] ?></span></h5>
+                    <h5 class="mb-0">INVOICE <span class="font-weight-bold;" style="color:#EEA2A2;">INV/<?php echo $orderid ?></span></h5>
                     </div>
                     <div class="text-end">
                     <p class="mb-0">Expected Arrival <span>09 Apr 2023</span></p>

@@ -1,9 +1,9 @@
 <?php
-session_start();
+// linksess.php
 
-if (isset($_POST['shopnow'])) {
-    $shopnow = $_POST['shopnow'];
-    $_SESSION['shop_now'] = $shopnow;
-}
+// Mengambil nilai shopnow dari sesi Laravel
+$shopnow = session('shopnow');
+
+// Menampilkan nilai shopnow
+echo $shopnow;
 ?>
-

@@ -1,23 +1,27 @@
 <?php
-  session_start();
-  
-  if (isset($_POST['link'])) {
-    $link = $_POST['link'];
-    $_SESSION['link_tes'] = $link;
-    
-    echo 'Data berhasil disimpan ke session.';
+  use Illuminate\Support\Facades\Session;
 
+if (isset($_POST['link'])) {
+    $link = $_POST['link'];
+    Session::put('link_tes', $link);
+    
+    echo 'Data berhasil disimpan ke sesi.';
+}
+$link_tes = session('link_tes');
+
+// Menampilkan nilai link_tes
+echo $link_tes;
 
 //   }
-//   if (isset($_SESSION['link_tes'])) {
-//     echo  $_SESSION['link_tes'];
+//   if (isset(session('link_tes'))) {
+//     echo  session('link_tes');
 //   } else {
 //     echo 'Belum yang disimpan di session.';
-  }
-  elseif (isset($_POST['relatedproduct'])) {
-    $relatedproduct = $_POST['relatedproduct'];
-    $_SESSION['related_product'] = $relatedproduct;
-}
+  
+//   elseif (isset($_POST['relatedproduct'])) {
+//     $relatedproduct = $_POST['relatedproduct'];
+//     $_SESSION['related_product'] = $relatedproduct;
+// }
 
   
   // session_unset();
@@ -53,7 +57,7 @@
     
 </head>
 <body class="full-wrapper">
-<?php require('header.php'); ?>
+  @include('header')
     <main>
         <!-- breadcrumb Start-->
         <div class="page-notification">
@@ -74,64 +78,64 @@
         <!-- breadcrumb End-->
         <!--?  Details start -->
         <div class="new-arrival new-arrival2">
-        <?php
-        include 'connection.php';
-        if (isset($_SESSION['link_tes'] )) {
-          $sql = "SELECT DISTINCT product_name, product_id, product_price, product_url, product_detail, category_id FROM product WHERE product_id = (select product_id from product where product_name LIKE '%".$_SESSION['link_tes']."%' limit 1);";
-          $sql2 = "SELECT DISTINCT product_id FROM product WHERE product_name  LIKE '%".$_SESSION['link_tes']."%' order by product_id desc";
-          
-          // $_SESSION['link_tes']="";
-        }
+        @if (session('link_tes'))
+    @php
+        $sql = "SELECT DISTINCT product_name, product_id, product_price, product_url, product_detail, category_id FROM product WHERE product_id = (SELECT product_id FROM product WHERE product_name LIKE '%" . session('link_tes') . "%' LIMIT 1);";
+        $sql2 = "SELECT DISTINCT product_id FROM product WHERE product_name LIKE '%" . session('link_tes') . "%' ORDER BY product_id DESC;";
         
-        $result = $conn->query($sql);
-        $result2 = $conn->query($sql2);
-        
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $product_name = $row['product_name'];
-                $category_id = $row['category_id'];
-                $product_price = $row['product_price'];
-                $product_url = $row['product_url'];
-                $product_detail = $row['product_detail'];
-        ?>
-                <!-- informasi produk di sini -->
-                <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-30">
-                    <div class="map">
-                        <img src="<?php echo $product_url; ?>" alt="">
+        // session('link_tes')="";
+        $result = DB::select($sql);
+        $result2 = DB::select($sql2);
+    @endphp
+
+    @if (count($result) > 0)
+        @foreach ($result as $row)
+            <!-- informasi produk di sini -->
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 mb-30">
+                        <div class="map">
+                            <img src="{{ $row->product_url }}" alt="">
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="small-tittle">
+                            <div class="section-tittle mb-10">
+                                <h2 style="font-size: 50px;">{{ $row->product_name }}</h2>
+                            </div>
+                            <h1>Rp {{ number_format($row->product_price, 0, ',', '.') }}</h1>
+                            Size:
+                            @if (count($result2) > 0)
+                                <div class="button-group">
+                                    @foreach ($result2 as $row2)
+                                        @php
+                                            $product_id = $row2->product_id;
+                                            $size = substr($product_id, 4, 1);
+                                        @endphp
+                                        @if ($size == '0')
+                                            All Size
+                                        @else
+                                            @if (strpos($product_id, 'L') !== false)
+                                                <button class="button-17" role="button">L</button>
+                                            @endif
+                                            @if (strpos($product_id, 'M') !== false)
+                                                <button class="button-17" role="button">M</button>
+                                            @endif
+                                            @if (strpos($product_id, 'S') !== false)
+                                                <button class="button-17" role="button">S</button>
+                                            @endif
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-8">
-                    <div class="small-tittle">
-                    <div class="section-tittle mb-10 " >
-                        <h2 style="font-size: 50px;"><?php echo $product_name; ?></h2>
-                      </div>
-                        <h1>Rp <?php echo number_format($product_price, 0, ',', '.'); ?></h1>
-                        <?php 
-    echo 'Size: '; 
-    if ($result2->num_rows > 0) {
-        echo '<div class="button-group">';
-        while ($row = $result2->fetch_assoc()) {
-            $product_id = $row['product_id'];
-            $size = substr($product_id, 4, 1);
-            if ($size == '0') {
-                echo 'All Size';
-            } else {
-                if (strpos($product_id, 'L') !== false) {
-                    echo '<button class="button-17" role="button">L</button>';
-                }
-                if (strpos($product_id, 'M') !== false) {
-                    echo '<button class="button-17" role="button">M</button>';
-                } 
-                if (strpos($product_id, 'S') !== false) {
-                    echo '<button class="button-17" role="button">S</button>';
-                } 
-            }
-        }
-        echo '</div>';
-    }
-?>
+            </div>
+        @endforeach
+    @endif
+@endif
+
 
                           <style>
                           .button-17 {
@@ -220,7 +224,7 @@
                         <p>Product Description</p>
                     </div>
                    
-                        <p><?php echo $product_detail; ?></p>
+                        
                   
                 </div>
             </div>
@@ -235,63 +239,7 @@
                 </div>
             </div>
             <div class="row">
-        <?php
-        $related_product_name = $_GET['product_name'] ?? '';
-
-        // Jika nilai $related_product_name tidak kosong, tambahkan ke dalam kondisi WHERE
-        $where_clause = "";
-        if (!empty($related_product_name)) {
-          // Ambil kategori produk yang dipilih
-          $category_id_query = "SELECT category_id FROM product WHERE product_name = '$related_product_name'";
-          $category_id_result = mysqli_query($conn, $category_id_query);
-          $category_id_row = mysqli_fetch_assoc($category_id_result);
-          $category_id = $category_id_row['category_id'];
-        }
         
-        // Query untuk mengambil 4 produk terkait dari kategori yang sama
-        $related_sql = "SELECT DISTINCT p2.product_name, p2.product_price, p2.product_url, p2.product_detail 
-                        FROM product p1
-                             JOIN product p2 ON p1.category_id = p2.category_id
-                             JOIN category c ON p2.category_id = c.category_id
-                        WHERE 1=1 $where_clause
-                              AND p2.category_id = '$category_id'
-                              
-                        ORDER BY RAND()
-                        LIMIT 4";
-        
-                $related_result = $conn->query($related_sql); 
-                     
-                if ($related_result->num_rows > 0) {
-                    while ($row_related = $related_result->fetch_assoc()) {
-                        $related_product_name = $row_related['product_name'];
-                        // $related_product_id = $row_related['product_id'];
-                        $related_product_price = $row_related['product_price'];
-                        $related_product_url = $row_related['product_url'];
-                        // $category_id = $row['category_id'];
-                ?>
-                        <div class="col-md-3">
-                            <div class="single-new-arrival mb-50 text-center">
-                                <div class="popular-img">
-                                    <img src="<?php echo $related_product_url; ?>" alt="">
-                                    <div class="favorit-items">
-                                      <img src="assets/images/logo/love.png" alt="" class="favorite" id="favorite-<?php echo $i; ?>" onclick="toggleImage(this)">
-                                    </div>
-                                </div>
-                                <div class="popular-caption">
-                                <h3><a href="product_details.php"><?php echo $related_product_name; ?></a></h3>
-        
-                               
-                                    <span>Rp. <?php echo number_format($related_product_price, 0, ',', '.'); ?></span>
-                                </div>
-                            </div>
-                        </div>
-                        <?php
-                            }
-                        } else {
-                            // Tampilkan pesan jika tidak ada produk dengan product_id yang sesuai
-                            echo "Product not found";
-                        }}}
-                        ?>
         <style>
           .product-info:hover {
           cursor: pointer;
@@ -945,31 +893,22 @@
           updateNavbar(window.innerWidth);
       });
 
-  $('h3 a').click(function() {
-          // Mengambil isi dari elemen a yang diklik
-          let isiLink = $(this).text();
-          $.ajax({
-          type: "POST",
-          url: "product_details.php",
-          data: { link: isiLink },
-          success: function() {
-            console.log("tessssss berhasill");
-          }
-        });
-        });
+  // $('h3 a').click(function() {
+  //         // Mengambil isi dari elemen a yang diklik
+  //         let isiLink = $(this).text();
+  //         $.ajax({
+  //         type: "POST",
+  //         url: "product_details.php",
+  //         data: { link: isiLink },
+  //         success: function() {
+  //           console.log("tessssss berhasill");
+  //         }
+  //       });
+  //       });
+        
 
-        $('h3 a').click(function() {
-          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-          let isiRelated = $(this).text();
-          $.ajax({
-            type: "POST",
-            url: "product_details.php",
-            data: { relatedproduct: isiRelated },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP");
-            }
-          });
-        });
+
+
 
         function updateImageSrc(screenWidth) {
             // Select elemen gambar

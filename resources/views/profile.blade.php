@@ -1,14 +1,8 @@
-<?php
-// if (!isset($_SESSION['order_id'])) {
-//   $_SESSION['order_id'] = "ORD00014";
-// }
-?>
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
 
 <head>
-<meta name="csrf-token" content="{{ csrf_token() }}">
-
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta charset="utf-8" />
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <title>Ever After | Fashion</title>
@@ -207,7 +201,18 @@
 </head>
 
 <body class="full-wrapper">
+@csrf
 @include('header')
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
   <main>
     <div class="row">
       <div class="col-12 col-md-4">
@@ -451,31 +456,29 @@
           <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
         </svg></a>
 
-      <div class="row formlogin ">
-        <div class="col-12 isilogin">
-          <div class="cart-header login">
-            <h2>Log in</h2>
-          </div>
-          <form class="formlogin" action="profile.php">
-            <div class="form-group mt-20">
-              <input type="email" class="form-control" id="inputEmail" required placeholder="Email address *" aria-describedby="emailHelp">
+        <div class="row formlogin ">
+          <div class="col-12 isilogin">
+            <div class="cart-header login">
+              <h2>Log in</h2>
             </div>
-            <div class="form-group mt-20">
-              <input type="password" class="form-control" required placeholder="Password *" id="inputPassword">
-            </div>
-            <div class="form-group form-check mt-10">
-              <input type="checkbox" class="form-check-input" id="checkboxRemember">
-              <label class="form-check-label remember" for="exampleCheck1">Remember me</label>
-            </div>
-            <button type="submit" class="btn btn-primary mt-10 login">LOG IN</button>
-            <p class="signuphere mt-3">Don't have an account? <a href="#"><u>Sign Up</u></a> Here</p>
+            <form class="formlogin" action="{{ route('login') }}" method="POST">
+              <div class="form-group mt-20">
+                  <input type="email" class="form-control" name="customer_email" required placeholder="Username or email address *" aria-describedby="emailHelp">
+              </div>
+              <div class="form-group mt-20">
+                  <input type="password" class="form-control" name="customer_password" required placeholder="Password *" id="inputPassword">
+              </div>
+              <!-- Tambahkan elemen lain yang diperlukan untuk form login -->
+              <button type="submit" class="btn btn-primary mt-10 login">LOG IN</button>
+              <p class="signuphere mt-3">Don't have an account? <a href="#"><u>Sign Up</u></a> Here</p>
           </form>
-        </div>
+          
+          </div>
         <div class="col-12 isisignup">
           <div class="cart-header login">
             <h2>Sign Up</h2>
           </div>
-          <form class="formsignup" action="profile.php">
+          <form class="formsignup" action="{{ url('profile') }}">
             <div class="form-group mt-20">
               <input type="email" class="form-control" id="inputEmailRegis" required placeholder="Email address *" aria-describedby="emailHelp">
             </div>
@@ -549,7 +552,7 @@
 
 
       <div class="cart-actions">
-        <a href="cart.php"><button class="checkout-btn">CHECKOUT</button></a>
+        <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a>
         <button class="continue-shopping">CONTINUE SHOPPING</button>
       </div>
     </div>
@@ -596,12 +599,12 @@
               <div class="single-footer-caption mb-50">
                 <div class="footer-tittle categ">
                   <ul>
-                    <li><a href="shop.php">Tops</a></li>
-                    <li><a href="shop.php">Dresses</a></li>
-                    <li><a href="shop.php">Shorts</a></li>
-                    <li><a href="shop.php">Skirts</a></li>
-                    <li><a href="shop.php">Trousers</a></li>
-                    <li><a href="shop.php">Jumpsuits</a></li>
+                    <li><a href="{{ url('shop') }}">Tops</a></li>
+                    <li><a href="{{ url('shop') }}">Dresses</a></li>
+                    <li><a href="{{ url('shop') }}">Shorts</a></li>
+                    <li><a href="{{ url('shop') }}">Skirts</a></li>
+                    <li><a href="{{ url('shop') }}">Trousers</a></li>
+                    <li><a href="{{ url('shop') }}">Jumpsuits</a></li>
                   </ul>
                 </div>
               </div>
@@ -610,12 +613,12 @@
               <div class="single-footer-caption mb-50">
                 <div class="footer-tittle categ">
                   <ul class="">
-                    <li><a href="shop.php">Sets</a></li>
-                    <li><a href="shop.php">Denim</a></li>
-                    <li><a href="shop.php">Outerwear</a></li>
-                    <li><a href="shop.php">Bags</a></li>
-                    <li><a href="shop.php">Fragrance</a></li>
-                    <li><a href="shop.php">Accessories</a></li>
+                    <li><a href="{{ url('shop') }}">Sets</a></li>
+                    <li><a href="{{ url('shop') }}">Denim</a></li>
+                    <li><a href="{{ url('shop') }}">Outerwear</a></li>
+                    <li><a href="{{ url('shop') }}">Bags</a></li>
+                    <li><a href="{{ url('shop') }}">Fragrance</a></li>
+                    <li><a href="{{ url('shop') }}">Accessories</a></li>
                   </ul>
                 </div>
               </div>
@@ -958,15 +961,19 @@
       cardAddress.style.display = 'flex';
       dalemeditaddress.style.display = 'none';
     });
+    $.ajaxSetup({
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+    });
+    
 
-    $('.footer-tittle.categ ul li a').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
       // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
       let isiShopNow = $(this).text();
       $.ajax({
-        type: "POST",
-        url: "linksess.php",
-        data: {
-          shopnow: isiShopNow
+        url: "/shop",
+        data: { shopnow: isiShopNow },
         },
         success: function() {
           console.log("Data berhasil dikirim ke PHP");
@@ -987,12 +994,9 @@
         }
       });
     });
-
-    $.ajaxSetup({
-  headers: {
-    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-  }
 });
+
+      $('.full-wrapper').css('overflow', 'hidden');
     $('.details').click(function() {
   // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
   let isiorderid = $(this).closest('.row').prev().find('.orderid').text()
