@@ -4,17 +4,17 @@
 session_start();
 
 // Menyimpan nilai filter ke dalam session saat filter dipilih
-if (isset($_GET['select2'])) {
-  $_SESSION['selected_category'] = $_GET['select2'];
-}
+// if (isset($_GET['select2'])) {
+//   $_SESSION['selected_category'] = $_GET['select2'];
+// }
 
-if (isset($_GET['select3'])) {
-  $_SESSION['selected_size'] = $_GET['select3'];
-}
+// if (isset($_GET['select3'])) {
+//   $_SESSION['selected_size'] = $_GET['select3'];
+// }
 
-if (isset($_GET['select4'])) {
-  $_SESSION['selected_price_range'] = $_GET['select4'];
-}
+// if (isset($_GET['select4'])) {
+//   $_SESSION['selected_price_range'] = $_GET['select4'];
+// }
 
 // Mendapatkan nilai filter dari session
 $selected_category = $_SESSION['selected_category'] ?? '';
@@ -66,11 +66,13 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
 </script>
 
 <body class="full-wrapper">
+  @csrf
   @include('header')
   <main>
     <!-- breadcrumb Start-->
     <div class="page-notification">
       <div class="container">
+       
         <div class="row">
           <div class="col-lg-12">
             <nav aria-label="breadcrumb">
@@ -1023,11 +1025,15 @@ if ($previous_price !== null) {
           updateNavbar(window.innerWidth);
       });
    // Mengambil token CSRF dari meta tag
+   $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
+
 let csrfToken = $('meta[name="csrf-token"]').attr('content');
 
 $('h3 a').click(function(event) {
-
-  event.preventDefault();
   let isiLink = $(this).text();
 
   // Mengirim permintaan AJAX dengan token CSRF
@@ -1037,7 +1043,11 @@ $('h3 a').click(function(event) {
     data: {
       _token: csrfToken, // Menyertakan token CSRF dalam data permintaan
       link: isiLink
-    }
+    },
+     success: function(response) {
+          // Menampilkan div dengan hasil respons di dalamnya
+          console.log(response);
+        },
     
   });
 });

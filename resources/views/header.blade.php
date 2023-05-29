@@ -71,13 +71,25 @@
                         <span>0</span>
                       </div>
                     </li>
-                    <li class="logocart-login">
+                    {{-- <li class="logocart-login">
                       <!-- <a href="profile.php"> -->
                         <div class="user mx-3" style="cursor:pointer;">
                           <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
                         </div>
                       <!-- </a> -->
+                    </li> --}}
+                    <li class="logocart-login">
+                      @if(session('customer_id'))
+                        <a href="/profile">
+                      @else
+                        <a href="/login">
+                      @endif
+                        <div class="user mx-3" style="cursor:pointer;">
+                          <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
+                        </div>
+                      </a>
                     </li>
+                    
                   </ul>
                 </div>
               </div>

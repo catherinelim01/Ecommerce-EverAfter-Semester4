@@ -3,9 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
-
-
-
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,9 +16,30 @@ use App\Http\Controllers\AuthController;
 |
 */
 
+Route::get('/', function () {
+    return view('index');
+});
 Route::get('/index', function () {
     return view('index');
 });
+Route::get('/about', function () {
+    return view('about');
+});
+Route::get('/cart', function () {
+    return view('cart');
+});
+Route::get('/payment', function () {
+    return view('payment');
+});
+
+Route::get('/order_detail', function () {
+    return view('order_detail');
+});
+// Route::get('/order_detail', function () {
+//     return view('order_detail');
+// });
+
+Route::post('/order_detail', [App\Http\Controllers\OrderController::class, 'orderDetail']);
 
 // Route::get('/shop', function () {
 //     return view('shop');
@@ -34,7 +53,9 @@ Route::get('/contact', function () {
 });
 Route::get('/profile', function () {
     return view('profile');
-});
+})->name('profile');
+
+
 // Route::group(['prefix' => '/'], function () {
 //     Route::get('/shop', function () {
 //         return view('shop');
@@ -66,9 +87,15 @@ Route::get('/shop/page/{page}', function ($page) {
 //     return response('Data berhasil disimpan ke session.');
 // })->name('product.details.post');
 
+
+
 Route::get('/product_details', function () {
     return view('product_details');
-});
+})->name('product_details');
+
+Route::get('/product_details/{product_name}', [App\Http\Controllers\ProductController::class, 'showProductDetails']);
+
+
 
 
 Route::post('/product_details', [App\Http\Controllers\ProductController::class, 'getProductDetails']);
@@ -77,6 +104,7 @@ Route::post('/product_details', [App\Http\Controllers\ProductController::class, 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+
 
 
 

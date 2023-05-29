@@ -1,7 +1,30 @@
 <?php
-// if (!isset($_SESSION['order_id'])) {
-//   $_SESSION['order_id'] = "ORD00014";
-// }
+use Illuminate\Http\Request;
+use App\Models\Customer;
+use App\Models\Register;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
+
+// ...
+
+if (Session::has('customer_id')) {
+    $loginTime = Session::get('login_time');
+    $currentTime = time();
+    $inactiveTime = 5 * 60 * 60; // 5 hours in seconds
+
+    if (($currentTime - $loginTime) >= $inactiveTime) {
+        // Redirect to the login page or perform other actions
+        return redirect('/login');
+    }
+
+    // Add your profile page logic here
+} else {
+    // Redirect to the login page or display an error message
+    return redirect('/login');
+}
+
 ?>
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">

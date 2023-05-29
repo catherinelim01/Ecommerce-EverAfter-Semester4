@@ -7,39 +7,43 @@ use App\Models\Register;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 
 
 class AuthController extends Controller
 {
+    
+   
     public function login(Request $request)
-{
-    $credentials = $request->only('customer_email', 'customer_password');
-    $credentials['password'] = $credentials['customer_password'];
+    {
+        $email = $request->input('customer_email');
+        $password = $request->input('customer_password');
+    
+        $customer = DB::table('customer')
+    ->where('customer_email', $email)
+    ->where('customer_password', $password)
+    ->select('customer_id')
+    ->first();
 
-    // Hapus kunci 'customer_password' jika diperlukan
-    unset($credentials['customer_password']);
+if ($customer && isset($customer->customer_id)) {
+    // Store customer information in the session
+    Session::put('customer_id', $customer->customer_id);
+    Session::put('login_time', time()); // Store the login time
 
-    // Periksa apakah elemen 'password' ada dan tidak null
-    if (isset($credentials['password']) && !is_null($credentials['password'])) {
-        // Cetak nilai password
-        
+    // Redirect the user to the profile page
+    return redirect('/profile');
+} else {
+    // Credentials are invalid, display an error message
+    return back()->withErrors(['message' => 'Invalid email or password']);
+}
 
-        // Verifikasi kredensial pengguna
-        if (Auth::attempt($credentials)) {
-            // Log in berhasil, hapus pesan error jika ada
-            $request->session()->forget('errors');
             
-            return redirect()->intended('/profile');
-        } else {
-            // Log in gagal
-            dd($credentials['password']);
-            return redirect()->back()->withInput()->withErrors('Invalid email or password');
-        }
-    } else {
-        // Jika elemen 'password' tidak ada atau null
-    }}
+    }
+    
 
+ 
+    
     
     public function register(Request $request)
 {
