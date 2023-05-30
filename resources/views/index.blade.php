@@ -530,7 +530,7 @@
       <!--? Services Area End -->
       <!-- cart -->
     <div class="cart-container-login geser">
-      @if(session('customer_id'))
+      {{-- @if(session('customer_id'))
     @php
         $loginTime = session('login_time');
         $currentTime = time();
@@ -546,7 +546,8 @@
             <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
         </div>
     </a>
-@endif
+@endif --}}
+
 
       <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -808,7 +809,188 @@
 <!-- Jquery Plugins, main Jquery -->
 <script src="{{ asset('assets/js/plugins.js') }}"></script>
 <script src="{{ asset('assets/js/main.js') }}"></script>
+{{-- JESSIIIIII --}}
+@if(session('customer_id'))
+@php
+    $loginTime = session('login_time');
+    $currentTime = time();
+    $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
+@endphp
+
+@if($remainingTime > 0)
+<script>
+   $(".cart-container-login").remove();
+      const closecart = document.querySelector('.close.cart');
+      const full = document.querySelector('.full-wrapper');
+      const navprofile = document.querySelector('.slicknav_menu a.navprofile');
+      const logocart = document.querySelector('.logocart');
+      const containercart = document.querySelector('.cart-container');
+      const navv = document.querySelector('a.navprofile');
+
+      // containercart.style.display = "none";
+
+      full.style.overflow = 'visible';
+      navprofile.style.display = 'none';
+      navv.style.display = 'none';
+
+      function updateNavbar(screenWidth) {
+          // Add event listener to detect media query change
+          if (window.innerWidth >= 415 && window.innerWidth <= 576) {
+            navprofile.style.display = 'none';
+              logocart.addEventListener('mouseenter', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'block';
+                  full.style.overflow = 'hidden';
+                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+
+              $(".close.cart").on('click', function(event) {
+                event.preventDefault();
+                containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                full.style.overflow = 'visible';
+                if($('.logocart-login').hasClass('active')){
+                  full.style.overflow = 'hidden';
+                }
+              });
+          }
+          
+          else if (window.innerWidth <= 415) { // media query condition
+              navprofile.style.display = 'block';
+              logocart.addEventListener('mouseenter', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'block';
+                  full.style.overflow = 'hidden';
+                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+              
+              containercart.addEventListener('mouseleave', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'none';
+                  full.style.overflow = 'visible';
+                  containercart.style.animation = 'slideInToRightMobile 1s forwards';
+              });
+
+              navprofile.addEventListener('click', function(event) {
+              event.preventDefault();
+              full.style.overflow = 'hidden';
+              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              
+              });
+          } else {
+              navprofile.style.display = 'none';
+              logocart.addEventListener('mouseenter', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'block';
+                  full.style.overflow = 'hidden';
+                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+              
+              containercart.addEventListener('mouseleave', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'none';
+                  full.style.overflow = 'visible';
+                  containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                  if($('.logocart-login').hasClass('active')){
+                    full.style.overflow = 'hidden';
+                    
+                  }
+              });
+          };
+      }
+      updateNavbar(window.innerWidth);
+      // Check screen size on window resize
+      window.addEventListener("resize", function() {
+          updateNavbar(window.innerWidth);
+      });
+   // Mengambil token CSRF dari meta tag
+   $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
+
+let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+$('h3 a').click(function(event) {
+  let isiLink = $(this).text();
+
+  // Mengirim permintaan AJAX dengan token CSRF
+  $.ajax({
+    method: "POST",
+    url: "/product_details",
+    data: {
+      _token: csrfToken, // Menyertakan token CSRF dalam data permintaan
+      link: isiLink
+    },
+     success: function(response) {
+          // Menampilkan div dengan hasil respons di dalamnya
+          console.log(response);
+        },
+    
+  });
+});
+
+
+    function updateImageSrc(screenWidth) {
+      // Select elemen gambar
+      const imgHeart = document.getElementById('heart');
+      const imgCard = document.getElementById('cart');
+      // Add event listener to detect media query change
+
+      if (window.innerWidth < 576) { // media query condition
+        imgHeart.src = 'assets/images/logo/heart-black.svg';
+        imgCard.src = 'assets/images/logo/cart-black.svg';
+      } else {
+        imgHeart.src = 'assets/images/logo/heart.svg';
+        imgCard.src = 'assets/images/logo/card.svg';
+      };
+    }
+
+    updateImageSrc(window.innerWidth);
+    // Check screen size on window resize
+    window.addEventListener("resize", function() {
+      updateImageSrc(window.innerWidth);
+    });
+
+    $('.footer-tittle.categ ul li a').click(function() {
+      // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+      let isiShopNow = $(this).text();
+      $.ajax({
+        type: "POST",
+        url: "linksess.php",
+        data: {
+          shopnow: isiShopNow
+        },
+        success: function() {
+          console.log("Data berhasil dikirim ke PHP");
+        }
+      });
+    });
+
+    $('.browsemore').click(function() {
+      // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+      $.ajax({
+        type: "POST",
+        url: "linksess.php",
+        data: {
+          shopnow: ""
+        },
+        success: function() {
+          console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+        }
+      });
+    });
+
+
+    function updateSelectedText() {
+    var select3 = document.getElementsByName('select3')[0];
+    var selectedText = select3.options[select3.selectedIndex].text;
+    var selectedTextElement = document.getElementById('selected-text');
+    selectedTextElement.textContent = selectedText;}
    
+</script>
+@endif
+@else
     <script>
       const logocartlogin = document.querySelector('.logocart-login');
       const containercartlogin = document.querySelector('.cart-container-login');
@@ -854,6 +1036,7 @@
         });
           // Add event listener to detect media query change
           if (window.innerWidth >= 415 && window.innerWidth <= 576) {
+            navprofile.style.display = 'none';
               logocartlogin.addEventListener('click', function(event) {
                 event.preventDefault();
                 // containercart.style.display = 'none';
@@ -890,7 +1073,7 @@
               });
           }
           
-          else if (window.innerWidth < 415) { // media query condition
+          else if (window.innerWidth <= 415) { // media query condition
               navprofile.style.display = 'block';
               logocart.addEventListener('mouseenter', function(event) {
                   event.preventDefault();
@@ -1071,5 +1254,7 @@
         });
         
     </script>
+   {{-- JESSIIIIII --}}
+@endif
   </body>
 </html>

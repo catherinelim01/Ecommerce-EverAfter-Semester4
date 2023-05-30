@@ -889,19 +889,19 @@ if ($related_sql->count() > 0) {
     // event.preventDefault(); // Mencegah aksi default dari elemen a
 
     // Mengambil isi dari elemen a yang diklik
-    let isiLink = $(this).text();
+    // let isiLink = $(this).text();
 
-    $.ajax({
-        type: "POST",
-        url: "/product_details",
-        data: { link: isiLink },
-        success: function(response) {
-            console.log(response.message);
-        },
-        error: function(xhr, status, error) {
-            console.log('Terjadi kesalahan:', error);
-        }
-    });
+    // $.ajax({
+    //     type: "POST",
+    //     url: "/product_details",
+    //     data: { link: isiLink },
+    //     success: function(response) {
+    //         console.log(response.message);
+    //     },
+    //     error: function(xhr, status, error) {
+    //         console.log('Terjadi kesalahan:', error);
+    //     }
+    // });
 
 
         $('h3 a').click(function() {

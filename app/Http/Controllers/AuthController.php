@@ -28,11 +28,14 @@ class AuthController extends Controller
 
 if ($customer && isset($customer->customer_id)) {
     // Store customer information in the session
+    echo '<div class="alert alert-success">';
+    echo 'Login successful! You are now logged in.';
+    echo '</div>';
     Session::put('customer_id', $customer->customer_id);
     Session::put('login_time', time()); // Store the login time
 
     // Redirect the user to the profile page
-    return redirect('/profile');
+    return redirect('/index');
 } else {
     // Credentials are invalid, display an error message
     return back()->withErrors(['message' => 'Invalid email or password']);

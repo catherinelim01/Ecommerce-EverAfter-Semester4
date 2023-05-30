@@ -397,7 +397,7 @@ if (Session::has('customer_id')) {
         </div>
         
       <?php 
-          $sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, p.product_price, po.qty ,d.delivery_name,d.delivery_cost, a.address ,format(((o.grand_total*qty) - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url from `order` o, product_order po , product p , delivery d, address a where o.order_id = po.order_id and po.product_id = p.product_id and d.delivery_id = o.delivery_id and a.CUSTOMER_ID = o.CUSTOMER_ID  order by 2 desc";
+          $sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, format(p.product_price,0) as product_price, po.qty ,d.delivery_name, format(d.delivery_cost,0) as delivery_cost, a.address ,format(((o.grand_total*qty) - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url from `order` o left join product_order po on o.order_id = po.order_id left join product p on po.product_id = p.product_id left join delivery d on d.delivery_id = o.delivery_id left join address a on a.CUSTOMER_ID = o.CUSTOMER_ID  order by 2 desc;";
           $result= DB::select($sql);
         
           if (count($result) > 0) {
@@ -934,7 +934,7 @@ if (Session::has('customer_id')) {
     const cartPage = document.querySelector('.cartpage');
     const btnback = document.querySelector('.btnback');
     const popup = document.querySelector('.popup');
-
+    
     accDiv.style.display = "block";
     addressDiv.style.display = "none";
     dalemeditaddress.style.display = 'none';
