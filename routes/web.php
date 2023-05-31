@@ -95,6 +95,9 @@ Route::get('/product_details', function () {
 
 Route::get('/product_details/{product_name}', [App\Http\Controllers\ProductController::class, 'showProductDetails']);
 
+// Route::get('/product_details', [App\Http\Controllers\ProductController::class, 'productDetails'])->name('product_details');
+
+
 
 
 

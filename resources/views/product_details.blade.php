@@ -13,6 +13,12 @@ if (isset($_POST['link'])) {
     echo 'Data berhasil disimpan ke sesi.';
 }
 
+if (isset($_POST['product_name'])) {
+    $product_name = $_POST['product_name'];
+    session::put('product_namee', $link);
+    
+    echo 'Data berhasil disimpan ke sesi.';
+}
 
 
 
@@ -38,6 +44,7 @@ if (isset($_POST['link'])) {
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Ever After | Fashion</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="manifest" href="site.webmanifest">
@@ -61,6 +68,7 @@ if (isset($_POST['link'])) {
     
 </head>
 <body class="full-wrapper">
+  @csrf
   @include('header')
     <main>
         <!-- breadcrumb Start-->
@@ -151,103 +159,68 @@ if (isset($_POST['link'])) {
             @endforeach
             @endif
           @endif
-        
-          <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <h2 class="related-title">Related Products</h2>
+          
+          <div id="related-products">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2 class="related-title">Related Products</h2>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <?php
-                $related_product_name = $_GET['product_name'] ?? '';
+                <div class="row">
+                    <?php
+                    $related_product_name = $_GET['product_name'] ?? '';
+                    // Jika nilai $related_product_name tidak kosong, tambahkan ke dalam kondisi WHERE
+                    $where_clause = [];
+                    if (!empty($related_product_name)) {
+                        // Ambil kategori produk yang dipilih
+                        $category_id = DB::table('product')
+                            ->where('product_name', $related_product_name)
+                            ->value('category_id');
         
-                // Jika nilai $related_product_name tidak kosong, tambahkan ke dalam kondisi WHERE
-                $where_clause = "";
-                if (!empty($related_product_name)) {
-                    // Ambil kategori produk yang dipilih
-                    $category_id = Product::where('product_name', $related_product_name)->value('category_id');
-                    if ($category_id) {
-                        $where_clause[] = ['category_id', '=', $category_id];
+                        if ($category_id) {
+                            $where_clause[] = ['p2.category_id', '=', $category_id];
+                        }
                     }
-                }
         
-              
-    // $related_products = DB::table('product')
-    // ->select('product_name', 'product_price', 'product_url')
-    // ->distinct()
-    // ->join('category', 'product.category_id', '=', 'category.category_id')
-    // ->orderByRaw('RAND()')
-    // ->limit(4)
-    // ->get();
-    $related_sql = \DB::table('product')
-    ->select('product_name', 'product_price', 'product_url')
-    ->join('category', 'product.category_id', '=', 'category.category_id')
-    ->where('product_name', '!=', $related_product_name)
-    ->orderByRaw('RAND()')
-    ->limit(4)
-    ->get();
-
-
-
-
-// ...
-
-
-// ...
-
-if ($related_sql->count() > 0) {
-    $i = 1; // Inisialisasi variabel $i
-    foreach ($related_sql as $related_product) {
-        // ...
-
-        $related_product_name = $related_product->product_name;
-        $related_product_price = $related_product->product_price;
-        $related_product_url = $related_product->product_url;
-
-        ?>
-    <div class="row">
-      <?php $displayed_products = []; ?>
-      @foreach ($related_sql as $related_product)
-          @if (!in_array($related_product->product_name, $displayed_products))
-              <?php $displayed_products[] = $related_product->product_name; ?>
-              <div class="col-md-3">
-                  <div class="single-new-arrival mb-50 text-center">
-                      <div class="popular-img">
-                          <img src="{{ $related_product->product_url }}" alt="">
-                          <div class="favorit-items">
-                              <img src="assets/images/logo/love.png" alt="" class="favorite" id="favorite-{{ $loop->iteration }}" onclick="toggleImage(this)">
-                          </div>
-                      </div>
-                      <div class="popular-caption">
-                          <h3><a href="{{ route('product_details', ['product_name' => $related_product->product_name]) }}">{{ $related_product->product_name }}</a></h3>
-                          <span>Rp. {{ number_format($related_product->product_price, 0, ',', '.') }}</span>
-                      </div>
-                  </div>
-              </div>
-          @endif
-  
-          @if (count($displayed_products) >= 4)
-              <?php break; ?>
-          @endif
-      @endforeach
-  </div>
-  
-  
-      
-    
-    
+                    $related_products = DB::table('product as p1')
+                        ->distinct()
+                        ->select('p2.product_name', 'p2.product_price', 'p2.product_url', 'p2.product_detail')
+                        ->join('product as p2', 'p1.category_id', '=', 'p2.category_id')
+                        ->join('category as c', 'p2.category_id', '=', 'c.category_id')
+                        ->where($where_clause)
+                        ->orderByRaw('RAND()')
+                        ->limit(4)
+                        ->get();
         
-        <?php
-
-        $i++; // Increment nilai variabel $i
-    }
-} else {
-    // ...
-}
-?>
-
-        
+                    if ($related_products->count() > 0) {
+                        foreach ($related_products as $key => $related_product) {
+                            $related_product_name = $related_product->product_name;
+                            $related_product_price = $related_product->product_price;
+                            $related_product_url = $related_product->product_url;
+                    ?>
+                            <div class="col-md-3">
+                                <div class="single-new-arrival mb-50 text-center">
+                                    <div class="popular-img">
+                                        <img src="{{ $related_product_url }}" alt="">
+                                        <div class="favorit-items">
+                                            <img src="assets/images/logo/love.png" alt="" class="favorite" id="favorite-{{ $key + 1 }}" onclick="toggleImage(this)">
+                                        </div>
+                                    </div>
+                                    <div class="popular-caption">
+                                        <h3><a href="{{ url('product_details?product_name=' . urlencode($related_product_name)) }}">{{ $related_product_name }}</a></h3>
+                                        <span>Rp. {{ number_format($related_product_price, 0, ',', '.') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                    <?php
+                        }
+                    } else {
+                        // Tampilkan pesan jika tidak ada produk dengan product_id yang sesuai
+                        echo "Product not found";
+                    }
+                    ?>
+                </div>
             </div>
         </div>
         
@@ -1027,6 +1000,56 @@ if ($related_sql->count() > 0) {
                     });
                 }
             }
+    //         $('h3 a').click(function(event) {
+    //     // event.preventDefault(); // Prevent the default link behavior
+
+    //     let productName = $(this).text();
+
+    //     // Sending an AJAX request with CSRF token
+    //     $.ajax({
+    //         method: "POST",
+    //         url: "/product_details", // Send the AJAX request to the current URL (product_details)
+    //         data: {
+    //             _token: csrfToken, // Include CSRF token in the request data
+    //             product_name: productName
+    //         },
+    //         success: function(response) {
+    //             // Handle the response and update the related products section on the page
+    //             $('#related-products').html(response);
+    //         },
+    //         error: function(xhr, status, error) {
+    //             console.log(error); // Handle any errors
+    //         }
+    //     });
+    // });
+    // $.ajaxSetup({
+    //       headers: {
+    //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //       }
+    //     });
+
+let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+$('h3 a').click(function(event) {
+  let isiLink = $(this).text();
+
+  // Mengirim permintaan AJAX dengan token CSRF
+  $.ajax({
+    method: "POST",
+    url: "/product_details",
+    data: {
+      _token: csrfToken, // Menyertakan token CSRF dalam data permintaan
+      link: isiLink
+    },
+     success: function(response) {
+          // Menampilkan div dengan hasil respons di dalamnya
+          console.log(response);
+        },
+    
+  });
+});
+
+
     </script>
 </body>
 </html>

@@ -35,7 +35,7 @@ if ($customer && isset($customer->customer_id)) {
     Session::put('login_time', time()); // Store the login time
 
     // Redirect the user to the profile page
-    return redirect('/index');
+    return redirect('/profile');
 } else {
     // Credentials are invalid, display an error message
     return back()->withErrors(['message' => 'Invalid email or password']);

@@ -600,6 +600,25 @@ if ($previous_price !== null) {
     <!--? Services Area End -->
     <!-- cart -->
     <div class="cart-container-login geser">
+      {{-- @if(session('customer_id'))
+    @php
+        $loginTime = session('login_time');
+        $currentTime = time();
+        $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
+    @endphp
+
+    @if($remainingTime > 0)
+        <a href="/profile">
+    @else
+        <a href="#">
+    @endif
+        <div class="user mx-3" style="cursor:pointer;">
+            <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
+        </div>
+    </a>
+@endif --}}
+
+
       <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
       </svg></a>
@@ -609,39 +628,43 @@ if ($previous_price !== null) {
           <div class="cart-header login">
             <h2>Log in</h2>
           </div>
-          <form class="formlogin" action="profile.php">
+          <form class="formlogin" action="{{ route('login') }}" method="POST">
+            @csrf
             <div class="form-group mt-20">
-              <input type="email" class="form-control" id="inputEmail" required placeholder="Email address *" aria-describedby="emailHelp">
+                <input type="email" class="form-control" name="customer_email" required placeholder="Username or email address *" aria-describedby="emailHelp">
             </div>
             <div class="form-group mt-20">
-              <input type="password" class="form-control" required placeholder="Password *" id="inputPassword">
+                <input type="password" class="form-control" name="customer_password" required placeholder="Password *" id="inputPassword">
             </div>
-            <div class="form-group form-check mt-10">
-              <input type="checkbox" class="form-check-input" id="checkboxRemember">
-              <label class="form-check-label remember" for="exampleCheck1">Remember me</label>
-            </div>
+            <!-- Tambahkan elemen lain yang diperlukan untuk form login -->
             <button type="submit" class="btn btn-primary mt-10 login">LOG IN</button>
-            <p class="signuphere mt-3">Don't have an account? <a href="#"><u>Sign Up</u></a> Here</p>
-          </form>
+            <p class="signuphere mt-3">Don't have an account? <a href="/login"><u>Sign Up</u></a> Here</p>
+        </form>
+        
         </div>
         <div class="col-12 isisignup">
           <div class="cart-header login">
-            <h2>Sign Up</h2>
+              <h2>Sign Up</h2>
           </div>
-          <form class="formsignup" action="profile.php">
-            <div class="form-group mt-20">
-            <input type="email" class="form-control" id="inputEmailRegis" required placeholder="Email address *" aria-describedby="emailHelp">
+          <form class="formsignup" action="{{ route('register') }}" method="POST">
+              @csrf
+              <div class="form-group mt-20">
+                <label for="inputEmailRegis">Name *</label>
+                <input type="text" class="form-control" id="inputNameRegis" name="customer_name" required aria-describedby="emailHelp">
             </div>
-            <div class="form-group mt-20">
-            <input type="password" class="form-control" required placeholder="Password *" id="inputPasswordRegis">
-            </div>
-            <small id="info" class="form-text">By providing your personal information, you allow us to enhance your shopping experience and securely manage your account.</small>
-            <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
-            <a href="#" class="backlogin mt-3"><u>Back to Login</u></a>
-        </form>
-        </div>
+              <div class="form-group mt-20">
+                  <label for="inputEmailRegis">Email address *</label>
+                  <input type="email" class="form-control" id="inputEmailRegis" name="customer_email" required aria-describedby="emailHelp">
+              </div>
+              <div class="form-group mt-20">
+                  <label for="inputPasswordRegis">Password *</label>
+                  <input type="password" class="form-control" id="inputPasswordRegis" name="customer_password" required>
+              </div>
+              <small id="info" class="form-text">By providing your personal information, you allow us to enhance your shopping experience and securely manage your account.</small>
+              <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
+              <a href="/registration" class="backlogin mt-3"><u>Back to Login</u></a>
+          </form>
       </div>
-    </div>
   <!-- cart login end -->
  
   <!-- cart -->
