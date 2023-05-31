@@ -72,6 +72,48 @@
                         <span>0</span>
                       </div>
                     </li>
+                    
+                    {{-- <li class="logocart-login">
+                      <!-- <a href="profile.php"> -->
+                        <div class="user mx-3" style="cursor:pointer;">
+                          <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
+                        </div>
+                      <!-- </a> -->
+                    </li> --}}
+                    {{-- <li class="logocart-login">
+                      @if(session('customer_id'))
+                        <a href="/profile">
+                      @else
+                        <a href="/login">
+                      @endif
+                        <div class="user mx-3" style="cursor:pointer;">
+                          <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
+                        </div>
+                      </a>
+                    </li> --}}
+                    @if(session('customer_id'))
+                    @php
+                        $loginTime = session('login_time');
+                        $currentTime = time();
+                        $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
+                    @endphp
+                
+                    @if($remainingTime > 0)
+                    <li class="logocart-login">
+                         <a href="/profile">
+                        <div class="user mx-3" style="cursor:pointer;">
+                          <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
+                        </div>
+                      </a>
+                      </li>
+                    
+                    @endif
+                        {{-- <div class="user mx-3" style="cursor:pointer;">
+                            <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
+                        </div>
+                    </a> --}}
+                    @else
+                    <script>console.log("halooooooo")</script>
                     <li class="logocart-login">
                       <!-- <a href="profile.php"> -->
                         <div class="user mx-3" style="cursor:pointer;">
@@ -79,6 +121,8 @@
                         </div>
                       <!-- </a> -->
                     </li>
+                @endif
+                    
                   </ul>
                 </div>
               </div>

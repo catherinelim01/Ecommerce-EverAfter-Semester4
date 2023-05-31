@@ -12,9 +12,7 @@ class OrderController extends Controller
     // {
     //     $orderid = $request->input('orderid');
         
-    //     // Lakukan apa pun yang perlu Anda lakukan dengan orderid di sini
-        
-    //     // Contoh: Mengembalikan tampilan atau respon JSON
+
     //     return response()->json(['success' => true, 'orderid' => $orderid]);
     // }
     

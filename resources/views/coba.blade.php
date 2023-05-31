@@ -1,30 +1,20 @@
 <?php
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\DB;
-use App\Models\Product;
-
-use App\Models\Category;
+  use Illuminate\Support\Facades\Session;
 
 if (isset($_POST['link'])) {
     $link = $_POST['link'];
-    session::put('link_tes', $link);
+    Session::put('link_tes', $link);
     
     echo 'Data berhasil disimpan ke sesi.';
 }
+$link_tes = session('link_tes');
 
-if (isset($_POST['product_name'])) {
-    $product_name = $_POST['product_name'];
-    session::put('product_namee', $link);
-    
-    echo 'Data berhasil disimpan ke sesi.';
-}
-
-
+// Menampilkan nilai link_tes
+echo $link_tes;
 
 //   }
-//   if (isset($_SESSION['link_tes'])) {
-//     echo  $_SESSION['link_tes'];
+//   if (isset(session('link_tes'))) {
+//     echo  session('link_tes');
 //   } else {
 //     echo 'Belum yang disimpan di session.';
   
@@ -44,7 +34,6 @@ if (isset($_POST['product_name'])) {
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Ever After | Fashion</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="manifest" href="site.webmanifest">
@@ -68,7 +57,6 @@ if (isset($_POST['product_name'])) {
     
 </head>
 <body class="full-wrapper">
-  @csrf
   @include('header')
     <main>
         <!-- breadcrumb Start-->
@@ -90,145 +78,64 @@ if (isset($_POST['product_name'])) {
         <!-- breadcrumb End-->
         <!--?  Details start -->
         <div class="new-arrival new-arrival2">
-          @if (session('link_tes'))
-            @php
-            $sql = "SELECT DISTINCT product_name, product_id, product_price, product_url, product_detail, category_id FROM product WHERE product_id = (SELECT product_id FROM product WHERE product_name LIKE '%" . session('link_tes') . "%' LIMIT 1);";
-            $sql2 = "SELECT DISTINCT product_id FROM product WHERE product_name LIKE '%" . session('link_tes') . "%' ORDER BY product_id DESC;";
-            $result = DB::select($sql);
-            $result2 = DB::select($sql2);
-            @endphp
+        @if (session('link_tes'))
+    @php
+        $sql = "SELECT DISTINCT product_name, product_id, product_price, product_url, product_detail, category_id FROM product WHERE product_id = (SELECT product_id FROM product WHERE product_name LIKE '%" . session('link_tes') . "%' LIMIT 1);";
+        $sql2 = "SELECT DISTINCT product_id FROM product WHERE product_name LIKE '%" . session('link_tes') . "%' ORDER BY product_id DESC;";
         
-            @if (count($result) > 0)
-            @foreach ($result as $row)
+        // session('link_tes')="";
+        $result = DB::select($sql);
+        $result2 = DB::select($sql2);
+    @endphp
+
+    @if (count($result) > 0)
+        @foreach ($result as $row)
             <!-- informasi produk di sini -->
             <div class="container">
-              <div class="row">
-                <div class="col-lg-4 mb-30">
-                  <div class="map">
-                    <img src="{{ $row->product_url }}" alt="">
-                  </div>
-                </div>
-                <div class="col-lg-8">
-                  <div class="small-tittle">
-                    <div class="section-tittle mb-10">
-                      <h2 style="font-size: 50px;">{{ $row->product_name }}</h2>
-                    </div>
-                    <h1>Rp {{ number_format($row->product_price, 0, ',', '.') }}</h1>
-                    Size:
-                    @if (count($result2) > 0)
-                    <div class="button-group">
-                      @foreach ($result2 as $row2)
-                      @php
-                      $product_id = $row2->product_id;
-                      $size = substr($product_id, 4, 1);
-                      @endphp
-                      @if ($size == '0')
-                      All Size
-                      @else
-                      @if (strpos($product_id, 'L') !== false)
-                      <button class="button-17" role="button">L</button>
-                      @endif
-                      @if (strpos($product_id, 'M') !== false)
-                      <button class="button-17" role="button">M</button>
-                      @endif
-                      @if (strpos($product_id, 'S') !== false)
-                      <button class="button-17" role="button">S</button>
-                      @endif
-                      @endif
-                      @endforeach
-                    </div>
-                    @endif
-                  </div>
-                  <div class="quantity">
-                    <label for="quantity">Quantity:</label><br>
-                    <input type="number" id="quantity" name="quantity" value="1" min="1" style="width: 293px;">
-                  </div>
-                  <br>
-                  <div class="add-to-cart">
-                    <button class="btn">Add to Cart</button>
-                    <button class="btn">Checkout</button>
-                  </div>
-                  <br>
-                  <div class="product-info" onclick="showProductDetail()">
-                    <p>Product Description</p>
-                  </div>
-                  <p>{{ $row->product_detail }}</p>
-                </div>
-              </div>
-            </div>
-            @endforeach
-            @endif
-          @endif
-          
-          <div id="related-products">
-            <div class="container">
                 <div class="row">
-                    <div class="col-md-12">
-                        <h2 class="related-title">Related Products</h2>
+                    <div class="col-lg-4 mb-30">
+                        <div class="map">
+                            <img src="{{ $row->product_url }}" alt="">
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <?php
-                    $related_product_name = $_GET['product_name'] ?? '';
-                    // Jika nilai $related_product_name tidak kosong, tambahkan ke dalam kondisi WHERE
-                    $where_clause = [];
-                    if (!empty($related_product_name)) {
-                        // Ambil kategori produk yang dipilih
-                        $category_id = DB::table('product')
-                            ->where('product_name', $related_product_name)
-                            ->value('category_id');
-        
-                        if ($category_id) {
-                            $where_clause[] = ['p2.category_id', '=', $category_id];
-                        }
-                    }
-        
-                    $related_products = DB::table('product as p1')
-                        ->distinct()
-                        ->select('p2.product_name', 'p2.product_price', 'p2.product_url', 'p2.product_detail')
-                        ->join('product as p2', 'p1.category_id', '=', 'p2.category_id')
-                        ->join('category as c', 'p2.category_id', '=', 'c.category_id')
-                        ->where($where_clause)
-                        ->orderByRaw('RAND()')
-                        ->limit(4)
-                        ->get();
-        
-                    if ($related_products->count() > 0) {
-                        foreach ($related_products as $key => $related_product) {
-                            $related_product_name = $related_product->product_name;
-                            $related_product_price = $related_product->product_price;
-                            $related_product_url = $related_product->product_url;
-                    ?>
-                            <div class="col-md-3">
-                                <div class="single-new-arrival mb-50 text-center">
-                                    <div class="popular-img">
-                                        <img src="{{ $related_product_url }}" alt="">
-                                        <div class="favorit-items">
-                                            <img src="assets/images/logo/love.png" alt="" class="favorite" id="favorite-{{ $key + 1 }}" onclick="toggleImage(this)">
-                                        </div>
-                                    </div>
-                                    <div class="popular-caption">
-                                        <h3><a href="{{ url('product_details?product_name=' . urlencode($related_product_name)) }}">{{ $related_product_name }}</a></h3>
-                                        <span>Rp. {{ number_format($related_product_price, 0, ',', '.') }}</span>
-                                    </div>
-                                </div>
+                    <div class="col-lg-8">
+                        <div class="small-tittle">
+                            <div class="section-tittle mb-10">
+                                <h2 style="font-size: 50px;">{{ $row->product_name }}</h2>
                             </div>
-                    <?php
-                        }
-                    } else {
-                        // Tampilkan pesan jika tidak ada produk dengan product_id yang sesuai
-                        echo "Product not found";
-                    }
-                    ?>
+                            <h1>Rp {{ number_format($row->product_price, 0, ',', '.') }}</h1>
+                            Size:
+                            @if (count($result2) > 0)
+                                <div class="button-group">
+                                    @foreach ($result2 as $row2)
+                                        @php
+                                            $product_id = $row2->product_id;
+                                            $size = substr($product_id, 4, 1);
+                                        @endphp
+                                        @if ($size == '0')
+                                            All Size
+                                        @else
+                                            @if (strpos($product_id, 'L') !== false)
+                                                <button class="button-17" role="button">L</button>
+                                            @endif
+                                            @if (strpos($product_id, 'M') !== false)
+                                                <button class="button-17" role="button">M</button>
+                                            @endif
+                                            @if (strpos($product_id, 'S') !== false)
+                                                <button class="button-17" role="button">S</button>
+                                            @endif
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-            {{-- </div>
-          </div>
-        </div> --}}
-        
-        
+        @endforeach
+    @endif
+@endif
+
 
                           <style>
                           .button-17 {
@@ -303,30 +210,36 @@ if (isset($_POST['product_name'])) {
                             box-shadow: rgba(60, 64, 67, .3) 0 1px 3px 0, rgba(60, 64, 67, .15) 0 4px 8px 3px;
                           }
                           </style>
-                   {{-- </div>
-                   <br>
-                   <div class="quantity">
-                       <label for="quantity">Quantity:</label><br>
-                       <input type="number" id="quantity" name="quantity" value="1" min="1" style="width: 293px;">
-                   </div><br>
-                   <div class="add-to-cart">
-                       <button class="btn">Add to Cart</button>
-                       <button class="btn">Checkout</button>
-                   </div><br>
-                   <div class="product-info" onclick="showProductDetail()">
-                       <p>Product Description</p>
-                   </div>
-               
-                   <p>{{ $row->product_detail }}</p>
-                   </div>
-                   </div> --}}
+                    </div>
+                    <br>
+                    <div class="quantity">
+                        <label for="quantity">Quantity:</label><br>
+                        <input type="number" id="quantity" name="quantity"value="1" min="1" style="width: 293px;">
+                    </div><br>
+                    <div class="add-to-cart">
+                        <button class="btn">Add to Cart</button>
+                        <button class="btn">Checkout</button>
+                    </div><br>
+                    <div class="product-info" onclick="showProductDetail()">
+                        <p>Product Description</p>
+                    </div>
                    
+                        
+                  
+                </div>
+            </div>
+            
        
         
-                  
-                
-                
-                
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 class="related-title">Related Products</h2>
+                    
+                </div>
+            </div>
+            <div class="row">
+        
         <style>
           .product-info:hover {
           cursor: pointer;
@@ -349,7 +262,142 @@ if (isset($_POST['product_name'])) {
         </script>
         </div>
 
-   
+        <!-- <div class="directory-details pt-padding">
+         
+        
+        <div class="container">
+  <div class="row">
+    <div class="col-lg-5">
+      <div class="map">
+        <img src="assets/images/tops/1.jpeg" alt="">
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <div class="directory-cap mb-40">
+        <h1 class="product-name mb-3">Ruffled Blouse</h1>
+        <h3 class="product-price">$29.99</h3>
+        <div class="size-buttons mb-3">
+          <label for="size">Size:</label><br>
+          <button type="button" class="btn btn-outline-secondary mr-3 btn-size">XS</button>
+          <button type="button" class="btn btn-outline-secondary mr-3 btn-size">S</button>
+          <button type="button" class="btn btn-outline-secondary mr-3 btn-size">M</button>
+          <button type="button" class="btn btn-outline-secondary mr-3 btn-size">L</button>
+          <button type="button" class="btn btn-outline-secondary mr-3 btn-size">XL</button>
+          <button type="button" class="btn btn-outline-secondary mr-3 btn-size">XXL</button>
+          <button type="button" class="btn btn-outline-secondary btn-size-all">All Sizes</button>
+        </div>
+        <div class="quantity mb-3">
+          <label for="quantity">Quantity:</label>
+          <select name="quantity" id="quantity" class="form-control">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+        <div class="submit-info">
+          <button class="btn btn-primary mr-3 btn-add-to-cart" type="submit">ADD TO CART</button>
+          <button class="btn btn-success btn-checkout" type="submit">CHECK OUT</button>
+        </div>
+        <p class="product-info mt-3"><em>Product Info:</em> The ruffled blouse is a feminine and elegant addition to any wardrobe. With its lightweight fabric and cascading ruffles, it is perfect for dressing up or down for any occasion.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="map">
+      <img src="assets/images/tops/1.jpeg" alt="">
+    </div>
+  </div>
+  <div class="col-md-8">
+    <h2 class="product-name mb-3">Charlotte Ruffle Blouse</h2>
+    <p class="product-price">Rp.150.000</p>
+    <div class="form-group">
+      <label for="size">Size:</label><br>
+      <select class="form-control" id="size">
+        <option>All Size</option>
+        <option>S</option>
+        <option>M</option>
+        <option>L</option>
+      </select>
+    </div>
+    <div class="form-group">
+    <br><br><label for="quantity">Quantity:</label>
+      <input type="number" class="form-control" id="quantity" value="1" min="1" max="10">
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-dark mr-2 mb-2">Add to Cart</button>
+    <button type="button" class="btn btn-sm btn-success mb-2">Checkout</button><br>
+    <a href="#" class="text-primary mt-3" data-toggle="collapse" data-target="#product-info">Product Info</a>
+
+    <div id="product-info" class="collapse mt-3">
+      <p id="description">Description:</p>
+      <p>The ruffled blouse is a feminine and elegant addition to any wardrobe. With its lightweight fabric and cascading ruffles, it is perfect for dressing up or down for any occasion.</p>
+    </div>
+  </div>
+</div> -->
+<!-- <style>
+    .text-primary {
+        color-backg: #007bfBf;
+        text-decoration: none;
+    }
+
+    .text-primary:hover {
+        color: #0069d9;
+        text-decoration: none;
+    }
+</style> -->
+
+
+<!-- 
+                    <div class="col-lg-8">
+                        <div class="small-tittle mb-20">
+                        <h2>Description</h2>
+                        </div>
+                        <div class="directory-cap mb-40">
+                            <P>The ruffled blouse is a feminine and elegant addition to any wardrobe. With its lightweight fabric and cascading ruffles, it is perfect for dressing up or down for any occasion.</P>
+
+                        </div>
+                        </div>
+                        </div> -->
+                     
+                                  
+        <!--  Details End -->
+        <!-- listing-area Area End -->
+        <!--? Popular Locations Start 01-->
+        <!-- <div class="popular-product pt-50">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="single-product mb-50">
+                            <div class="location-img">
+                                <img src="assets/img/gallery/popular-imtes1.png" alt="">
+                            </div>
+                            <div class="location-details">
+                                <p><a href="product_details.html">Established fact that by the<br> readable content</a></p>
+                                <a href="product_details.html" class="btn">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="single-product mb-50">
+                            <div class="location-img">
+                                <img src="assets/img/gallery/popular-imtes2.png" alt="">
+                            </div>
+                            <div class="location-details">
+                                <p><a href="product_details.html">Established fact that by the<br> readable content</a></p>
+                                <a href="product_details.html" class="btn">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+        <!-- Popular Locations End -->
+
        <!--? Services Area Start -->
       </div>
     </div>
@@ -858,37 +906,9 @@ if (isset($_POST['product_name'])) {
   //       });
   //       });
         
-    //     $('h3 a').click(function(event) {
-    // event.preventDefault(); // Mencegah aksi default dari elemen a
-
-    // Mengambil isi dari elemen a yang diklik
-    // let isiLink = $(this).text();
-
-    // $.ajax({
-    //     type: "POST",
-    //     url: "/product_details",
-    //     data: { link: isiLink },
-    //     success: function(response) {
-    //         console.log(response.message);
-    //     },
-    //     error: function(xhr, status, error) {
-    //         console.log('Terjadi kesalahan:', error);
-    //     }
-    // });
 
 
-        $('h3 a').click(function() {
-          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-          let isiRelated = $(this).text();
-          $.ajax({
-            type: "POST",
-            url: "product_details.php",
-            data: { relatedproduct: isiRelated },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP");
-            }
-          });
-        });
+
 
         function updateImageSrc(screenWidth) {
             // Select elemen gambar
@@ -1000,56 +1020,6 @@ if (isset($_POST['product_name'])) {
                     });
                 }
             }
-    //         $('h3 a').click(function(event) {
-    //     // event.preventDefault(); // Prevent the default link behavior
-
-    //     let productName = $(this).text();
-
-    //     // Sending an AJAX request with CSRF token
-    //     $.ajax({
-    //         method: "POST",
-    //         url: "/product_details", // Send the AJAX request to the current URL (product_details)
-    //         data: {
-    //             _token: csrfToken, // Include CSRF token in the request data
-    //             product_name: productName
-    //         },
-    //         success: function(response) {
-    //             // Handle the response and update the related products section on the page
-    //             $('#related-products').html(response);
-    //         },
-    //         error: function(xhr, status, error) {
-    //             console.log(error); // Handle any errors
-    //         }
-    //     });
-    // });
-    // $.ajaxSetup({
-    //       headers: {
-    //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    //       }
-    //     });
-
-let csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-$('h3 a').click(function(event) {
-  let isiLink = $(this).text();
-
-  // Mengirim permintaan AJAX dengan token CSRF
-  $.ajax({
-    method: "POST",
-    url: "/product_details",
-    data: {
-      _token: csrfToken, // Menyertakan token CSRF dalam data permintaan
-      link: isiLink
-    },
-     success: function(response) {
-          // Menampilkan div dengan hasil respons di dalamnya
-          console.log(response);
-        },
-    
-  });
-});
-
-
     </script>
 </body>
 </html>

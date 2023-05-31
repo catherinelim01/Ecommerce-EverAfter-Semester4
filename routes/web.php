@@ -19,6 +19,9 @@ use App\Http\Controllers\OrderController;
 |
 */
 
+Route::get('/', function () {
+    return view('index');
+});
 Route::get('/index', function () {
     return view('index');
 });
@@ -61,7 +64,9 @@ Route::get('/contact', function () {
 });
 Route::get('/profile', function () {
     return view('profile');
-});
+})->name('profile');
+
+
 // Route::group(['prefix' => '/'], function () {
 //     Route::get('/shop', function () {
 //         return view('shop');
@@ -93,9 +98,18 @@ Route::get('/shop/page/{page}', function ($page) {
 //     return response('Data berhasil disimpan ke session.');
 // })->name('product.details.post');
 
+
+
 Route::get('/product_details', function () {
     return view('product_details');
-});
+})->name('product_details');
+
+Route::get('/product_details/{product_name}', [App\Http\Controllers\ProductController::class, 'showProductDetails']);
+
+// Route::get('/product_details', [App\Http\Controllers\ProductController::class, 'productDetails'])->name('product_details');
+
+
+
 
 
 Route::post('/product_details', [App\Http\Controllers\ProductController::class, 'getProductDetails']);
@@ -104,6 +118,7 @@ Route::post('/product_details', [App\Http\Controllers\ProductController::class, 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+
 
 
 
