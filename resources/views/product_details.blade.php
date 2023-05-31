@@ -10,7 +10,6 @@ if (isset($_POST['link'])) {
 $link_tes = session('link_tes');
 
 // Menampilkan nilai link_tes
-echo $link_tes;
 
 //   }
 //   if (isset(session('link_tes'))) {
@@ -31,6 +30,7 @@ echo $link_tes;
 <!doctype html>
 <html class="no-js" lang="zxx">
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Ever After | Fashion</title>
@@ -57,6 +57,7 @@ echo $link_tes;
     
 </head>
 <body class="full-wrapper">
+  @csrf
   @include('header')
     <main>
         <!-- breadcrumb Start-->
@@ -217,7 +218,15 @@ echo $link_tes;
                         <input type="number" id="quantity" name="quantity"value="1" min="1" style="width: 293px;">
                     </div><br>
                     <div class="add-to-cart">
-                        <button class="btn">Add to Cart</button>
+                        <button class="btn" onclick="<?php 
+                          $sqlID= "SELECT CONCAT('CART', LPAD(SUBSTRING(MAX(CART_ID), 5) + 1, 5, '0')) AS CART_ID FROM CART";
+                          $result= DB::select($sqlID);
+                          $cartID = $result[0]->CART_ID; 
+                          $sql = "INSERT INTO CART VALUES($cartID , 'C00001' , '0','0')"; // TANYA VC custID nya
+                          $sql2 = "INSERT INTO PRODUCT_CART VALUES($link_tes,$cartID)";
+                          DB::insert($sql);
+                          DB::insert($sql2);
+                        ?>">Add to Cart</button>
                         <button class="btn">Checkout</button>
                     </div><br>
                     <div class="product-info" onclick="showProductDetail()">
@@ -1020,6 +1029,11 @@ echo $link_tes;
                     });
                 }
             }
+          $.ajaxSetup({
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+          });
     </script>
 </body>
 </html>

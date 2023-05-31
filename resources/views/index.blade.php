@@ -551,6 +551,24 @@
   <!-- cart login end -->
  
   <!-- cart -->
+  <?php 
+          // $sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, p.product_price, po.qty ,d.delivery_name,d.delivery_cost, a.address ,format(((o.grand_total*qty) - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url from `order` o, product_order po , product p , delivery d, address a where o.order_id = po.order_id and po.product_id = p.product_id and d.delivery_id = o.delivery_id and a.CUSTOMER_ID = o.CUSTOMER_ID  order by 2 desc";
+          // $result= DB::select($sql);
+        
+          // if (count($result) > 0) {
+          //   $response = [];
+          //   foreach ($result as $row) {
+          //       $dt = new stdClass();
+          //       $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+          //       $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+          //       $dt->SIZE = $row->SIZE;
+          //       $response[] = $dt;
+          //   }
+            
+          //   $hasil_json=json_encode($response);
+          //   $data = json_decode($hasil_json,true);
+            // for($i = 0; $i < count($data); $i++) { 
+              ?>
   <div class="cart-container">
   <a class="close cart" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -607,6 +625,12 @@
       <button class="continue-shopping">CONTINUE SHOPPING</button>
     </div>
   </div>
+  <?php 
+// }
+ ?>
+            <?php 
+          // }
+           ?>
 <!-- cart end -->
 
     </main>

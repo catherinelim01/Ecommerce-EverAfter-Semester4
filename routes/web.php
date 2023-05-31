@@ -114,6 +114,9 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::get('/product_details', function () {
     return view('product_details');
 });
+Route::get('/cart.php', function () {
+    return view('cart');
+});
 
 
 

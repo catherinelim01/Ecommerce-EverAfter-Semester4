@@ -5,5 +5,4 @@
 $shopnow = session('shopnow');
 
 // Menampilkan nilai shopnow
-echo $shopnow;
 ?>
