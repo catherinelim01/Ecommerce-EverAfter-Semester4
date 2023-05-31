@@ -30,8 +30,7 @@ if (Session::has('customer_id')) {
 <html class="no-js" lang="zxx">
 
 <head>
-<meta name="csrf-token" content="{{ csrf_token() }}">
-
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta charset="utf-8" />
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <title>Ever After | Fashion</title>
@@ -230,6 +229,7 @@ if (Session::has('customer_id')) {
 </head>
 
 <body class="full-wrapper">
+@csrf
 @include('header')
 @if ($errors->any())
     <div class="alert alert-danger">
@@ -490,7 +490,6 @@ if (Session::has('customer_id')) {
               <h2>Log in</h2>
             </div>
             <form class="formlogin" action="{{ route('login') }}" method="POST">
-              @csrf
               <div class="form-group mt-20">
                   <input type="email" class="form-control" name="customer_email" required placeholder="Username or email address *" aria-describedby="emailHelp">
               </div>
@@ -507,7 +506,7 @@ if (Session::has('customer_id')) {
           <div class="cart-header login">
             <h2>Sign Up</h2>
           </div>
-          <form class="formsignup" action="profile.php">
+          <form class="formsignup" action="{{ url('profile') }}">
             <div class="form-group mt-20">
               <input type="email" class="form-control" id="inputEmailRegis" required placeholder="Email address *" aria-describedby="emailHelp">
             </div>
@@ -581,7 +580,7 @@ if (Session::has('customer_id')) {
 
 
       <div class="cart-actions">
-        <a href="cart.php"><button class="checkout-btn">CHECKOUT</button></a>
+        <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a>
         <button class="continue-shopping">CONTINUE SHOPPING</button>
       </div>
     </div>
@@ -628,12 +627,12 @@ if (Session::has('customer_id')) {
               <div class="single-footer-caption mb-50">
                 <div class="footer-tittle categ">
                   <ul>
-                    <li><a href="shop.php">Tops</a></li>
-                    <li><a href="shop.php">Dresses</a></li>
-                    <li><a href="shop.php">Shorts</a></li>
-                    <li><a href="shop.php">Skirts</a></li>
-                    <li><a href="shop.php">Trousers</a></li>
-                    <li><a href="shop.php">Jumpsuits</a></li>
+                    <li><a href="{{ url('shop') }}">Tops</a></li>
+                    <li><a href="{{ url('shop') }}">Dresses</a></li>
+                    <li><a href="{{ url('shop') }}">Shorts</a></li>
+                    <li><a href="{{ url('shop') }}">Skirts</a></li>
+                    <li><a href="{{ url('shop') }}">Trousers</a></li>
+                    <li><a href="{{ url('shop') }}">Jumpsuits</a></li>
                   </ul>
                 </div>
               </div>
@@ -642,12 +641,12 @@ if (Session::has('customer_id')) {
               <div class="single-footer-caption mb-50">
                 <div class="footer-tittle categ">
                   <ul class="">
-                    <li><a href="shop.php">Sets</a></li>
-                    <li><a href="shop.php">Denim</a></li>
-                    <li><a href="shop.php">Outerwear</a></li>
-                    <li><a href="shop.php">Bags</a></li>
-                    <li><a href="shop.php">Fragrance</a></li>
-                    <li><a href="shop.php">Accessories</a></li>
+                    <li><a href="{{ url('shop') }}">Sets</a></li>
+                    <li><a href="{{ url('shop') }}">Denim</a></li>
+                    <li><a href="{{ url('shop') }}">Outerwear</a></li>
+                    <li><a href="{{ url('shop') }}">Bags</a></li>
+                    <li><a href="{{ url('shop') }}">Fragrance</a></li>
+                    <li><a href="{{ url('shop') }}">Accessories</a></li>
                   </ul>
                 </div>
               </div>
@@ -990,8 +989,13 @@ if (Session::has('customer_id')) {
       cardAddress.style.display = 'flex';
       dalemeditaddress.style.display = 'none';
     });
-
-    $('.footer-tittle.categ ul li a').click(function() {
+    $.ajaxSetup({
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+    });
+    
+$('.footer-tittle.categ ul li a').click(function() {
       // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
       let isiShopNow = $(this).text();
       $.ajax({
@@ -1020,11 +1024,7 @@ if (Session::has('customer_id')) {
       });
     });
 
-    $.ajaxSetup({
-  headers: {
-    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-  }
-});
+      $('.full-wrapper').css('overflow', 'hidden');
     $('.details').click(function() {
   // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
   let isiorderid = $(this).closest('.row').prev().find('.orderid').text()

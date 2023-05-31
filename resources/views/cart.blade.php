@@ -2,6 +2,7 @@
 <html class="no-js" lang="zxx">
   <head>
     <meta charset="utf-8" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>Ever After | Fashion</title>
     <meta name="description" content="" />
@@ -30,8 +31,8 @@
     <link rel="stylesheet" href="assets/css/style.css" />
   </head>
   <body class="full-wrapper">
-    
-    <?php require('header.php'); ?>
+    @csrf
+    @include('header')
     <main>
       <br>
       <div class="myshoppingbag">
@@ -753,30 +754,36 @@
             }
         });
 
-        $('.footer-tittle.categ ul li a').click(function() {
+    $.ajaxSetup({
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+    });
+    
+    $('.footer-tittle.categ ul li a').click(function() {
           // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-          let isiShopNow = $(this).text();
-          $.ajax({
-            type: "POST",
-            url: "linksess.php",
-            data: { shopnow: isiShopNow },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP");
-            }
-          });
-        });
+      let isiShopNow = $(this).text();
+      $.ajax({
+        type: "POST",
+        url: "/shop",
+        data: { shopnow: isiShopNow },
+        success: function() {
+          console.log("Data berhasil dikirim ke PHP");
+        }
+      });
+    });
         
-        $('.browsemore').click(function() {
-          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-          $.ajax({
-            type: "POST",
-            url: "linksess.php",
-            data: { shopnow: "" },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-            }
-          });
-        });
+    $('.browsemore').click(function() {
+      // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+      $.ajax({
+        type: "POST",
+        url: "linksess.php",
+        data: { shopnow: "" },
+        success: function() {
+          console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+        }
+      });
+    });
   </script>
   </body>
 </html>

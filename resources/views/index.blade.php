@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
   <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>Ever After | Fashion</title>
@@ -55,7 +56,7 @@
                     <!-- Hero Caption -->
                     <div class="hero__caption">
                       <h1>fashion<br />changing<br />always</h1>
-                      <a href="shop.php" class="btn shopnow browsemore">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow browsemore">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -71,7 +72,7 @@
                     <!-- Hero Caption -->
                     <div class="hero__caption">
                       <h1>fashion<br />changing<br />always</h1>
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -87,7 +88,7 @@
                     <!-- Hero Caption -->
                     <div class="hero__caption">
                       <h1>fashion<br />changing<br />always</h1>
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -99,6 +100,7 @@
       <!-- End Hero -->
       <!--? Popular Items Start -->
       <div class="popular-items pt-50">
+      @csrf
         <div class="container-fluid">
           <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-6">
@@ -113,7 +115,7 @@
                     <span>Tops</span>
                   </div>
                   <div class="favorit-items">
-                    <a href="shop.php" class="btn shopnow">Shop Now</a>
+                    <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                   </div>
                 </div>
               </div>
@@ -130,7 +132,7 @@
                     <span>Dresses</span>
                   </div>
                   <div class="favorit-items">
-                    <a href="shop.php" class="btn shopnow">Shop Now</a>
+                    <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                   </div>
                 </div>
               </div>
@@ -147,7 +149,7 @@
                     <span>Shorts</span>
                   </div>
                   <div class="favorit-items">
-                    <a href="shop.php" class="btn shopnow">Shop Now</a>
+                    <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                   </div>
                 </div>
               </div>
@@ -164,7 +166,7 @@
                     <span>Skirts</span>
                   </div>
                   <div class="favorit-items">
-                    <a href="shop.php" class="btn shopnow">Shop Now</a>
+                    <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                   </div>
                 </div>
               </div>
@@ -183,7 +185,7 @@
                       <span>Trousers</span>
                     </div>
                     <div class="favorit-items">
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -200,7 +202,7 @@
                       <span>Jumpsuits</span>
                     </div>
                     <div class="favorit-items">
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -217,7 +219,7 @@
                       <span>Sets</span>
                     </div>
                     <div class="favorit-items">
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -234,7 +236,7 @@
                       <span>Denim</span>
                     </div>
                     <div class="favorit-items">
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -252,7 +254,7 @@
                         <span>Outerwear</span>
                       </div>
                       <div class="favorit-items">
-                        <a href="shop.php" class="btn shopnow">Shop Now</a>
+                        <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                       </div>
                     </div>
                   </div>
@@ -269,7 +271,7 @@
                         <span>Bags</span>
                       </div>
                       <div class="favorit-items">
-                        <a href="shop.php" class="btn shopnow">Shop Now</a>
+                        <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                       </div>
                     </div>
                   </div>
@@ -286,7 +288,7 @@
                         <span>Fragrance</span>
                       </div>
                       <div class="favorit-items">
-                        <a href="shop.php" class="btn shopnow">Shop Now</a>
+                        <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                       </div>
                     </div>
                   </div>
@@ -299,7 +301,7 @@
                         <span>Accessories</span>
                       </div>
                       <div class="favorit-items">
-                        <a href="shop.php" class="btn shopnow">Shop Now</a>
+                        <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                       </div>
                     </div>
                   </div>
@@ -340,7 +342,7 @@
                   </div>
                   <div class="popular-caption">
                     <h3>
-                      <a href="product_details.html">Yuna Tweed Crop Top</a>
+                      <a href="{{ url('product_details') }}">Yuna Tweed Crop Top</a>
                     </h3>
                     <span>IDR 230,000</span>
                   </div>
@@ -361,7 +363,7 @@
                   </div>
                   <div class="popular-caption">
                     <h3>
-                      <a href="#">Sunhwa Floral Dress</a>
+                      <a href="{{ url('product_details') }}">Sunhwa Floral Dress</a>
                     </h3>
                     <span>IDR 220,000</span>
                   </div>
@@ -382,7 +384,7 @@
                   </div>
                   <div class="popular-caption">
                     <h3>
-                      <a href="product_details.html"
+                      <a href="{{ url('product_details') }}"
                         >Yerim Scrunch Shoulder Bag</a
                       >
                     </h3>
@@ -404,7 +406,7 @@
                     </div>
                   </div>
                   <div class="popular-caption">
-                    <h3><a href="product_details.html">Meow Beanie</a></h3>
+                    <h3><a href="{{ url('product_details') }}">Meow Beanie</a></h3>
                     <span>IDR 150,000</span>
                   </div>
                 </div>
@@ -414,7 +416,7 @@
           <!-- Button -->
           <div class="row justify-content-center">
             <div class="room-btn">
-              <a href="shop.php" class="border-btn browsemore">Browse More</a>
+              <a href="{{ url('shop') }}" class="border-btn browsemore">Browse More</a>
             </div>
           </div>
         </div>
@@ -437,7 +439,7 @@
                 Trendy Fashion for Women
               </h2>
               <a
-                href="about.html"
+                href="{{ url('about') }}"
                 class="btn wow fadeInUp"
                 data-wow-duration="2s"
                 data-wow-delay=".4s"
@@ -584,6 +586,24 @@
   <!-- cart login end -->
  
   <!-- cart -->
+  <?php 
+          // $sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, p.product_price, po.qty ,d.delivery_name,d.delivery_cost, a.address ,format(((o.grand_total*qty) - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url from `order` o, product_order po , product p , delivery d, address a where o.order_id = po.order_id and po.product_id = p.product_id and d.delivery_id = o.delivery_id and a.CUSTOMER_ID = o.CUSTOMER_ID  order by 2 desc";
+          // $result= DB::select($sql);
+        
+          // if (count($result) > 0) {
+          //   $response = [];
+          //   foreach ($result as $row) {
+          //       $dt = new stdClass();
+          //       $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+          //       $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+          //       $dt->SIZE = $row->SIZE;
+          //       $response[] = $dt;
+          //   }
+            
+          //   $hasil_json=json_encode($response);
+          //   $data = json_decode($hasil_json,true);
+            // for($i = 0; $i < count($data); $i++) { 
+              ?>
   <div class="cart-container">
   <a class="close cart" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -636,10 +656,16 @@
 
     
     <div class="cart-actions">
-      <a href="cart.php"><button class="checkout-btn">CHECKOUT</button></a> 
+      <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
       <button class="continue-shopping">CONTINUE SHOPPING</button>
     </div>
   </div>
+  <?php 
+// }
+ ?>
+            <?php 
+          // }
+           ?>
 <!-- cart end -->
 
     </main>
@@ -653,7 +679,7 @@
                 <div class="single-footer-caption mb-30">
                   <!-- logo -->
                   <div class="footer-logo mb-35">
-                    <a href="index.html"
+                    <a href="{{ url('index') }}"
                       ><img src="assets/images/logo/logo_putih.png" alt=""
                     /></a>
                   </div>
@@ -683,12 +709,12 @@
                 <div class="single-footer-caption mb-50">
                   <div class="footer-tittle categ">
                     <ul>
-                      <li><a href="shop.php">Tops</a></li>
-                      <li><a href="shop.php">Dresses</a></li>
-                      <li><a href="shop.php">Shorts</a></li>
-                      <li><a href="shop.php">Skirts</a></li>
-                      <li><a href="shop.php">Trousers</a></li>
-                      <li><a href="shop.php">Jumpsuits</a></li>
+                      <li><a href="{{ url('shop') }}">Tops</a></li>
+                      <li><a href="{{ url('shop') }}">Dresses</a></li>
+                      <li><a href="{{ url('shop') }}">Shorts</a></li>
+                      <li><a href="{{ url('shop') }}">Skirts</a></li>
+                      <li><a href="{{ url('shop') }}">Trousers</a></li>
+                      <li><a href="{{ url('shop') }}">Jumpsuits</a></li>
                     </ul>
                   </div>
                 </div>
@@ -697,12 +723,12 @@
                 <div class="single-footer-caption mb-50">
                   <div class="footer-tittle categ">
                     <ul class="">
-                      <li><a href="shop.php">Sets</a></li>
-                      <li><a href="shop.php">Denim</a></li>
-                      <li><a href="shop.php">Outerwear</a></li>
-                      <li><a href="shop.php">Bags</a></li>
-                      <li><a href="shop.php">Fragrance</a></li>
-                      <li><a href="shop.php">Accessories</a></li>
+                      <li><a href="{{ url('shop') }}">Sets</a></li>
+                      <li><a href="{{ url('shop') }}">Denim</a></li>
+                      <li><a href="{{ url('shop') }}">Outerwear</a></li>
+                      <li><a href="{{ url('shop') }}">Bags</a></li>
+                      <li><a href="{{ url('shop') }}">Fragrance</a></li>
+                      <li><a href="{{ url('shop') }}">Accessories</a></li>
                     </ul>
                   </div>
                 </div>
@@ -1167,16 +1193,21 @@ $('h3 a').click(function(event) {
             updateImageSrc(window.innerWidth);
         });
         
-
+        $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
         $('.btn.shopnow').click(function() {
           // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
           let isiShopNow = $(this).closest('.single-popular-items').find('.img-cap span').text();
           $.ajax({
-            type: "POST",
-            url: "linksess.php",
+            method: "POST",
+            url: "/shop",
             data: { shopnow: isiShopNow },
-            success: function() {
+            success: function(response) {
               console.log("Data berhasil dikirim ke PHP");
+              console.log(response);
             }
           });
         });
@@ -1185,7 +1216,7 @@ $('h3 a').click(function(event) {
           let isiShopNow = $(this).text();
           $.ajax({
             type: "POST",
-            url: "linksess.php",
+            url: "/shop",
             data: { shopnow: isiShopNow },
             success: function() {
               console.log("Data berhasil dikirim ke PHP");
@@ -1197,7 +1228,7 @@ $('h3 a').click(function(event) {
           // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
           $.ajax({
             type: "POST",
-            url: "linksess.php",
+            url: "/shop",
             data: { shopnow: "" },
             success: function() {
               console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
@@ -1210,7 +1241,7 @@ $('h3 a').click(function(event) {
           let isiLink = $(this).text();
           $.ajax({
             type: "POST",
-            url: "product_details.php",
+            url: "/product_details",
             data: {
               link: isiLink
             },

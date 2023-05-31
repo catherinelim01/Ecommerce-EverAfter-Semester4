@@ -30,7 +30,7 @@
 
 <body class="full-wrapper">
     <!-- ? Preloader Start -->
-    <?php require('header.php'); ?>
+    @include('header')
     <main>
         <!-- breadcrumb Start-->
         <div class="page-notification page-notification2">
