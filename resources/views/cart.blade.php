@@ -1,3 +1,11 @@
+<?php
+if (isset($_POST['value'])) {
+  $value = $_POST['value'];
+  session::put('value_tes', $value);
+  
+  echo 'Data berhasil disimpan ke sesi.';
+}
+?>
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
   <head>
@@ -68,6 +76,26 @@
 
 <div class="row cartpage">
     <div class="produkdlmcart col-12 col-lg-9">
+          <?php
+          $sql="SELECT p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.PRODUCT_PRICE, PRODUCT_URL , size;";
+          $result= DB::select($sql);
+        
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+                $dt->size = $row->size;
+                $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+                $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                
+                $response[] = $dt;
+            }
+            
+            $hasil_json=json_encode($response);
+            $data = json_decode($hasil_json,true);
+            for($i = 0; $i < count($data); $i++) { 
+              ?>
         <div class="row">
             <div class="col-5  col-sm-4 col-md-3 isicart">
                 <br>
@@ -77,7 +105,7 @@
                         <div class="row">
                             <div class="col-2">
                                 <!-- Item image -->
-                                <img src="assets/images/denim/2.jpg" alt="Item 1">
+                                <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="Item 1">
                             </div>
                         </div>
                     </div>
@@ -85,12 +113,13 @@
             </div>
             <div class="col-3 col-sm-4 col-md-3 isicart">
                 <br><br>    
-                <h4>Kai Ripped Jacket</h4>
+                <h4><?php echo $data[$i]["PRODUCT_NAME"]; ?></h4>
                 <!-- Item size and price -->
                 <br><br>
-                <p>Size: All Size</p>
-                <p>Price: IDR 260,000</p>
+                <p>Size: <?php echo $data[$i]["size"]; ?></p>
+                <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
             </div>
+
             <div class="col-2 isicart">
                 <br><br>
                 <!-- Item price and quantity -->
@@ -110,47 +139,8 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-5  col-sm-4 col-md-3 isicart">
-                <br>
-                <!-- Place your cart items here -->
-                <div class="card cardcart">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-2">
-                                <!-- Item image -->
-                                <img src="assets/images/tops/7.jpg" alt="Item 1">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-3 col-sm-4 col-md-3 isicart">
-                <br><br>    
-                <h4>Kaelyn Checkered Sheer Top</h4>
-                <!-- Item size and price -->
-                <br><br>
-                <p>Size: All Size</p>
-                <p>Price: IDR 180,000</p>
-            </div>
-            <div class="col-2 isicart">
-                <br><br>
-                <!-- Item price and quantity -->
-                <div class="input-group">
-                    <span class="input-group-btn">
-                        <!-- <button type="button" class="btn btn-secondary" id="decrementBtn">-</button> -->
-                    </span>
-                    <input type="number" id="quantity" name="quantity" min="1" max="10" value="1" class="form-control">
-                    <span class="input-group-btn">
-                        <!-- <button type="button" class="btn btn-secondary" id="incrementBtn">+</button> -->
-                    </span>
-                </div>
-            </div>
-            <div class="col-2 isicart">
-                <br><br>
-                <p>IDR 180,000</p>
-            </div>
-        </div>
+        <?php } ?>
+    <?php } ?>
     </div>
 
     <div class="isitabelsummary col-12 col-lg-3 mt-5">
@@ -532,6 +522,21 @@
     <script src="./assets/js/plugins.js"></script>
     <script src="./assets/js/main.js"></script>
     <script>
+      $(document).ready(function() {
+          $("#quantity").on("input", function() {
+              var value = $(this).val();
+             
+              // Gunakan nilai sesuai kebutuhan Anda
+          });
+      });
+      $.ajax({
+        url: "/cart",
+        method: "POST",
+        data: { value: value },
+        success: function(response) {
+          console.log(response);
+          // Proses respons dari server
+      }});
       const logocartlogin = document.querySelector('.logocart-login');
       const containercartlogin = document.querySelector('.cart-container-login');
       const btnclose = document.querySelector('.close.login');
@@ -784,6 +789,9 @@
         }
       });
     });
+
+
+
   </script>
   </body>
 </html>

@@ -586,24 +586,6 @@
   <!-- cart login end -->
  
   <!-- cart -->
-  <?php 
-          // $sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, p.product_price, po.qty ,d.delivery_name,d.delivery_cost, a.address ,format(((o.grand_total*qty) - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url from `order` o, product_order po , product p , delivery d, address a where o.order_id = po.order_id and po.product_id = p.product_id and d.delivery_id = o.delivery_id and a.CUSTOMER_ID = o.CUSTOMER_ID  order by 2 desc";
-          // $result= DB::select($sql);
-        
-          // if (count($result) > 0) {
-          //   $response = [];
-          //   foreach ($result as $row) {
-          //       $dt = new stdClass();
-          //       $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
-          //       $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
-          //       $dt->SIZE = $row->SIZE;
-          //       $response[] = $dt;
-          //   }
-            
-          //   $hasil_json=json_encode($response);
-          //   $data = json_decode($hasil_json,true);
-            // for($i = 0; $i < count($data); $i++) { 
-              ?>
   <div class="cart-container">
   <a class="close cart" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -613,40 +595,84 @@
     </div>
     <hr class="garisunderline">
     <div class="cart-items">
+  <?php 
+          $sql="SELECT p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.PRODUCT_PRICE, PRODUCT_URL , size;";
+          $result= DB::select($sql);
+        
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+                $dt->size = $row->size;
+                $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+                $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                
+                $response[] = $dt;
+            }
+            
+            $hasil_json=json_encode($response);
+            $data = json_decode($hasil_json,true);
+            for($i = 0; $i < count($data); $i++) { 
+              ?>
+
       <div class="row cart-item">
         <div class="col-5 item-image">
-          <img src="{{ asset('assets/images/denim/2.jpg') }}" alt="" />
+        <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
         </div>
         <div class=" col-7 item-details">
-          <h3>Kai Ripped Jacket</h3>
-          <p>Price: IDR 260,000</p>
-          <p>Size: Allsize</p>
+          <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
+          <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+          <p>Size: <?php echo $data[$i]["size"]; ?></p>
           <p>Quantity: 1</p>
           <button class="remove-btn mt-4">Remove</button>
         </div>
       </div>
       
-      <div class="row cart-item">
-        <div class="col-5 item-image">
-          <img src="{{ asset('assets/images/tops/7.jpg') }}" alt="Product Image" />
-        </div>
-        <div class="col-7 item-details">
-          <h3>Kaelyn Checkered Sheer Top</h3>
-          <p>Price: IDR 180,000</p>
-          <p>Size: All Size</p>
-          <p>Quantity: 1</p>
-          <button class="remove-btn mt-4">Remove</button>
-        </div>
-
-      </div>
       
+      
+    
+  <?php } ?>
+    <?php } ?>
     </div>
     <div class="cart-summary">
       <table>
+        <?php
+        $sql="SELECT
+  c.CART_ID,
+  FORMAT(
+    (
+      SELECT SUM(p.PRODUCT_PRICE)
+      FROM PRODUCT p
+      JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID
+      WHERE pc.CART_ID = c.CART_ID
+    ),
+    0
+  ) AS subtotal
+FROM
+  CART c
+WHERE
+  c.CUSTOMER_ID = '" . session('customer_id') . "';
+        ";
+        $result= DB::select($sql);
+      
+        if (count($result) > 0) {
+          $response = [];
+          foreach ($result as $row) {
+              $dt = new stdClass();
+              $dt->subtotal = $row->subtotal;
+              $response[] = $dt;
+          }
+          
+          $hasil_json=json_encode($response);
+          $data = json_decode($hasil_json,true);
+            ?>
         <tr>
+        
           <td><h3>SUBTOTAL: </h3></td>
-          <td><h3>IDR 440,000</h3></td>
+          <td><h3>IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
         </tr>
+        <?php } ?>
         <!-- <tr class="total">
           <td>Total:</td>
           <td>IDR 260,000</td> -->
@@ -660,12 +686,6 @@
       <button class="continue-shopping">CONTINUE SHOPPING</button>
     </div>
   </div>
-  <?php 
-// }
- ?>
-            <?php 
-          // }
-           ?>
 <!-- cart end -->
 
     </main>
@@ -830,7 +850,6 @@
 
 @if($remainingTime > 0)
 <script>
-   $(".cart-container-login").remove();
       const closecart = document.querySelector('.close.cart');
       const full = document.querySelector('.full-wrapper');
       const navprofile = document.querySelector('.slicknav_menu a.navprofile');
@@ -844,11 +863,13 @@
       navprofile.style.display = 'none';
       navv.style.display = 'none';
 
+
       function updateNavbar(screenWidth) {
           // Add event listener to detect media query change
           if (window.innerWidth >= 415 && window.innerWidth <= 576) {
             navprofile.style.display = 'none';
-              logocart.addEventListener('mouseenter', function(event) {
+              
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
@@ -867,138 +888,152 @@
           
           else if (window.innerWidth <= 415) { // media query condition
               navprofile.style.display = 'block';
-              logocart.addEventListener('mouseenter', function(event) {
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
-              
-              containercart.addEventListener('mouseleave', function(event) {
-                  event.preventDefault();
-                  // containercart.style.display = 'none';
-                  full.style.overflow = 'visible';
-                  containercart.style.animation = 'slideInToRightMobile 1s forwards';
-              });
 
+              
               navprofile.addEventListener('click', function(event) {
               event.preventDefault();
               full.style.overflow = 'hidden';
               containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               
               });
+
           } else {
               navprofile.style.display = 'none';
-              logocart.addEventListener('mouseenter', function(event) {
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
-              
-              containercart.addEventListener('mouseleave', function(event) {
-                  event.preventDefault();
-                  // containercart.style.display = 'none';
-                  full.style.overflow = 'visible';
-                  containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                  if($('.logocart-login').hasClass('active')){
-                    full.style.overflow = 'hidden';
-                    
-                  }
+
+              $(".close.cart").on('click', function(event) {
+                event.preventDefault();
+                containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                full.style.overflow = 'visible';
+                if($('.logocart-login').hasClass('active')){
+                  full.style.overflow = 'hidden';
+                }
               });
+
+              // $('.cart-container-login').one('animationend', function() {
+              //     $(document).on('click', function(event) {
+              //         if ($('.cart-container-login').css('right') === '0px') {
+              //         const container = $('.cart-container-login');
+              //         const iconcart = $('.logocart-login');
+
+              //         if (!container.is(event.target) && container.has(event.target).length === 0 && !iconcart.is(event.target) && iconcart.has(event.target).length === 0) {
+              //             // Click was outside the div, do something here
+              //             event.preventDefault();
+              //             containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+              //             isiSignup.style.display = 'none';
+              //             login.style.display="block";
+              //             full.style.overflow = 'visible';
+              //         }
+              //         }
+              //     });
+              // });
+          
           };
       }
+
       updateNavbar(window.innerWidth);
       // Check screen size on window resize
       window.addEventListener("resize", function() {
           updateNavbar(window.innerWidth);
       });
-   // Mengambil token CSRF dari meta tag
-   $.ajaxSetup({
+
+
+        window.onpageshow = function(event) {
+          if (event.persisted) {
+            // Page is loaded from cache (user clicked back button)
+            location.reload();
+          }
+        };
+        function updateImageSrc(screenWidth) {
+            // Select elemen gambar
+            const imgHeart = document.getElementById('heart');
+            const imgCard = document.getElementById('cart');
+            // Add event listener to detect media query change
+            
+            if (window.innerWidth <= 576) { // media query condition
+                imgHeart.src = 'assets/images/logo/heart-black.svg';
+                imgCard.src = 'assets/images/logo/cart-black.svg';
+            } else {
+                imgHeart.src = 'assets/images/logo/heart.svg';
+                imgCard.src = 'assets/images/logo/card.svg';
+            };
+        }
+
+        updateImageSrc(window.innerWidth);
+        // Check screen size on window resize
+        window.addEventListener("resize", function() {
+            updateImageSrc(window.innerWidth);
+        });
+        
+        $.ajaxSetup({
           headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           }
         });
+        $('.btn.shopnow').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          let isiShopNow = $(this).closest('.single-popular-items').find('.img-cap span').text();
+          $.ajax({
+            method: "POST",
+            url: "/shop",
+            data: { shopnow: isiShopNow },
+            success: function(response) {
+              console.log("Data berhasil dikirim ke PHP");
+              console.log(response);
+            }
+          });
+        });
+        $('.footer-tittle.categ ul li a').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          let isiShopNow = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: isiShopNow },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
+            }
+          });
+        });
+        
+        $('.browsemore').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: "" },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+            }
+          });
+        });
 
-let csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-$('h3 a').click(function(event) {
-  let isiLink = $(this).text();
-
-  // Mengirim permintaan AJAX dengan token CSRF
-  $.ajax({
-    method: "POST",
-    url: "/product_details",
-    data: {
-      _token: csrfToken, // Menyertakan token CSRF dalam data permintaan
-      link: isiLink
-    },
-     success: function(response) {
-          // Menampilkan div dengan hasil respons di dalamnya
-          console.log(response);
-        },
-    
-  });
-});
-
-
-    function updateImageSrc(screenWidth) {
-      // Select elemen gambar
-      const imgHeart = document.getElementById('heart');
-      const imgCard = document.getElementById('cart');
-      // Add event listener to detect media query change
-
-      if (window.innerWidth < 576) { // media query condition
-        imgHeart.src = 'assets/images/logo/heart-black.svg';
-        imgCard.src = 'assets/images/logo/cart-black.svg';
-      } else {
-        imgHeart.src = 'assets/images/logo/heart.svg';
-        imgCard.src = 'assets/images/logo/card.svg';
-      };
-    }
-
-    updateImageSrc(window.innerWidth);
-    // Check screen size on window resize
-    window.addEventListener("resize", function() {
-      updateImageSrc(window.innerWidth);
-    });
-
-    $('.footer-tittle.categ ul li a').click(function() {
-      // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-      let isiShopNow = $(this).text();
-      $.ajax({
-        type: "POST",
-        url: "linksess.php",
-        data: {
-          shopnow: isiShopNow
-        },
-        success: function() {
-          console.log("Data berhasil dikirim ke PHP");
-        }
-      });
-    });
-
-    $('.browsemore').click(function() {
-      // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-      $.ajax({
-        type: "POST",
-        url: "linksess.php",
-        data: {
-          shopnow: ""
-        },
-        success: function() {
-          console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-        }
-      });
-    });
-
-
-    function updateSelectedText() {
-    var select3 = document.getElementsByName('select3')[0];
-    var selectedText = select3.options[select3.selectedIndex].text;
-    var selectedTextElement = document.getElementById('selected-text');
-    selectedTextElement.textContent = selectedText;}
-   
+        $('h3 a').click(function() {
+          // Mengambil isi dari elemen a yang diklik
+          let isiLink = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "/product_details",
+            data: {
+              link: isiLink
+            },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
+            }
+          });
+        });
+        
 </script>
 @endif
 @else
