@@ -169,8 +169,7 @@ if (isset($_POST['product_name'])) {
                 </div>
                 <div class="row">
                     <?php
-                    $related_product_name = $_GET['product_name'] ?? '';
-                    // Jika nilai $related_product_name tidak kosong, tambahkan ke dalam kondisi WHERE
+                    $related_product_name = session('link_tes');
                     $where_clause = [];
                     if (!empty($related_product_name)) {
                         // Ambil kategori produk yang dipilih
@@ -182,22 +181,24 @@ if (isset($_POST['product_name'])) {
                             $where_clause[] = ['p2.category_id', '=', $category_id];
                         }
                     }
-        
+                
                     $related_products = DB::table('product as p1')
                         ->distinct()
                         ->select('p2.product_name', 'p2.product_price', 'p2.product_url', 'p2.product_detail')
                         ->join('product as p2', 'p1.category_id', '=', 'p2.category_id')
                         ->join('category as c', 'p2.category_id', '=', 'c.category_id')
                         ->where($where_clause)
+                        ->where('p2.product_name', '!=', $related_product_name) 
                         ->orderByRaw('RAND()')
                         ->limit(4)
                         ->get();
-        
+
                     if ($related_products->count() > 0) {
                         foreach ($related_products as $key => $related_product) {
                             $related_product_name = $related_product->product_name;
                             $related_product_price = $related_product->product_price;
                             $related_product_url = $related_product->product_url;
+  
                     ?>
                             <div class="col-md-3">
                                 <div class="single-new-arrival mb-50 text-center">
@@ -220,13 +221,7 @@ if (isset($_POST['product_name'])) {
                         echo "Product not found";
                     }
                     ?>
-                </div>
-            </div>
-        </div>
-        
-            {{-- </div>
-          </div>
-        </div> --}}
+             
         
         
 

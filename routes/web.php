@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AddressController;
+use App\Http\Controllers\VoucherController;
 
 
 
@@ -104,7 +106,7 @@ Route::get('/shop/page/{page}', function ($page) {
 
 
 Route::post('/product_details', [App\Http\Controllers\ProductController::class, 'getProductDetails']);
-Route::post('/cart', [App\Http\Controllers\CartController::class, 'getCart']);
+Route::post('/cart', [App\Http\Controllers\CartController::class, 'cartVoucher']);
 
 // Route::post('/login', [App\Http\Controllers\AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -118,14 +120,9 @@ Route::get('/product_details', function () {
 Route::get('/cart.php', function () {
     return view('cart');
 });
+Route::get('/addresses', [AddressController::class, 'showAddresses']);
 
-
-
-
-
-
-
-
+Route::post('/add_to_cart', [CartController::class,'addToCart'])->name('add_to_cart');
 
 // Route::get('/shop', function () {
 //     return view('shop');
@@ -193,6 +190,13 @@ Route::post('/product_details', [App\Http\Controllers\ProductController::class, 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+
+
+// Route::get('/cart', [VoucherController::class, 'showCart']);
+// Route::post('/cart', [VoucherController::class, 'applyVoucher'])->name('applyVoucher');
+
+// Route::get('/cart', [VoucherController::class, 'getVouchers']);
+
 
 
 

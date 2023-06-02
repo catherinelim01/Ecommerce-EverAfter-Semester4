@@ -1,3 +1,9 @@
+<?php
+if (isset($_POST['voucherCode'])) {
+  echo session('voucherCode');
+}
+
+?>
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
   <head>
@@ -6,6 +12,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>Ever After | Fashion</title>
     <meta name="description" content="" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="manifest" href="site.webmanifest" />
     <link
@@ -148,32 +155,106 @@
   <div class="card">
     <div class="card-body">
       <table class="summarytable">
-        <tr>
+      <?php 
+    $sql="SELECT VOUCHER_NAME FROM VOUCHER";
+    $result= DB::select($sql);
+    $potongan = null;
+    if (count($result) > 0) {
+      $response = [];
+      foreach ($result as $row) {
+          $dt = new stdClass();
+          $dt->VOUCHER_NAME = $row->VOUCHER_NAME;
+          
+          $response[] = $dt;
+      }
+      
+      $hasil_json=json_encode($response);
+      $data = json_decode($hasil_json,true);
+      for($i = 0; $i < count($data); $i++) { 
+        if(session('voucherCode') && $data[$i]['VOUCHER_NAME'] == session('voucherCode')){
+          $potongan = session('voucherCode');
+          
+        }
+      }}
+        ?>
+      <?php
+        if(session('voucherCode')){
+          $sql="SELECT format(o.grand_total,0) as grand_total, FORMAT((o.grand_total ) * ((select voucher.DISCOUNT from voucher where voucher_name = '" . $potongan . "')/100), 0) AS total_potongan, format(convert((5/100)*o.GRAND_TOTAL,int),0) as pajak, format(d.delivery_cost,0) as delivery_cost ,format((o.grand_total - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total
+          from `order` o left join product_order po on o.order_id = po.order_id left join product p on po.product_id = p.product_id left join delivery d on d.delivery_id = o.delivery_id left join address a on a.CUSTOMER_ID = o.CUSTOMER_ID left join category ca on ca.CATEGORY_ID = p.CATEGORY_ID left join payment pa on pa.payment_id = o.payment_id where o.customer_id  = '" . session('customer_id') . "'  order by o.order_id desc;";
+          }else{
+            $sql="SELECT format(o.grand_total,0) as grand_total, format(o.total_potongan,0) as total_potongan ,format(convert((5/100)*o.GRAND_TOTAL,int),0) as pajak, format(d.delivery_cost,0) as delivery_cost ,format((o.grand_total - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total
+          from `order` o left join product_order po on o.order_id = po.order_id left join product p on po.product_id = p.product_id left join delivery d on d.delivery_id = o.delivery_id left join address a on a.CUSTOMER_ID = o.CUSTOMER_ID left join category ca on ca.CATEGORY_ID = p.CATEGORY_ID left join payment pa on pa.payment_id = o.payment_id where o.customer_id  = '" . session('customer_id') . "' order by o.order_id desc;";
+          }
+          
+          $result= DB::select($sql);
+        
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->grand_total = $row->grand_total;
+                $dt->total_potongan = $row->total_potongan;
+                $dt->pajak = $row->pajak;
+                $dt->delivery_cost = $row->delivery_cost;
+                $dt->total = $row->total;
+                
+                
+                $response[] = $dt;
+            }
+            
+            $hasil_json=json_encode($response);
+            $data = json_decode($hasil_json,true);
+          
+              ?>
+      
+ 
+
+
+      <tr>
           <td>Subtotal</td>
-          <td class="text-right">IDR 440,000</td>
+          <td class="text-right">IDR <?php echo $data[0]["grand_total"]; ?></td>
         </tr>
         <tr>
           <td>Tax(5%)</td>
-          <td class="text-right">+ IDR 22,000</td>
+          <td class="text-right">+ IDR <?php echo $data[0]["pajak"]; ?></td>
+        </tr>
+        <tr>
+    <td>
+        Promo Code
+        <br>
+
+        <form action="">
+        <div class="input-group mb-3">
+          <input type="text" class="form-control vocer" placeholder="Enter Code" aria-label="Recipient's username" aria-describedby="basic-addon2">
+          <div class="input-group-append pl-0">
+            <td class="pl-0"><button class="btn apply text-right apply" type="submit">Apply</button></td>
+            <TR>
+            <td class="pl-0 isivocer text-right"><p><?php echo (session('voucherCode')) ? '-IDR ' . $data[0]["total_potongan"] : 'N/A'; ?></p></td>
+            
+
+            </TR>
+          </div>
+        </div>
+          </form>
+
+          
+    </td>
+</tr>
+
+
+        <tr>
+        <tr>
+  
+
+</tr>
+
+        
+        <tr>
+          <td colspan="2"><hr></td>
         </tr>
         <tr>
           <td>Shipping</td>
           <td class="text-right">+ IDR 10,000</td>
-        </tr>
-        <tr>
-          <td>
-            Promo Code
-            <br>
-            <div class="input-group mb-3">
-  <input type="text" class="form-control" placeholder="Enter Code" aria-label="Recipient's username" aria-describedby="basic-addon2">
-  <div class="input-group-append pl-0">
-    <td class="pl-0"><button class="btn apply text-right " type="button">Apply</button></td>
-  </div>
-</div>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2"><hr></td>
         </tr>
         <tr>
           <td>TOTAL</td>
@@ -186,32 +267,51 @@
     </div>
   </div>
 </div>
-
+<?php } ?>
 
     <br><br><br>
 
+    
+
     <div class="pilihalamat col-12 mt-5">
-  <h5>CHOOSE ADDRESS</h5>
-  <div class="row">
-  <div class="col-12 col-md-6 col-lg-6 mt-14">
-      <div class="card card-address">
-        <div class="pilihalamat card-header">
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="shippingAddress" id="address1" checked>
+    <h5>CHOOSE ADDRESS</h5>
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-6 mt-14">
+            <div class="card card-address">
+                <div class="pilihalamat card-header">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="shippingAddress" id="address1" checked>
+                    </div>
+                    <div class="judulheader">
+                        Address 1
+                    </div>
+                </div>
+                <div class="preview-add">
+    @php
+    $customerId = session('customer_id');
+
+    $addresses = \App\Models\Address::join('customer AS cu', 'address.customer_id', '=', 'cu.customer_id')
+        ->select('cu.customer_name', 'address.address', 'address.phone')
+        ->where('cu.customer_id', $customerId)
+        ->get();
+    @endphp
+
+    @foreach ($addresses as $address)
+    <p>{{ $address->customer_name }}</p>
+    <p>{{ $address->address }}</p>
+    <p>{{ $address->phone }}</p>
+    @endforeach
+
+    @if ($addresses->isEmpty())
+    <p>Tidak ada data alamat yang ditemukan.</p>
+    @endif
+</div>
+
+
+            </div>
         </div>
-          <div class="judulheader">
-             Address 1
-          </div>
-        </div>
-        <div class="preview-add">
-          <p>nama</p>
-          <p>tes</p>
-          <p>kota</p>
-          <p>indo</p>
-        </div>
-        
-      </div>
     </div>
+</div>
 
 
     <div class="col-12 col-md-6 col-lg-6 mt-14">
@@ -596,6 +696,29 @@ WHERE
 
 @if($remainingTime > 0)
 <script>
+  $(document).ready(function() {
+  $('.apply').click(function(event) {
+    event.preventDefault();
+    var voucherCode = $('.vocer').val().toUpperCase();
+    console.log("Voucher Code: " + voucherCode);
+
+    // Send the voucher code to the server-side PHP script using AJAX
+    $.ajax({
+      url: '/cart', // Replace with the actual path to your PHP script
+      type: 'POST',
+      data: { voucherCode: voucherCode },
+      success: function(response) {
+        console.log("Response from PHP: " + response);
+        // Perform further actions based on the response from PHP
+      },
+      error: function() {
+        console.log("Error occurred during AJAX request.");
+      }
+    });
+    location.reload()
+  });
+});
+
   $(document).ready(function() {
     $(".quantityInput").on("input", function() {
       let harga = $(this).closest(".isicart").prev().find(".price").text();
