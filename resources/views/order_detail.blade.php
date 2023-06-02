@@ -2,7 +2,7 @@
 session_start();
 if (isset($_POST['orderid'])) {
     $orderid = $_POST['orderid'];
-    $_SESSION['order_id'] = $orderid;    
+    $_SESSION['order_id'] = $orderid;      
 }
   
 $sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, pa.payment_method, format(o.grand_total,0) as grand_total, ca.category_name,format(o.total_potongan,0) as total_potongan ,format(convert((5/100)*o.GRAND_TOTAL,int),0) as pajak, format(p.product_price,0) as product_price, po.qty ,d.delivery_name, format(d.delivery_cost,0) as delivery_cost, a.address ,format((o.grand_total - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url 
@@ -119,31 +119,32 @@ $data = json_decode($hasil_json,true);
             </div>
         </div>
         </div>
-
+        <?php for($i = 0; $i < count($data); $i++) { ?>
         <div class="card shadow-0 border mb-4" style="margin:35px;">
         <div class="card-body">
             <div class="row" style="justify-content: space-between;">
             <div class="col-md-2">
-                <img src="<?php echo $data[0]["product_url"]; ?>" class="img-fluid" alt="Item 1" style="height:100%">
+                <img src="<?php echo $data[$i]["product_url"]; ?>" class="img-fluid" alt="Item 1" style="height:100%">
             </div>
             <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                <p class="text-muted mb-0"><?php echo $data[0]["product_name"]; ?></p>
+                <p class="text-muted mb-0"><?php echo $data[$i]["product_name"]; ?></p>
             </div>
             <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                <p class="text-muted mb-0 small"><?php echo $data[0]["category_name"]; ?></p>
+                <p class="text-muted mb-0 small"><?php echo $data[$i]["category_name"]; ?></p>
             </div>
             <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                <p class="text-muted mb-0 small"><?php echo $data[0]["size"]; ?></p>
+                <p class="text-muted mb-0 small"><?php echo $data[$i]["size"]; ?></p>
             </div>
             <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                <p class="text-muted mb-0 small"><?php echo $data[0]["qty"]; ?></p>
+                <p class="text-muted mb-0 small"><?php echo $data[$i]["qty"]; ?></p>
             </div>
             <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                <p class="text-muted mb-0 small">IDR <?php echo $data[0]["product_price"]; ?></p>
+                <p class="text-muted mb-0 small">IDR <?php echo $data[$i]["product_price"]; ?></p>
             </div>
             </div>
         </div>
         </div>
+        <?php } ?>
     </section>
 
     <div class="pl-35 pr-35">

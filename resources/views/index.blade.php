@@ -517,7 +517,7 @@
       <!--? Services Area End -->
       <!-- cart -->
     <div class="cart-container-login geser">
-      {{-- @if(session('customer_id'))
+      <!-- {{-- @if(session('customer_id'))
     @php
         $loginTime = session('login_time');
         $currentTime = time();
@@ -533,7 +533,7 @@
             <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
         </div>
     </a>
-@endif --}}
+@endif --}} -->
 
 
       <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
@@ -565,15 +565,15 @@
           </div>
           <form class="formsignup" action="{{ route('register') }}" method="POST">
               @csrf
-              <div class="form-group mt-20">
+              <div class="form-group mt-20 regis">
                 <label for="inputEmailRegis">Name *</label>
                 <input type="text" class="form-control" id="inputNameRegis" name="customer_name" required aria-describedby="emailHelp">
             </div>
-              <div class="form-group mt-20">
+              <div class="form-group mt-10 regis">
                   <label for="inputEmailRegis">Email address *</label>
                   <input type="email" class="form-control" id="inputEmailRegis" name="customer_email" required aria-describedby="emailHelp">
               </div>
-              <div class="form-group mt-20">
+              <div class="form-group mt-10 regis">
                   <label for="inputPasswordRegis">Password *</label>
                   <input type="password" class="form-control" id="inputPasswordRegis" name="customer_password" required>
               </div>
@@ -863,12 +863,9 @@ WHERE
       navprofile.style.display = 'none';
       navv.style.display = 'none';
 
-
       function updateNavbar(screenWidth) {
           // Add event listener to detect media query change
           if (window.innerWidth >= 415 && window.innerWidth <= 576) {
-            navprofile.style.display = 'none';
-              
               logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
@@ -885,8 +882,7 @@ WHERE
                 }
               });
           }
-          
-          else if (window.innerWidth <= 415) { // media query condition
+          else if (window.innerWidth < 415) { // media query condition
               navprofile.style.display = 'block';
               logocart.addEventListener('click', function(event) {
                   event.preventDefault();
@@ -894,15 +890,12 @@ WHERE
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
-
-              
               navprofile.addEventListener('click', function(event) {
               event.preventDefault();
               full.style.overflow = 'hidden';
               containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               
               });
-
           } else {
               navprofile.style.display = 'none';
               logocart.addEventListener('click', function(event) {
@@ -920,25 +913,6 @@ WHERE
                   full.style.overflow = 'hidden';
                 }
               });
-
-              // $('.cart-container-login').one('animationend', function() {
-              //     $(document).on('click', function(event) {
-              //         if ($('.cart-container-login').css('right') === '0px') {
-              //         const container = $('.cart-container-login');
-              //         const iconcart = $('.logocart-login');
-
-              //         if (!container.is(event.target) && container.has(event.target).length === 0 && !iconcart.is(event.target) && iconcart.has(event.target).length === 0) {
-              //             // Click was outside the div, do something here
-              //             event.preventDefault();
-              //             containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-              //             isiSignup.style.display = 'none';
-              //             login.style.display="block";
-              //             full.style.overflow = 'visible';
-              //         }
-              //         }
-              //     });
-              // });
-          
           };
       }
 
@@ -947,8 +921,6 @@ WHERE
       window.addEventListener("resize", function() {
           updateNavbar(window.innerWidth);
       });
-
-
         window.onpageshow = function(event) {
           if (event.persisted) {
             // Page is loaded from cache (user clicked back button)
@@ -1082,7 +1054,6 @@ WHERE
         });
           // Add event listener to detect media query change
           if (window.innerWidth >= 415 && window.innerWidth <= 576) {
-            navprofile.style.display = 'none';
               logocartlogin.addEventListener('click', function(event) {
                 event.preventDefault();
                 // containercart.style.display = 'none';
@@ -1113,7 +1084,7 @@ WHERE
               });
           }
           
-          else if (window.innerWidth <= 415) { // media query condition
+          else if (window.innerWidth < 415) { // media query condition
               navprofile.style.display = 'block';
               logocart.addEventListener('click', function(event) {
                   event.preventDefault();
@@ -1164,24 +1135,6 @@ WHERE
               event.preventDefault();
               full.style.overflow = 'hidden';
               containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              // $('.cart-container-login').one('animationend', function() {
-              //     $(document).on('click', function(event) {
-              //         if ($('.cart-container-login').css('right') === '0px') {
-              //         const container = $('.cart-container-login');
-              //         const iconcart = $('.logocart-login');
-
-              //         if (!container.is(event.target) && container.has(event.target).length === 0 && !iconcart.is(event.target) && iconcart.has(event.target).length === 0) {
-              //             // Click was outside the div, do something here
-              //             event.preventDefault();
-              //             containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-              //             isiSignup.style.display = 'none';
-              //             login.style.display="block";
-              //             full.style.overflow = 'visible';
-              //         }
-              //         }
-              //     });
-              // });
-              
               });
 
               btnclose.addEventListener('click', function(event) {

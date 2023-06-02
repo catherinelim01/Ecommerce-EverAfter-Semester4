@@ -1,11 +1,3 @@
-<?php
-if (isset($_POST['value'])) {
-  $value = $_POST['value'];
-  session::put('value_tes', $value);
-  
-  echo 'Data berhasil disimpan ke sesi.';
-}
-?>
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
   <head>
@@ -21,6 +13,12 @@ if (isset($_POST['value'])) {
       type="image/x-icon"
       href="assets/img/favicon.ico"
     />
+    <script src="./assets/js/plugins.js"></script>
+    <script src="./assets/js/main.js"></script>
+    <script src="./assets/js/vendor/modernizr-3.5.0.min.js"></script>
+    <script src="./assets/js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
 
     <!-- CSS here -->
     <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
@@ -77,7 +75,7 @@ if (isset($_POST['value'])) {
 <div class="row cartpage">
     <div class="produkdlmcart col-12 col-lg-9">
           <?php
-          $sql="SELECT p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.PRODUCT_PRICE, PRODUCT_URL , size;";
+          $sql="SELECT FORMAT((p.PRODUCT_PRICE * '" . session('value') . "'),0) AS SUBTOTAL, p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "';";
           $result= DB::select($sql);
         
           if (count($result) > 0) {
@@ -88,6 +86,7 @@ if (isset($_POST['value'])) {
                 $dt->size = $row->size;
                 $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
                 $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                $dt->SUBTOTAL = $row->SUBTOTAL;
                 
                 $response[] = $dt;
             }
@@ -117,7 +116,7 @@ if (isset($_POST['value'])) {
                 <!-- Item size and price -->
                 <br><br>
                 <p>Size: <?php echo $data[$i]["size"]; ?></p>
-                <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+                <p class="price">Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
             </div>
 
             <div class="col-2 isicart">
@@ -127,22 +126,23 @@ if (isset($_POST['value'])) {
                     <span class="input-group-btn">
                         <!-- <button type="button" class="btn btn-secondary" id="decrementBtn">-</button> -->
                     </span>
-                    <input type="number" id="quantity" name="quantity" min="1" max="10" value="1" class="form-control">
+                    <input type="number"name="quantity" min="1" max="10" value="1" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>">
                     <span class="input-group-btn">
                         <!-- <button type="button" class="btn btn-secondary" id="incrementBtn">+</button> -->
                     </span>
                 </div>
             </div>
+
             <div class="col-2 isicart">
                 <br><br>
-                <p>IDR 260,000</p>
+                <p id="subtotal<?php echo $i?>">IDR</p>
             </div>
+            
         </div>
 
         <?php } ?>
     <?php } ?>
     </div>
-
     <div class="isitabelsummary col-12 col-lg-3 mt-5">
   <h5>ORDER SUMMARY</h5>
   <div class="card">
@@ -262,7 +262,26 @@ if (isset($_POST['value'])) {
 </div>
 
       <!-- cart -->
-      <div class="cart-container-login geser">
+    <div class="cart-container-login geser">
+      <!-- {{-- @if(session('customer_id'))
+    @php
+        $loginTime = session('login_time');
+        $currentTime = time();
+        $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
+    @endphp
+
+    @if($remainingTime > 0)
+        <a href="/profile">
+    @else
+        <a href="#">
+    @endif
+        <div class="user mx-3" style="cursor:pointer;">
+            <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
+        </div>
+    </a>
+@endif --}} -->
+
+
       <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
       </svg></a>
@@ -272,39 +291,44 @@ if (isset($_POST['value'])) {
           <div class="cart-header login">
             <h2>Log in</h2>
           </div>
-          <form class="formlogin" action="profile.php">
+          <form class="formlogin" action="{{ route('login') }}" method="POST">
+            @csrf
             <div class="form-group mt-20">
-              <input type="email" class="form-control" id="inputEmail" required placeholder="Email address *" aria-describedby="emailHelp">
+                <input type="email" class="form-control" name="customer_email" required placeholder="Username or email address *" aria-describedby="emailHelp">
             </div>
             <div class="form-group mt-20">
-              <input type="password" class="form-control" required placeholder="Password *" id="inputPassword">
+                <input type="password" class="form-control" name="customer_password" required placeholder="Password *" id="inputPassword">
             </div>
-            <div class="form-group form-check mt-10">
-              <input type="checkbox" class="form-check-input" id="checkboxRemember">
-              <label class="form-check-label remember" for="exampleCheck1">Remember me</label>
-            </div>
+            <!-- Tambahkan elemen lain yang diperlukan untuk form login -->
             <button type="submit" class="btn btn-primary mt-10 login">LOG IN</button>
-            <p class="signuphere mt-3">Don't have an account? <a href="#"><u>Sign Up</u></a> Here</p>
-          </form>
+            <p class="signuphere mt-3">Don't have an account? <a href="/login"><u>Sign Up</u></a> Here</p>
+        </form>
+        
         </div>
         <div class="col-12 isisignup">
           <div class="cart-header login">
-            <h2>Sign Up</h2>
+              <h2>Sign Up</h2>
           </div>
-          <form class="formsignup" action="profile.php">
-            <div class="form-group mt-20">
-            <input type="email" class="form-control" id="inputEmailRegis" required placeholder="Email address *" aria-describedby="emailHelp">
+          <form class="formsignup" action="{{ route('register') }}" method="POST">
+              @csrf
+              <div class="form-group mt-20 regis">
+                <label for="inputEmailRegis">Name *</label>
+                <input type="text" class="form-control" id="inputNameRegis" name="customer_name" required aria-describedby="emailHelp">
             </div>
-            <div class="form-group mt-20">
-            <input type="password" class="form-control" required placeholder="Password *" id="inputPasswordRegis">
-            </div>
-            <small id="info" class="form-text">By providing your personal information, you allow us to enhance your shopping experience and securely manage your account.</small>
-            <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
-            <a href="#" class="backlogin mt-3"><u>Back to Login</u></a>
-        </form>
-        </div>
+              <div class="form-group mt-10 regis">
+                  <label for="inputEmailRegis">Email address *</label>
+                  <input type="email" class="form-control" id="inputEmailRegis" name="customer_email" required aria-describedby="emailHelp">
+              </div>
+              <div class="form-group mt-10 regis">
+                  <label for="inputPasswordRegis">Password *</label>
+                  <input type="password" class="form-control" id="inputPasswordRegis" name="customer_password" required>
+              </div>
+              <small id="info" class="form-text">By providing your personal information, you allow us to enhance your shopping experience and securely manage your account.</small>
+              <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
+              <a href="/registration" class="backlogin mt-3"><u>Back to Login</u></a>
+          </form>
       </div>
-    </div>
+      
   <!-- cart login end -->
  
   <!-- cart -->
@@ -317,40 +341,84 @@ if (isset($_POST['value'])) {
     </div>
     <hr class="garisunderline">
     <div class="cart-items">
+  <?php 
+          $sql="SELECT p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.PRODUCT_PRICE, PRODUCT_URL , size;";
+          $result= DB::select($sql);
+        
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+                $dt->size = $row->size;
+                $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+                $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                
+                $response[] = $dt;
+            }
+            
+            $hasil_json=json_encode($response);
+            $data = json_decode($hasil_json,true);
+            for($i = 0; $i < count($data); $i++) { 
+              ?>
+
       <div class="row cart-item">
         <div class="col-5 item-image">
-          <img src="assets/images/denim/2.jpg" alt="Product Image">
+        <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
         </div>
         <div class=" col-7 item-details">
-          <h3>Kai Ripped Jacket</h3>
-          <p>Price: IDR 260,000</p>
-          <p>Size: Allsize</p>
+          <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
+          <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+          <p>Size: <?php echo $data[$i]["size"]; ?></p>
           <p>Quantity: 1</p>
           <button class="remove-btn mt-4">Remove</button>
         </div>
       </div>
       
-      <div class="row cart-item">
-        <div class="col-5 item-image">
-          <img src="assets/images/tops/7.jpg" alt="Product Image">
-        </div>
-        <div class="col-7 item-details">
-          <h3>Kaelyn Checkered Sheer Top</h3>
-          <p>Price: IDR 180,000</p>
-          <p>Size: All Size</p>
-          <p>Quantity: 1</p>
-          <button class="remove-btn mt-4">Remove</button>
-        </div>
-
-      </div>
       
+      
+    
+  <?php } ?>
+    <?php } ?>
     </div>
     <div class="cart-summary">
       <table>
+        <?php
+        $sql="SELECT
+  c.CART_ID,
+  FORMAT(
+    (
+      SELECT SUM(p.PRODUCT_PRICE)
+      FROM PRODUCT p
+      JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID
+      WHERE pc.CART_ID = c.CART_ID
+    ),
+    0
+  ) AS subtotal
+FROM
+  CART c
+WHERE
+  c.CUSTOMER_ID = '" . session('customer_id') . "';
+        ";
+        $result= DB::select($sql);
+      
+        if (count($result) > 0) {
+          $response = [];
+          foreach ($result as $row) {
+              $dt = new stdClass();
+              $dt->subtotal = $row->subtotal;
+              $response[] = $dt;
+          }
+          
+          $hasil_json=json_encode($response);
+          $data = json_decode($hasil_json,true);
+            ?>
         <tr>
+        
           <td><h3>SUBTOTAL: </h3></td>
-          <td><h3>IDR 440,000</h3></td>
+          <td><h3>IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
         </tr>
+        <?php } ?>
         <!-- <tr class="total">
           <td>Total:</td>
           <td>IDR 260,000</td> -->
@@ -360,16 +428,13 @@ if (isset($_POST['value'])) {
 
     
     <div class="cart-actions">
-      <a href="cart.php"><button class="checkout-btn">CHECKOUT</button></a> 
+      <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
       <button class="continue-shopping">CONTINUE SHOPPING</button>
     </div>
   </div>
-<!-- cart end -->    
+<!-- cart end -->
 
     </main>
-
-    <br><br><br>
-   
     <footer>
       <!-- Footer Start-->
       <div class="footer-area footer-padding">
@@ -380,7 +445,7 @@ if (isset($_POST['value'])) {
                 <div class="single-footer-caption mb-30">
                   <!-- logo -->
                   <div class="footer-logo mb-35">
-                    <a href="index.php"
+                    <a href="{{ url('index') }}"
                       ><img src="assets/images/logo/logo_putih.png" alt=""
                     /></a>
                   </div>
@@ -410,12 +475,12 @@ if (isset($_POST['value'])) {
                 <div class="single-footer-caption mb-50">
                   <div class="footer-tittle categ">
                     <ul>
-                      <li><a href="shop.php">Tops</a></li>
-                      <li><a href="shop.php">Dresses</a></li>
-                      <li><a href="shop.php">Shorts</a></li>
-                      <li><a href="shop.php">Skirts</a></li>
-                      <li><a href="shop.php">Trousers</a></li>
-                      <li><a href="shop.php">Jumpsuits</a></li>
+                      <li><a href="{{ url('shop') }}">Tops</a></li>
+                      <li><a href="{{ url('shop') }}">Dresses</a></li>
+                      <li><a href="{{ url('shop') }}">Shorts</a></li>
+                      <li><a href="{{ url('shop') }}">Skirts</a></li>
+                      <li><a href="{{ url('shop') }}">Trousers</a></li>
+                      <li><a href="{{ url('shop') }}">Jumpsuits</a></li>
                     </ul>
                   </div>
                 </div>
@@ -424,12 +489,12 @@ if (isset($_POST['value'])) {
                 <div class="single-footer-caption mb-50">
                   <div class="footer-tittle categ">
                     <ul class="">
-                      <li><a href="shop.php">Sets</a></li>
-                      <li><a href="shop.php">Denim</a></li>
-                      <li><a href="shop.php">Outerwear</a></li>
-                      <li><a href="shop.php">Bags</a></li>
-                      <li><a href="shop.php">Fragrance</a></li>
-                      <li><a href="shop.php">Accessories</a></li>
+                      <li><a href="{{ url('shop') }}">Sets</a></li>
+                      <li><a href="{{ url('shop') }}">Denim</a></li>
+                      <li><a href="{{ url('shop') }}">Outerwear</a></li>
+                      <li><a href="{{ url('shop') }}">Bags</a></li>
+                      <li><a href="{{ url('shop') }}">Fragrance</a></li>
+                      <li><a href="{{ url('shop') }}">Accessories</a></li>
                     </ul>
                   </div>
                 </div>
@@ -521,22 +586,173 @@ if (isset($_POST['value'])) {
     <!-- Jquery Plugins, main Jquery -->
     <script src="./assets/js/plugins.js"></script>
     <script src="./assets/js/main.js"></script>
-    <script>
-      $(document).ready(function() {
-          $("#quantity").on("input", function() {
-              var value = $(this).val();
-             
-              // Gunakan nilai sesuai kebutuhan Anda
-          });
+
+    @if(session('customer_id'))
+@php
+    $loginTime = session('login_time');
+    $currentTime = time();
+    $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
+@endphp
+
+@if($remainingTime > 0)
+<script>
+  $(document).ready(function() {
+    $(".quantityInput").on("input", function() {
+      let harga = $(this).closest(".isicart").prev().find(".price").text();
+      let quantity = $(this).val();
+      let substr = harga.substring(10); // Menghapus "IDR " dari substring
+      let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
+      console.log(harga);
+      // Menghitung subtotal berdasarkan quantity dan price
+      let subtotal = quantity * parsedInt;
+
+      // Mengubah teks pada elemen subtotal yang sesuai
+      let subtotalId = $(this).data("subtotal-id");
+      $("#" + subtotalId).text("IDR " + subtotal);
+    });
+  });
+      const closecart = document.querySelector('.close.cart');
+      const full = document.querySelector('.full-wrapper');
+      const navprofile = document.querySelector('.slicknav_menu a.navprofile');
+      const logocart = document.querySelector('.logocart');
+      const containercart = document.querySelector('.cart-container');
+      const navv = document.querySelector('a.navprofile');
+
+      // containercart.style.display = "none";
+
+      full.style.overflow = 'visible';
+      navprofile.style.display = 'none';
+      navv.style.display = 'none';
+
+      function updateNavbar(screenWidth) {
+          // Add event listener to detect media query change
+          if (window.innerWidth >= 415 && window.innerWidth <= 576) {
+              logocart.addEventListener('click', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'block';
+                  full.style.overflow = 'hidden';
+                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+
+              $(".close.cart").on('click', function(event) {
+                event.preventDefault();
+                containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                full.style.overflow = 'visible';
+                if($('.logocart-login').hasClass('active')){
+                  full.style.overflow = 'hidden';
+                }
+              });
+          }
+          else if (window.innerWidth < 415) { // media query condition
+              navprofile.style.display = 'block';
+              logocart.addEventListener('click', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'block';
+                  full.style.overflow = 'hidden';
+                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+              navprofile.addEventListener('click', function(event) {
+              event.preventDefault();
+              full.style.overflow = 'hidden';
+              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              
+              });
+          } else {
+              navprofile.style.display = 'none';
+              logocart.addEventListener('click', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'block';
+                  full.style.overflow = 'hidden';
+                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+
+              $(".close.cart").on('click', function(event) {
+                event.preventDefault();
+                containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                full.style.overflow = 'visible';
+                if($('.logocart-login').hasClass('active')){
+                  full.style.overflow = 'hidden';
+                }
+              });
+          };
+      }
+
+      updateNavbar(window.innerWidth);
+      // Check screen size on window resize
+      window.addEventListener("resize", function() {
+          updateNavbar(window.innerWidth);
       });
-      $.ajax({
-        url: "/cart",
-        method: "POST",
-        data: { value: value },
-        success: function(response) {
-          console.log(response);
-          // Proses respons dari server
-      }});
+
+        function updateImageSrc(screenWidth) {
+            // Select elemen gambar
+            const imgHeart = document.getElementById('heart');
+            const imgCard = document.getElementById('cart');
+            // Add event listener to detect media query change
+            
+            if (window.innerWidth <= 576) { // media query condition
+                imgHeart.src = 'assets/images/logo/heart-black.svg';
+                imgCard.src = 'assets/images/logo/cart-black.svg';
+            } else {
+                imgHeart.src = 'assets/images/logo/heart.svg';
+                imgCard.src = 'assets/images/logo/card.svg';
+            };
+        }
+
+        updateImageSrc(window.innerWidth);
+        // Check screen size on window resize
+        window.addEventListener("resize", function() {
+            updateImageSrc(window.innerWidth);
+        });
+        
+        $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
+        $('.footer-tittle.categ ul li a').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          let isiShopNow = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: isiShopNow },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
+            }
+          });
+        });
+        
+        $('.browsemore').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: "" },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+            }
+          });
+        });
+</script>
+
+@endif
+@else
+    <script>
+        $(document).ready(function() {
+        $(".quantityInput").on("input", function() {
+          let harga = $(this).closest(".isicart").prev().find(".price").text();
+          let quantity = $(this).val();
+          let substr = harga.substring(10); // Menghapus "IDR " dari substring
+          let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
+          console.log(harga);
+          // Menghitung subtotal berdasarkan quantity dan price
+          let subtotal = quantity * parsedInt;
+
+          // Mengubah teks pada elemen subtotal yang sesuai
+          let subtotalId = $(this).data("subtotal-id");
+          $("#" + subtotalId).text("IDR " + subtotal);
+        });
+      });
       const logocartlogin = document.querySelector('.logocart-login');
       const containercartlogin = document.querySelector('.cart-container-login');
       const btnclose = document.querySelector('.close.login');
@@ -662,24 +878,6 @@ if (isset($_POST['value'])) {
               event.preventDefault();
               full.style.overflow = 'hidden';
               containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              // $('.cart-container-login').one('animationend', function() {
-              //     $(document).on('click', function(event) {
-              //         if ($('.cart-container-login').css('right') === '0px') {
-              //         const container = $('.cart-container-login');
-              //         const iconcart = $('.logocart-login');
-
-              //         if (!container.is(event.target) && container.has(event.target).length === 0 && !iconcart.is(event.target) && iconcart.has(event.target).length === 0) {
-              //             // Click was outside the div, do something here
-              //             event.preventDefault();
-              //             containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-              //             isiSignup.style.display = 'none';
-              //             login.style.display="block";
-              //             full.style.overflow = 'visible';
-              //         }
-              //         }
-              //     });
-              // });
-              
               });
 
               btnclose.addEventListener('click', function(event) {
@@ -698,26 +896,56 @@ if (isset($_POST['value'])) {
           updateNavbar(window.innerWidth);
       });
 
-      function updateImageSrc(screenWidth) {
-          // Select elemen gambar
-          const imgHeart = document.getElementById('heart');
-          const imgCard = document.getElementById('cart');
-          // Add event listener to detect media query change
-          
-          if (window.innerWidth < 576) { // media query condition
-              imgHeart.src = 'assets/images/logo/heart-black.svg';
-              imgCard.src = 'assets/images/logo/cart-black.svg';
-          } else {
-              imgHeart.src = 'assets/images/logo/heart.svg';
-              imgCard.src = 'assets/images/logo/card.svg';
-          };
-      }
+        function updateImageSrc(screenWidth) {
+            // Select elemen gambar
+            const imgHeart = document.getElementById('heart');
+            const imgCard = document.getElementById('cart');
+            // Add event listener to detect media query change
+            
+            if (window.innerWidth <= 576) { // media query condition
+                imgHeart.src = 'assets/images/logo/heart-black.svg';
+                imgCard.src = 'assets/images/logo/cart-black.svg';
+            } else {
+                imgHeart.src = 'assets/images/logo/heart.svg';
+                imgCard.src = 'assets/images/logo/card.svg';
+            };
+        }
 
-      updateImageSrc(window.innerWidth);
-      // Check screen size on window resize
-      window.addEventListener("resize", function() {
-          updateImageSrc(window.innerWidth);
-      });
+        updateImageSrc(window.innerWidth);
+        // Check screen size on window resize
+        window.addEventListener("resize", function() {
+            updateImageSrc(window.innerWidth);
+        });
+        
+        $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
+        $('.footer-tittle.categ ul li a').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          let isiShopNow = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: isiShopNow },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
+            }
+          });
+        });
+        
+        $('.browsemore').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: "" },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+            }
+          });
+        });
 
     const address = document.querySelector('.sidebar li:nth-child(3)');
     const profile = document.querySelector('.sidebar li:nth-child(2)');
@@ -759,39 +987,7 @@ if (isset($_POST['value'])) {
             }
         });
 
-    $.ajaxSetup({
-      headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-      }
-    });
-    
-    $('.footer-tittle.categ ul li a').click(function() {
-          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-      let isiShopNow = $(this).text();
-      $.ajax({
-        type: "POST",
-        url: "/shop",
-        data: { shopnow: isiShopNow },
-        success: function() {
-          console.log("Data berhasil dikirim ke PHP");
-        }
-      });
-    });
-        
-    $('.browsemore').click(function() {
-      // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-      $.ajax({
-        type: "POST",
-        url: "linksess.php",
-        data: { shopnow: "" },
-        success: function() {
-          console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-        }
-      });
-    });
-
-
-
   </script>
+  @endif
   </body>
 </html>

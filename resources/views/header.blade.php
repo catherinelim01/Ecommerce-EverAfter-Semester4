@@ -32,7 +32,7 @@
                       <li><a href="{{ url('index') }}">Home</a></li>
                       <li><a href="{{ url('shop') }}">Shop</a></li>
                       <li><a href="{{ url('about') }}">About</a></li>
-                      <li><a href="{{ url('product_details') }}">Contact</a></li>
+                      <li><a href="{{ url('contact') }}">Contact</a></li>
                       <li><a class="navprofile" href="#">Profile</a></li>
                     </ul>
                   </nav>

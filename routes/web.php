@@ -37,9 +37,6 @@ Route::get('/index', function () {
 Route::get('/about', function () {
     return view('about');
 });
-Route::get('/cart', function () {
-    return view('cart');
-});
 Route::get('/payment', function () {
     return view('payment');
 });
@@ -107,6 +104,7 @@ Route::get('/shop/page/{page}', function ($page) {
 
 
 Route::post('/product_details', [App\Http\Controllers\ProductController::class, 'getProductDetails']);
+Route::post('/cart', [App\Http\Controllers\CartController::class, 'getCart']);
 
 // Route::post('/login', [App\Http\Controllers\AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
