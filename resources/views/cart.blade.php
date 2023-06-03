@@ -51,7 +51,7 @@ if (isset($_POST['voucherCode'])) {
       <div class="myshoppingbag">
       <h1>My Shopping Bag</h1>
       <br>
-      <a href="shop.php"><p class="underline-text">Back to Shop</p></a>
+      <a href="/shop"><p class="underline-text">Back to Shop</p></a>
       </div>
       <br><br>
 
@@ -227,20 +227,17 @@ if (isset($_POST['voucherCode'])) {
         <div class="input-group mb-3">
           <input type="text" class="form-control vocer" placeholder="Enter Code" aria-label="Recipient's username" aria-describedby="basic-addon2">
           <div class="input-group-append pl-0">
-            <td class="pl-0"><button class="btn apply text-right apply" type="submit">Apply</button></td>
-            <TR>
-            <td class="pl-0 isivocer text-right"><p><?php echo (session('voucherCode')) ? '-IDR ' . $data[0]["total_potongan"] : 'N/A'; ?></p></td>
-            
-
-            </TR>
+            <td class="pl-0"><button class="btn apply text-right apply" type="submit">Apply</button></td>        
           </div>
         </div>
           </form>
-
           
-    </td>
-</tr>
-
+        </td>
+      </tr>
+      <tr>
+      <td><p style="font-size:12px;"><?php echo (session('voucherCode')) ? session('voucherCode') : ''; ?></p></td>
+      <td class="pl-0 isivocer text-right"><p style="font-size:12px;"><?php echo (session('voucherCode')) ? '-IDR ' . $data[0]["total_potongan"] : ''; ?></p></td>
+      </tr>
 
         <tr>
         <tr>
@@ -861,21 +858,6 @@ WHERE
 @endif
 @else
     <script>
-        $(document).ready(function() {
-        $(".quantityInput").on("input", function() {
-          let harga = $(this).closest(".isicart").prev().find(".price").text();
-          let quantity = $(this).val();
-          let substr = harga.substring(10); // Menghapus "IDR " dari substring
-          let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
-          console.log(harga);
-          // Menghitung subtotal berdasarkan quantity dan price
-          let subtotal = quantity * parsedInt;
-
-          // Mengubah teks pada elemen subtotal yang sesuai
-          let subtotalId = $(this).data("subtotal-id");
-          $("#" + subtotalId).text("IDR " + subtotal);
-        });
-      });
       const logocartlogin = document.querySelector('.logocart-login');
       const containercartlogin = document.querySelector('.cart-container-login');
       const btnclose = document.querySelector('.close.login');
@@ -927,20 +909,24 @@ WHERE
                 containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
               logocart.addEventListener('click', function(event) {
+                  // event.preventDefault();
+                  // // containercart.style.display = 'block';
+                  // full.style.overflow = 'hidden';
+                  // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
                   event.preventDefault();
-                  // containercart.style.display = 'block';
-                  full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                  // containercart.style.display = 'none';
+                  full.style.overflow = 'visible';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
-              $(".close.cart").on('click', function(event) {
-                event.preventDefault();
-                containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                full.style.overflow = 'visible';
-                if($('.logocart-login').hasClass('active')){
-                  full.style.overflow = 'hidden';
-                }
-              });
+              // $(".close.cart").on('click', function(event) {
+              //   event.preventDefault();
+              //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+              //   full.style.overflow = 'visible';
+              //   if($('.logocart-login').hasClass('active')){
+              //     full.style.overflow = 'hidden';
+              //   }
+              // });
               btnclose.addEventListener('click', function(event) {
               event.preventDefault();
               containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
@@ -953,10 +939,13 @@ WHERE
           else if (window.innerWidth < 415) { // media query condition
               navprofile.style.display = 'block';
               logocart.addEventListener('click', function(event) {
+                  // event.preventDefault();
+                  // // containercart.style.display = 'block';
+                  // full.style.overflow = 'hidden';
+                  // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
                   event.preventDefault();
-                  // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
               logocartlogin.addEventListener('click', function(event) {
@@ -982,25 +971,28 @@ WHERE
           } else {
               navprofile.style.display = 'none';
               logocart.addEventListener('click', function(event) {
+                  // event.preventDefault();
+                  // // containercart.style.display = 'block';
+                  // full.style.overflow = 'hidden';
+                  // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
                   event.preventDefault();
-                  // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
-              $(".close.cart").on('click', function(event) {
-                event.preventDefault();
-                containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                full.style.overflow = 'visible';
-                if($('.logocart-login').hasClass('active')){
-                  full.style.overflow = 'hidden';
-                }
-              });
+              // $(".close.cart").on('click', function(event) {
+              //   event.preventDefault();
+              //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+              //   full.style.overflow = 'visible';
+              //   if($('.logocart-login').hasClass('active')){
+              //     full.style.overflow = 'hidden';
+              //   }
+              // });
 
               logocartlogin.addEventListener('click', function(event) {
-              event.preventDefault();
-              full.style.overflow = 'hidden';
-              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                event.preventDefault();
+                full.style.overflow = 'hidden';
+                containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
               btnclose.addEventListener('click', function(event) {

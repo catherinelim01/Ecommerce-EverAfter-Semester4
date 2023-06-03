@@ -57,7 +57,20 @@ Route::get('/order_detail', function () {
 
 Route::post('/order_detail', [App\Http\Controllers\OrderController::class, 'orderDetail']);
 Route::post('/shop', [App\Http\Controllers\CategoryController::class, 'Category']);
+// Route::post('/profile', [App\Http\Controllers\ProfileController::class, 'EditProfile']);
+use App\Http\Controllers\ProfileController;
 
+Route::post('/profile', function (Illuminate\Http\Request $request) {
+    $action = $request->input('action');
+
+    if ($action === 'updateProfile') {
+        return app(ProfileController::class)->editProfile($request);
+    } elseif ($action === 'logout') {
+        return app(ProfileController::class)->logout($request);
+    }
+
+    // Kembalikan tanggapan yang sesuai jika tidak ada aksi yang cocok
+});
 
 // Route::get('/shop', function () {
 //     return view('shop');
@@ -112,6 +125,7 @@ Route::post('/cart', [App\Http\Controllers\CartController::class, 'cartVoucher']
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+
 
 
 Route::get('/product_details', function () {

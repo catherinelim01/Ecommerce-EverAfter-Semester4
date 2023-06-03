@@ -8,6 +8,23 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 
 // ...
+// if ($_SERVER["REQUEST_METHOD"] == "POST") {
+//   // Ambil data dari form
+//   if (isset($_POST['updateProfile'])) {
+//     $first_name = $_POST['first_name'];
+//     $last_name = $_POST['last_name'];
+//     $customer_email = $_POST['customer_email'];
+//     $password = $_POST['password'];
+//     $new_password = $_POST['new_password'];
+//     $confirm_password = $_POST['confirm_password'];
+    
+//     $sql = "UPDATE CUSTOMER
+//     SET CUSTOMER_NAME = CONCAT('$first_name', ' ', '$last_name'),
+//         CUSTOMER_EMAIL = '$customer_email'";
+//     DB::update($sql);
+    
+//   }
+// }
 
 if (Session::has('customer_id')) {
     $loginTime = Session::get('login_time');
@@ -230,6 +247,7 @@ if (Session::has('customer_id')) {
 
 <body class="full-wrapper">
 @csrf
+
 @include('header')
 @if ($errors->any())
     <div class="alert alert-danger">
@@ -258,28 +276,71 @@ if (Session::has('customer_id')) {
           <h1>Profile</h1>
         </div>
         <div class="row isi mb-40">
-          <form action="">
+        <?php 
+          $sql="SELECT CASE 
+          WHEN LENGTH(customer_name) - LENGTH(REPLACE(customer_name, ' ', '')) = 0 THEN customer_name
+          ELSE SUBSTRING_INDEX(customer_name, ' ', 1)
+        END AS first_name,
+        CASE 
+          WHEN LENGTH(customer_name) - LENGTH(REPLACE(customer_name, ' ', '')) = 0 THEN ''
+          ELSE SUBSTRING_INDEX(customer_name, ' ', -1)
+        END AS last_name,
+        customer_email,
+        customer_password
+      FROM 
+        customer WHERE customer_id = '" . session('customer_id') . "'";
+          $result= DB::select($sql);
+        
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->first_name = $row->first_name;
+                $dt->last_name = $row->last_name;
+                $dt->customer_email = $row->customer_email;
+                $dt->customer_password = $row->customer_password;
+                $response[] = $dt;
+            }
+            
+            $hasil_json=json_encode($response);
+            $data = json_decode($hasil_json,true);
+            ?>
+          <form method="POST" class="formInsert" action="/profile"> 
+          @csrf
             <label class="editprofile mb-10">EDIT PROFILE</label>
             <div class="form-row">
               <div class="col">
-                <input type="text" class="form-control" required placeholder="First name *">
+                <input type="text" class="form-control" required placeholder="First name *" name="first_name" value="<?php echo $data[0]["first_name"] ?>">
               </div>
               <div class="col">
-                <input type="text" class="form-control" required placeholder="Last name *">
+              <input type="text" class="form-control"  placeholder="Last name " name="last_name" value="<?php echo isset($data[0]["last_name"]) ? $data[0]["last_name"] : "" ?>">
+
               </div>
             </div>
             <div class="form-group mt-20">
-              <input type="email" class="form-control" id="exampleInputEmail1" required placeholder="Email address *" aria-describedby="emailHelp">
+              <input type="email" class="form-control" id="exampleInputEmail1" name="customer_email" required placeholder="Email address *" value="<?php echo $data[0]["customer_email"] ?>" aria-describedby="emailHelp">
             </div>
             <div class="form-group mt-20">
               <label class="editprofile mb-10">CHANGE PASSWORD</label>
-              <input type="password" class="form-control" required placeholder="Current password" id="currpass">
-              <input type="password" class="form-control mt-10" required placeholder="New password" id="newpass">
-              <input type="password" class="form-control mt-10" required placeholder="Confirm new password" id="confirmpass">
+              <input type="password" class="form-control" name="password"  placeholder="Current password" id="currpass">
+              <input type="password" class="form-control mt-10" name="new_password"  placeholder="New password" id="newpass">
+              <input type="password" class="form-control mt-10" name="confirm_password"  placeholder="Confirm new password" id="confirmpass">
             </div>
-            <button type="submit" class="btn btn-primary mt-10 pb-20 login">SAVE CHANGES</button>
+            @if (session('error'))
+    <div class="alert alert-danger" style="font-size:12px">
+        {{ session('error') }}
+    </div>
+@endif
+<div class="row">
+          <div class="col-6 pl-0">
+            <button type="submit" name="action" value="updateProfile" class="btn btn-primary mt-10 pb-20 login">SAVE CHANGES</button>
+            </div>
+            <div class="col-6 pr-0"  style="text-align:end;">
+            <button type="submit" name="action" value="logout" class="btn btn-primary mt-10 pb-20 login">LOG OUT</button>
+            </div>
+            </div>
           </form>
-
+          <?php } ?>
         </div>
 
       </div>
@@ -403,7 +464,7 @@ if (Session::has('customer_id')) {
           LEFT JOIN `product` as `p` ON `po`.`product_id` = `p`.`product_id`
           LEFT JOIN `delivery` as `d` ON `d`.`delivery_id` = `o`.`delivery_id`
           LEFT JOIN `address` as `a` ON `a`.`CUSTOMER_ID` = `o`.`CUSTOMER_ID`
-          WHERE `o`.`CUSTOMER_ID` = 'C00001'
+          WHERE `o`.`CUSTOMER_ID` = '" . session('customer_id') . "'
           GROUP BY `o`.`order_id`
           ORDER BY `o`.`order_id` DESC;
           ";
@@ -462,6 +523,7 @@ if (Session::has('customer_id')) {
                   <p class="total-order mb-0">Total</p>
                   <h4 class="text-dark">IDR <?php echo $data[$i]["total"]; ?></h4>
                   <button type="submit" class="btn btn-primary detailkanan details mt-20">Details</button>
+                  <p class="mt-4">Total Items : <?php echo $data[$i]["qty"]; ?></p>
                 </div>
               </div>  
             <?php } ?>
@@ -925,10 +987,7 @@ const closecart = document.querySelector('.close.cart');
           $.ajax({
             type: "POST",
             url: "/shop",
-            data: { shopnow: isiShopNow },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP");
-            }
+            data: { shopnow: isiShopNow }
           });
         });
         
@@ -937,10 +996,7 @@ const closecart = document.querySelector('.close.cart');
           $.ajax({
             type: "POST",
             url: "/shop",
-            data: { shopnow: "" },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-            }
+            data: { shopnow: "" }
           });
         });
 
@@ -1026,8 +1082,6 @@ const closecart = document.querySelector('.close.cart');
           orderid: substrisiorder
         },
         success: function(response) {
-          // Menampilkan div dengan hasil respons di dalamnya
-          console.log(response);
           // $(".popup").html(response).show();
           $(".popup").html(response.content).show();
         },
@@ -1040,8 +1094,8 @@ const closecart = document.querySelector('.close.cart');
 </script>
 @endif
 @else
-  <script>
-    const logocartlogin = document.querySelector('.logocart-login');
+<script>
+      const logocartlogin = document.querySelector('.logocart-login');
       const containercartlogin = document.querySelector('.cart-container-login');
       const btnclose = document.querySelector('.close.login');
       const closecart = document.querySelector('.close.cart');
@@ -1092,20 +1146,24 @@ const closecart = document.querySelector('.close.cart');
                 containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
               logocart.addEventListener('click', function(event) {
+                  // event.preventDefault();
+                  // // containercart.style.display = 'block';
+                  // full.style.overflow = 'hidden';
+                  // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
                   event.preventDefault();
-                  // containercart.style.display = 'block';
-                  full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                  // containercart.style.display = 'none';
+                  full.style.overflow = 'visible';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
-              $(".close.cart").on('click', function(event) {
-                event.preventDefault();
-                containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                full.style.overflow = 'visible';
-                if($('.logocart-login').hasClass('active')){
-                  full.style.overflow = 'hidden';
-                }
-              });
+              // $(".close.cart").on('click', function(event) {
+              //   event.preventDefault();
+              //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+              //   full.style.overflow = 'visible';
+              //   if($('.logocart-login').hasClass('active')){
+              //     full.style.overflow = 'hidden';
+              //   }
+              // });
               btnclose.addEventListener('click', function(event) {
               event.preventDefault();
               containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
@@ -1118,10 +1176,13 @@ const closecart = document.querySelector('.close.cart');
           else if (window.innerWidth < 415) { // media query condition
               navprofile.style.display = 'block';
               logocart.addEventListener('click', function(event) {
+                  // event.preventDefault();
+                  // // containercart.style.display = 'block';
+                  // full.style.overflow = 'hidden';
+                  // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
                   event.preventDefault();
-                  // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
               logocartlogin.addEventListener('click', function(event) {
@@ -1147,25 +1208,28 @@ const closecart = document.querySelector('.close.cart');
           } else {
               navprofile.style.display = 'none';
               logocart.addEventListener('click', function(event) {
+                  // event.preventDefault();
+                  // // containercart.style.display = 'block';
+                  // full.style.overflow = 'hidden';
+                  // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
                   event.preventDefault();
-                  // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
-              $(".close.cart").on('click', function(event) {
-                event.preventDefault();
-                containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                full.style.overflow = 'visible';
-                if($('.logocart-login').hasClass('active')){
-                  full.style.overflow = 'hidden';
-                }
-              });
+              // $(".close.cart").on('click', function(event) {
+              //   event.preventDefault();
+              //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+              //   full.style.overflow = 'visible';
+              //   if($('.logocart-login').hasClass('active')){
+              //     full.style.overflow = 'hidden';
+              //   }
+              // });
 
               logocartlogin.addEventListener('click', function(event) {
-              event.preventDefault();
-              full.style.overflow = 'hidden';
-              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                event.preventDefault();
+                full.style.overflow = 'hidden';
+                containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
               btnclose.addEventListener('click', function(event) {
@@ -1216,10 +1280,7 @@ const closecart = document.querySelector('.close.cart');
           $.ajax({
             type: "POST",
             url: "/shop",
-            data: { shopnow: isiShopNow },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP");
-            }
+            data: { shopnow: isiShopNow }
           });
         });
         
@@ -1228,10 +1289,7 @@ const closecart = document.querySelector('.close.cart');
           $.ajax({
             type: "POST",
             url: "/shop",
-            data: { shopnow: "" },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-            }
+            data: { shopnow: "" }
           });
         });
 
@@ -1317,8 +1375,6 @@ const closecart = document.querySelector('.close.cart');
           orderid: substrisiorder
         },
         success: function(response) {
-          // Menampilkan div dengan hasil respons di dalamnya
-          console.log(response);
           // $(".popup").html(response).show();
           $(".popup").html(response.content).show();
         },

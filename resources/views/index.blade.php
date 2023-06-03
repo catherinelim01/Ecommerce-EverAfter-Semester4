@@ -959,11 +959,7 @@ WHERE
           $.ajax({
             method: "POST",
             url: "/shop",
-            data: { shopnow: isiShopNow },
-            success: function(response) {
-              console.log("Data berhasil dikirim ke PHP");
-              console.log(response);
-            }
+            data: { shopnow: isiShopNow }
           });
         });
         $('.footer-tittle.categ ul li a').click(function() {
@@ -972,10 +968,7 @@ WHERE
           $.ajax({
             type: "POST",
             url: "/shop",
-            data: { shopnow: isiShopNow },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP");
-            }
+            data: { shopnow: isiShopNow }
           });
         });
         
@@ -984,10 +977,8 @@ WHERE
           $.ajax({
             type: "POST",
             url: "/shop",
-            data: { shopnow: "" },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-            }
+            data: { shopnow: "" }
+            
           });
         });
 
@@ -999,9 +990,6 @@ WHERE
             url: "/product_details",
             data: {
               link: isiLink
-            },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP");
             }
           });
         });
@@ -1061,20 +1049,24 @@ WHERE
                 containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
               logocart.addEventListener('click', function(event) {
+                  // event.preventDefault();
+                  // // containercart.style.display = 'block';
+                  // full.style.overflow = 'hidden';
+                  // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
                   event.preventDefault();
-                  // containercart.style.display = 'block';
-                  full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                  // containercart.style.display = 'none';
+                  full.style.overflow = 'visible';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
-              $(".close.cart").on('click', function(event) {
-                event.preventDefault();
-                containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                full.style.overflow = 'visible';
-                if($('.logocart-login').hasClass('active')){
-                  full.style.overflow = 'hidden';
-                }
-              });
+              // $(".close.cart").on('click', function(event) {
+              //   event.preventDefault();
+              //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+              //   full.style.overflow = 'visible';
+              //   if($('.logocart-login').hasClass('active')){
+              //     full.style.overflow = 'hidden';
+              //   }
+              // });
               btnclose.addEventListener('click', function(event) {
               event.preventDefault();
               containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
@@ -1087,10 +1079,13 @@ WHERE
           else if (window.innerWidth < 415) { // media query condition
               navprofile.style.display = 'block';
               logocart.addEventListener('click', function(event) {
+                  // event.preventDefault();
+                  // // containercart.style.display = 'block';
+                  // full.style.overflow = 'hidden';
+                  // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
                   event.preventDefault();
-                  // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
               logocartlogin.addEventListener('click', function(event) {
@@ -1116,25 +1111,28 @@ WHERE
           } else {
               navprofile.style.display = 'none';
               logocart.addEventListener('click', function(event) {
+                  // event.preventDefault();
+                  // // containercart.style.display = 'block';
+                  // full.style.overflow = 'hidden';
+                  // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
                   event.preventDefault();
-                  // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
-              $(".close.cart").on('click', function(event) {
-                event.preventDefault();
-                containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                full.style.overflow = 'visible';
-                if($('.logocart-login').hasClass('active')){
-                  full.style.overflow = 'hidden';
-                }
-              });
+              // $(".close.cart").on('click', function(event) {
+              //   event.preventDefault();
+              //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+              //   full.style.overflow = 'visible';
+              //   if($('.logocart-login').hasClass('active')){
+              //     full.style.overflow = 'hidden';
+              //   }
+              // });
 
               logocartlogin.addEventListener('click', function(event) {
-              event.preventDefault();
-              full.style.overflow = 'hidden';
-              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                event.preventDefault();
+                full.style.overflow = 'hidden';
+                containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
               btnclose.addEventListener('click', function(event) {
@@ -1192,11 +1190,7 @@ WHERE
           $.ajax({
             method: "POST",
             url: "/shop",
-            data: { shopnow: isiShopNow },
-            success: function(response) {
-              console.log("Data berhasil dikirim ke PHP");
-              console.log(response);
-            }
+            data: { shopnow: isiShopNow }
           });
         });
         $('.footer-tittle.categ ul li a').click(function() {
@@ -1205,10 +1199,7 @@ WHERE
           $.ajax({
             type: "POST",
             url: "/shop",
-            data: { shopnow: isiShopNow },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP");
-            }
+            data: { shopnow: isiShopNow }
           });
         });
         
@@ -1217,10 +1208,7 @@ WHERE
           $.ajax({
             type: "POST",
             url: "/shop",
-            data: { shopnow: "" },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-            }
+            data: { shopnow: "" }
           });
         });
 
@@ -1232,9 +1220,6 @@ WHERE
             url: "/product_details",
             data: {
               link: isiLink
-            },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP");
             }
           });
         });

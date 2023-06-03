@@ -8,10 +8,20 @@ if (isset($_POST['orderid'])) {
 $sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, pa.payment_method, format(o.grand_total,0) as grand_total, ca.category_name,format(o.total_potongan,0) as total_potongan ,format(convert((5/100)*o.GRAND_TOTAL,int),0) as pajak, format(p.product_price,0) as product_price, po.qty ,d.delivery_name, format(d.delivery_cost,0) as delivery_cost, a.address ,format((o.grand_total - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url 
 from `order` o left join product_order po on o.order_id = po.order_id left join product p on po.product_id = p.product_id left join delivery d on d.delivery_id = o.delivery_id left join address a on a.CUSTOMER_ID = o.CUSTOMER_ID left join category ca on ca.CATEGORY_ID = p.CATEGORY_ID left join payment pa on pa.payment_id = o.payment_id where po.order_id  = '" . $_SESSION['order_id'] . "' order by o.order_date desc;";
 
-
+// $sql2="SELECT format(SUM(o.grand_total),0) as grand_total , format(SUM(o.grand_total)*(v.discount/100),0) as total_potongan ,format(convert((5/100)*(SUM(o.grand_total)-(SUM(o.grand_total)*(v.discount/100))),int),0) as pajak, format(d.delivery_cost,0) as delivery_cost , format(SUM(o.grand_total) - (SUM(o.grand_total)*(v.discount/100)) + (convert((5/100)*(SUM(o.grand_total)-(SUM(o.grand_total)*(v.discount/100))),int)) + d.delivery_cost,0) as total
+// FROM `order` o
+// LEFT JOIN product_order po ON o.order_id = po.order_id
+// LEFT JOIN product p ON po.product_id = p.product_id
+// LEFT JOIN delivery d ON d.delivery_id = o.delivery_id
+// LEFT JOIN address a ON a.CUSTOMER_ID = o.CUSTOMER_ID
+// LEFT JOIN category ca ON ca.CATEGORY_ID = p.CATEGORY_ID
+// LEFT JOIN payment pa ON pa.payment_id = o.payment_id
+// LEFT JOIN voucher v on v.VOUCHER_ID = o.VOUCHER_ID
+// WHERE po.order_id = '" . $_SESSION['order_id'] . "';";
 
 
 $result= DB::select($sql);
+// $result2= DB::select($sql2);
 
 if (count($result) > 0) {
 $response = [];
@@ -35,11 +45,23 @@ foreach ($result as $row) {
     $dt->product_url = $row->product_url;
     $response[] = $dt;
 }
-
-
+// if (count($result2) > 0) {
+//     $response2 = [];
+//     foreach ($result2 as $row) {
+//         $dt = new stdClass();
+//         $dt->grand_total = $row->grand_total;
+//         $dt->total_potongan = $row->total_potongan;
+//         $dt->pajak = $row->pajak;
+//         $dt->delivery_cost = $row->delivery_cost;
+//         $dt->total = $row->total;
+//         $response2[] = $dt;
+//     }
+// }
 
 $hasil_json=json_encode($response);
 $data = json_decode($hasil_json,true);
+// $hasil_json2=json_encode($response2);
+// $data2 = json_decode($hasil_json2,true);
 
 ?>
 <!-- popup -->
@@ -152,35 +174,70 @@ $data = json_decode($hasil_json,true);
         <p class="text-muted mb-0" style="font-weight: bold;">Invoice Date : <?php echo $data[0]["tanggal"]; ?></p>
         </div>
 
+
+        <?php }?>
+        <?php
+        
+$sql2="SELECT format(SUM(o.grand_total),0) as grand_total , format(SUM(o.grand_total)*(v.discount/100),0) as total_potongan ,format(convert((5/100)*(SUM(o.grand_total)-(SUM(o.grand_total)*(v.discount/100))),int),0) as pajak, format(d.delivery_cost,0) as delivery_cost , format(SUM(o.grand_total) - (SUM(o.grand_total)*(v.discount/100)) + (convert((5/100)*(SUM(o.grand_total)-(SUM(o.grand_total)*(v.discount/100))),int)) + d.delivery_cost,0) as total
+FROM `order` o
+LEFT JOIN product_order po ON o.order_id = po.order_id
+LEFT JOIN product p ON po.product_id = p.product_id
+LEFT JOIN delivery d ON d.delivery_id = o.delivery_id
+LEFT JOIN address a ON a.CUSTOMER_ID = o.CUSTOMER_ID
+LEFT JOIN category ca ON ca.CATEGORY_ID = p.CATEGORY_ID
+LEFT JOIN payment pa ON pa.payment_id = o.payment_id
+LEFT JOIN voucher v on v.VOUCHER_ID = o.VOUCHER_ID
+WHERE po.order_id = '" . $_SESSION['order_id'] . "';";
+
+
+$result2= DB::select($sql2);
+
+if (count($result2) > 0) {
+    $response2 = [];
+    foreach ($result2 as $row) {
+        $dt = new stdClass();
+        $dt->grand_total = $row->grand_total;
+        $dt->total_potongan = $row->total_potongan;
+        $dt->pajak = $row->pajak;
+        $dt->delivery_cost = $row->delivery_cost;
+        $dt->total = $row->total;
+        $response2[] = $dt;
+    }
+
+
+$hasil_json2=json_encode($response2);
+$data2 = json_decode($hasil_json2,true);
+
+?>
         <div class="d-flex justify-content-between" style="justify-content: space-between;">
-        <p class="text-muted mb-0">Payment : <?php echo $data[0]["payment_method"]; ?></p>
+        <p class="text-muted mb-0">Payment : <?php echo $data2[0]["payment_method"]; ?></p>
         <p class="text-muted mb-0"><span class="fw-bold me-4">Total</span> <?php echo $data[0]["grand_total"]; ?></p>
         </div>
 
         <div class="d-flex justify-content-between pt-2" style="justify-content: space-between;">
         <p class="text-muted mb-0">Discount</p>
-        <p class="text-muted mb-0"> IDR <?php echo $data[0]["total_potongan"]; ?></p>
+        <p class="text-muted mb-0"> IDR <?php echo $data2[0]["total_potongan"]; ?></p>
         </div>
 
         <div class="d-flex justify-content-between" style="justify-content: space-between;">
         <p class="text-muted mb-0">Tax 5%</p>
-        <p class="text-muted mb-0"> IDR <?php echo $data[0]["pajak"]; ?></p>
+        <p class="text-muted mb-0"> IDR <?php echo $data2[0]["pajak"]; ?></p>
         </div>
 
         <div class="d-flex justify-content-between mb-5" style="justify-content: space-between;">
         <p class="text-muted mb-0">Delivery Charges</p>
-        <p class="text-muted mb-0"> <?php echo $data[0]["delivery_cost"]; ?></p>
+        <p class="text-muted mb-0"> <?php echo $data2[0]["delivery_cost"]; ?></p>
         </div>
 
     </div>
     <div class="card-footer border-0 px-4 py-5" style="background-color: #EEA2A2; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;">
         <h5 class="d-flex align-items-center justify-content-end text-white text-uppercase mb-0">Total
-        paid: <span class="h2 mb-0 ms-2"> IDR <?php echo $data[0]["total"]; ?></span></h5>
+        paid: <span class="h2 mb-0 ms-2"> IDR <?php echo $data2[0]["total"]; ?></span></h5>
     </div>
-    </div>
+    <?php } ?>
+</div>
 
 
 
 
-<?php }?>
           

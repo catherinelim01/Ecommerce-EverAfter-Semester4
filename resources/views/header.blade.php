@@ -113,7 +113,6 @@
                         </div>
                     </a> --}}
                     @else
-                    <script>console.log("halooooooo")</script>
                     <li class="logocart-login">
                       <!-- <a href="profile.php"> -->
                         <div class="user mx-3" style="cursor:pointer;">
