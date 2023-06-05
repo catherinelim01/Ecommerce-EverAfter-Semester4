@@ -69,6 +69,21 @@ if (isset($_POST['product_name'])) {
 </head>
 <body class="full-wrapper">
   @csrf
+  @if ($errors->any())
+  <div class="alert alert-danger">
+      <ul>
+          @foreach ($errors->all() as $error)
+              <li>{{ $error }}</li>
+          @endforeach
+      </ul>
+  </div>
+@endif
+
+@if (session('success'))
+<div class="alert alert-success">
+  {{ session('success') }}
+</div>
+@endif
   @include('header')
     <main>
         <!-- breadcrumb Start-->
@@ -145,7 +160,8 @@ if (isset($_POST['product_name'])) {
                   </div>
                   <br>
                   <div class="add-to-cart">
-                    <button class="btn">Add to Cart</button>
+                    <button id="add-to-cart-btn" class="btn add-to-cart-btn" data-product-id="{{ $row->product_id }}">Add to Cart</button>
+
                     <button class="btn">Checkout</button>
                   </div>
                   <br>
@@ -220,7 +236,16 @@ if (isset($_POST['product_name'])) {
                         // Tampilkan pesan jika tidak ada produk dengan product_id yang sesuai
                         echo "Product not found";
                     }
-                    ?>  
+                    ?>
+                </div>
+            </div>
+        </div>
+        
+            {{-- </div>
+          </div>
+        </div> --}}
+        
+        
 
                           <style>
                           .button-17 {
@@ -445,7 +470,10 @@ if (isset($_POST['product_name'])) {
             <div class="form-group mt-20">
                 <input type="password" class="form-control" name="customer_password" required placeholder="Password *" id="inputPassword">
             </div>
-            <!-- Tambahkan elemen lain yang diperlukan untuk form login -->
+            <div class="form-group form-check mt-10">
+              <input type="checkbox" class="form-check-input" id="checkboxRemember">
+              <label class="form-check-label remember" for="exampleCheck1">Remember me</label>
+            </div>
             <button type="submit" class="btn btn-primary mt-10 login">LOG IN</button>
             <p class="signuphere mt-3">Don't have an account? <a href="/login"><u>Sign Up</u></a> Here</p>
         </form>
@@ -661,7 +689,6 @@ WHERE
           </div>
         </div>
       </div>
-     {{-- test --}}
       <!-- footer-bottom area -->
       <div class="footer-bottom-area">
         <div class="container">

@@ -1,6 +1,14 @@
 <?php
-include 'connection.php';
+// if (isset($_POST['wishlist_id']) && isset($_POST['product_id'])) {
+//     $wishlist_id = $_POST['wishlist_id'];
+//     $product_id = $_POST['product_id'];
+    
+//     // Lakukan operasi yang diinginkan dengan wishlist_id dan product_id, misalnya menyimpannya ke database
+
+//     echo 'Data berhasil disimpan.'; // Ganti pesan konfirmasi dengan yang sesuai
+// }
 ?>
+
 <!doctype html>
 <html class="no-js" lang="zxx">
 
@@ -11,31 +19,32 @@ include 'connection.php';
     <title>Ever After | Fashion</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="manifest" href="site.webmanifest">
     <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
 
     <!-- CSS here -->
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="assets/css/slicknav.css">
-    <link rel="stylesheet" href="assets/css/flaticon.css">
-    <link rel="stylesheet" href="assets/css/progressbar_barfiller.css">
-    <link rel="stylesheet" href="assets/css/gijgo.css">
-    <link rel="stylesheet" href="assets/css/animate.min.css">
-    <link rel="stylesheet" href="assets/css/animated-headline.css">
-    <link rel="stylesheet" href="assets/css/magnific-popup.css">
-    <link rel="stylesheet" href="assets/css/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/css/themify-icons.css">
-    <link rel="stylesheet" href="assets/css/slick.css">
-    <link rel="stylesheet" href="assets/css/nice-select.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
 
 </head>
 
 <body class="full-wrapper">
     @csrf
+    <!-- header -->
     @include('header')
-    <!-- header end -->
     <main>
         <!-- breadcrumb Start-->
         <div class="page-notification">
@@ -61,15 +70,8 @@ include 'connection.php';
                         <div class="section-tittle mb-50">
                             <h2>Wishlist</h2>
                             <?php
-                            include 'connection.php';
-                            $sql = "SELECT COUNT(DISTINCT product_id) as total FROM wishlist_product";
-                            $result = $conn->query($sql);
-                            if ($result->num_rows > 0) {
-                                $row = $result->fetch_assoc();
-                                $total_products = $row['total'];
-                                echo '<p>Browse from ' . $total_products . ' wislist</p>';
-                            }
-                            $conn->close();
+                               $count = DB::table('wishlist_product')->count();
+                                echo '<p>Browse from ' . $count . ' wishlist</p>';
                             ?>
                         </div>
                     </div>
@@ -83,25 +85,17 @@ include 'connection.php';
                             <div class="single-listing">
                                 <!-- Select City items start -->
                                 <div class="select-job-items2">
-                                    <select name="select2">
+                                    <select name="select2" onchange="filterByCategory(this.value)">
                                         <option value="">Category</option>
-                                        <?php
-                                        include 'connection.php';
-                                        $sql = "SELECT category_name FROM category";
-                                        $result = $conn->query($sql);
-                                        if ($result->num_rows > 0) {
-                                            $category = array();
-                                            while ($row = $result->fetch_assoc()) {
-                                                $dt['category_name'] = $row['category_name'];
-                                                array_push($category, $dt);
-                                            }
-                                            $hasil_json = json_encode($category);
-                                            $data = json_decode($hasil_json, true);
-                                            for ($i = 0; $i < count($data); $i++) { ?>
-                                                <option value=""><?php echo $data[$i]["category_name"]; ?></option>
-                                            <?php } ?>
-                                        <?php } ?>
-                                        <?php $conn->close(); ?>
+                                
+                                        @php
+                                        $categories = DB::table('category')
+                                            ->select('category_name')
+                                            ->get();
+                                        foreach ($categories as $category) {
+                                            echo '<option value="' . $category->category_name . '">' . $category->category_name . '</option>';
+                                        }
+                                        @endphp
                                     </select>
                                 </div>
                                 <!-- </form> -->
@@ -119,64 +113,42 @@ include 'connection.php';
                                     </select>
                                 </div>
 
-                                <!-- <div class="select-job-items2">
-                                    <select name="select4">
-                                        <option value="">Size</option>
-                                        <option value="">1.2ft</option>
-                                        <option value="">2.5ft</option>
-                                        <option value="">5.2ft</option>
-                                        <option value="">3.2ft</option>
-                                    </select>
-                                </div> -->
-                                <!--  Select km items End-->
-                                <!-- Select km items start -->
-                                <!-- <div class="select-job-items2">
-                                    <select name="select5">
-                                        <option value="">Color</option>
-                                        <option value="">Whit</option>
-                                        <option value="">Green</option>
-                                        <option value="">Blue</option>
-                                        <option value="">Sky Blue</option>
-                                        <option value="">Gray</option>
-                                    </select>
-                                </div> -->
-                                <!--  Select km items End-->
                                 <!-- Select km items start -->
 
                                 <div class="select-job-items2">
                                     <select name="select6">
                                         <option value="">Price range</option>
-                                        <?php
-                                        include 'connection.php';
-
-                                        $sql = "SELECT DISTINCT product_price FROM product ORDER BY product_price ASC";
-                                        $result = $conn->query($sql);
-
-                                        if ($result->num_rows > 0) {
-                                            $price = array();
-                                            while ($row = $result->fetch_assoc()) {
-                                                $dt['product_price'] = $row['product_price'];
-                                                array_push($price, $dt);
+                                        @php
+                                        $prices = DB::table('product')
+                                            ->distinct()
+                                            ->orderBy('product_price', 'asc')
+                                            ->pluck('product_price');
+                                        @endphp
+                                
+                                        @php
+                                        $priceIncrement = 50000; // Nilai penambahan harga untuk setiap range
+                                        $priceStart = 0; // Harga awal
+                                        $priceEnd = $priceStart + ($priceIncrement - 1); // Harga akhir untuk setiap range
+                                        foreach ($prices as $price) {
+                                            $price_min = number_format($priceStart, 0, ',', '.');
+                                            $price_max = number_format($priceEnd, 0, ',', '.');
+                                            $priceRange = 'Rp' . $price_min . ' - Rp' . $price_max;
+                                            echo '<option value="' . $priceStart . '-' . $priceEnd . '">' . $priceRange . '</option>';
+                                
+                                            // Mengupdate harga awal dan harga akhir untuk range berikutnya
+                                            $priceStart += $priceIncrement;
+                                            $priceEnd += $priceIncrement;
+                                
+                                            // Batasi harga maksimal menjadi 1.000.000
+                                            if ($priceEnd >= 1000000) {
+                                                break;
                                             }
-
-                                            $hasil_json2 = json_encode($price);
-                                            $data2 = json_decode($hasil_json2, true);
-
-                                            foreach ($data2 as $row) {
-                                                $price = $row['product_price'];
-                                                $price_min = number_format($price, 0, ",", ".");
-                                                $price_max = number_format($price + 99999, 0, ",", ".");
-                                        ?>
-                                                <option value="<?php echo $price . '-' . ($price + 99999); ?>">
-                                                    <?php echo 'Rp' . $price_min . ' - Rp' . $price_max; ?>
-                                                </option>
-                                        <?php }
                                         }
-                                        $conn->close();
-                                        ?>
-
+                                        @endphp
                                     </select>
                                 </div>
+                                
+                                
                                 <!--  Select km items End-->
                             </div>
                         </div>
@@ -188,9 +160,9 @@ include 'connection.php';
                         <!-- PRODUCT -->
                         <div class="new-arrival new-arrival2">
                             <div class="row">
-                                <?php
-                                include 'pagination1.php';
-                                ?>
+
+                                @include ('pagination1')
+
                                 <!-- HTML -->
                                 <div class="col-xl-9 col-lg-9 col-md-8 offset-md-1 ">
                                     <!-- HTML -->
@@ -198,35 +170,64 @@ include 'connection.php';
                                     <div class="row justify-content-center" style="padding-bottom:20px;">
                                         <div class="room-btn mt-20">
                                             <?php
-                                            // Tampilkan tombol sebelumnya jika tidak di halaman pertama
-                                            if ($current_page > 1) {
-                                                echo '<a style="padding-top: 5px;color:black;" href="wishlist.php?page=' . ($current_page - 1) . '" class="page-btn"><i class="fas fa-chevron-left"></i></a>';
+                                            
+                                            $limit = 15;
+                                            
+                                            // Hitung jumlah total produk
+                                            $sql = 'SELECT DISTINCT COUNT(DISTINCT product_name) as total FROM product where product_id in (select product_id from wishlist_product) order by product_name asc;';
+                                            $result = DB::select($sql);
+                                            
+                                            if (count($result) > 0) {
+                                                $response = [];
+                                                foreach ($result as $row) {
+                                                    $dt = new stdClass();
+                                                    $dt->total = $row->total;
+                                                    $response[] = $dt;
+                                                }
+                                                $hasil_json = json_encode($response);
+                                                $data = json_decode($hasil_json, true);
                                             }
-                                            ?>
+                                            // Hitung jumlah halaman yang dibutuhkan
+                                            $total_pages = ceil($data[0]['total'] / $limit);
+                                            
+                                            // Tentukan halaman saat ini
+                                            $current_page = isset($_GET['page']) ? $_GET['page'] : 1;
+                                            
+                                            // Hitung offset
+                                            $offset = ($current_page - 1) * $limit; ?>
+
+
+                                            <?php if ($current_page > 1): ?>
+                                            <a style="padding-top: 2px;color:black;"
+                                                href="{{ route('wishlist', ['page' => $current_page - 1]) }}"
+                                                class="page-btn"><i class="fas fa-chevron-left"></i></a>
+                                            <?php endif; ?>
+
+                                            <?php if ($data[0]["total"] > 0): ?>
                                             <div class="page-numbers">
                                                 <?php
-                                                // Batasi jumlah halaman yang ditampilkan
                                                 $max_pages = 5;
                                                 $start_page = max($current_page - 2, 1);
                                                 $end_page = min($current_page + 2, $total_pages);
-                                                // Tampilkan tombol halaman jika masih ada halaman tersedia
-                                                for ($i = $start_page; $i <= $end_page; $i++) {
-                                                    // Highlight tombol halaman saat ini
-                                                    if ($i == $current_page) {
-                                                        echo '<a href="#" class="page-numbers current">' . $i . '</a>';
-                                                    } else {
-                                                        echo '<a href="wishlist.php?page=' . $i . '" class="page-numbers">' . $i . '</a>';
-                                                    }
-                                                }
                                                 ?>
+
+                                                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                                <?php if ($i == $current_page): ?>
+                                                <a href="#" class="page-btn current-page">{{ $i }}</a>
+                                                <?php else: ?>
+                                                <a href="{{ route('wishlist', ['page' => $i]) }}" class="page-btn">{{ $i }}</a>
+
+                                                <?php endif; ?>
+                                                <?php endfor; ?>
                                             </div>
-                                            <?php
-                                            // Tampilkan tombol berikutnya jika tidak di halaman terakhir
- 
-                                            if ($current_page < $total_pages) {
-                                                echo '<a style="color:black;" href="wishlist.php?page=' . ($current_page + 1) . '" class="page-btn"><i class="fas fa-chevron-right"></i></a>';
-                                            }
-                                            ?>
+                                            <?php endif; ?>
+
+
+                                            <?php if ($current_page < $total_pages): ?>
+                                            <a style="padding-top: 5px;color:black;"
+                                                href="{{ route('wishlist', ['page' => $current_page + 1]) }}"
+                                                class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <!-- CSS -->
@@ -514,33 +515,34 @@ WHERE
             </div>
           </div>
         </div>
-      </div>
-      <!-- footer-bottom area -->
-      <div class="footer-bottom-area">
-        <div class="container">
-          <div class="footer-border">
-            <div class="row d-flex align-items-center">
-              <div class="col-xl-12">
-                <div class="footer-copy-right text-center">
-                  <p>
-                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                    Copyright &copy;
-                    <script>
-                      document.write(new Date().getFullYear());
-                    </script>
-                    All rights reserved | This template is made with
-                    <i class="fa fa-heart" aria-hidden="true"></i> by
-                    <a href="https://colorlib.com" target="_blank">Colorlib</a>
-                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                  </p>
+        <!-- footer-bottom area -->
+        <div class="footer-bottom-area">
+            <div class="container">
+                <div class="footer-border">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-xl-12">
+                            <div class="footer-copy-right text-center">
+                                <p>
+                                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                                    Copyright &copy;
+                                    <script>
+                                        document.write(new Date().getFullYear());
+                                    </script>
+                                    All rights reserved | This template is made with
+                                    <i class="fa fa-heart" aria-hidden="true"></i> by
+                                    <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
-      <!-- Footer End-->
+        <!-- Footer End-->
     </footer>
+
+
     <!--? Search model Begin -->
     <div class="search-model-box">
         <div class="h-100 d-flex align-items-center justify-content-center">
@@ -551,6 +553,7 @@ WHERE
         </div>
     </div>
     <!-- Search model end -->
+
     <!-- Scroll Up -->
     <div id="back-top">
         <a title="Go to Top" href="#"> <i class="fas fa-level-up-alt"></i></a>
@@ -558,43 +561,43 @@ WHERE
 
     <!-- JS here -->
     <!-- Jquery, Popper, Bootstrap -->
-    <script src="./assets/js/vendor/modernizr-3.5.0.min.js"></script>
-    <script src="./assets/js/vendor/jquery-1.12.4.min.js"></script>
-    <script src="./assets/js/popper.min.js"></script>
-    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="{{ asset('assets/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+    <script src="{{ asset('assets/js/vendor/jquery-1.12.4.min.js') }}"></script>
+    <script src="{{ asset('assets/js/popper.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
 
     <!-- Slick-slider , Owl-Carousel ,slick-nav -->
-    <script src="./assets/js/owl.carousel.min.js"></script>
-    <script src="./assets/js/slick.min.js"></script>
-    <script src="./assets/js/jquery.slicknav.min.js"></script>
+    <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('assets/js/slick.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.slicknav.min.js') }}"></script>
 
     <!-- One Page, Animated-HeadLin, Date Picker -->
-    <script src="./assets/js/wow.min.js"></script>
-    <script src="./assets/js/animated.headline.js"></script>
-    <script src="./assets/js/jquery.magnific-popup.js"></script>
-    <script src="./assets/js/gijgo.min.js"></script>
+    <script src="{{ asset('assets/js/wow.min.js') }}"></script>
+    <script src="{{ asset('assets/js/animated.headline.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.magnific-popup.js') }}"></script>
+    <script src="{{ asset('assets/js/gijgo.min.js') }}"></script>
 
     <!-- Nice-select, sticky,Progress -->
-    <script src="./assets/js/jquery.nice-select.min.js"></script>
-    <script src="./assets/js/jquery.sticky.js"></script>
-    <script src="./assets/js/jquery.barfiller.js"></script>
+    <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.sticky.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.barfiller.js') }}"></script>
 
     <!-- counter , waypoint,Hover Direction -->
-    <script src="./assets/js/jquery.counterup.min.js"></script>
-    <script src="./assets/js/waypoints.min.js"></script>
-    <script src="./assets/js/jquery.countdown.min.js"></script>
-    <script src="./assets/js/hover-direction-snake.min.js"></script>
+    <script src="{{ asset('assets/js/jquery.counterup.min.js') }}"></script>
+    <script src="{{ asset('assets/js/waypoints.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.countdown.min.js') }}"></script>
+    <script src="{{ asset('assets/js/hover-direction-snake.min.js') }}"></script>
 
     <!-- contact js -->
-    <script src="./assets/js/contact.js"></script>
-    <script src="./assets/js/jquery.form.js"></script>
-    <script src="./assets/js/jquery.validate.min.js"></script>
-    <script src="./assets/js/mail-script.js"></script>
-    <script src="./assets/js/jquery.ajaxchimp.min.js"></script>
+    <script src="{{ asset('assets/js/contact.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.form.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('assets/js/mail-script.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.ajaxchimp.min.js') }}"></script>
 
     <!-- Jquery Plugins, main Jquery -->
-    <script src="./assets/js/plugins.js"></script>
-    <script src="./assets/js/main.js"></script>
+    <script src="{{ asset('assets/js/plugins.js') }}"></script>
+    <script src="{{ asset('assets/js/main.js') }}"></script>
     @if(session('customer_id'))
 @php
     $loginTime = session('login_time');
@@ -745,33 +748,25 @@ WHERE
       const containercart = document.querySelector('.cart-container');
       const navv = document.querySelector('a.navprofile');
 
-      // containercart.style.display = "none";
+        // containercart.style.display = "none";
 
-      full.style.overflow = 'visible';
-      isiSignup.style.display = 'none';
-      navprofile.style.display = 'none';
-      navv.style.display = 'none';
+        full.style.overflow = 'visible';
+        isiSignup.style.display = 'none';
+        navprofile.style.display = 'none';
+        navv.style.display = 'none';
 
-      backlogin.addEventListener('click', function(event) {
-      event.preventDefault();
-      isiSignup.style.display = 'none';
-      login.style.display="block";
+        backlogin.addEventListener('click', function(event) {
+            event.preventDefault();
+            isiSignup.style.display = 'none';
+            login.style.display = "block";
 
-      });
-
-      signuphere.addEventListener('click', function(event) {
-      event.preventDefault();
-      isiSignup.style.display = 'block';
-      login.style.display="none";
-
-      });
-
-      function updateNavbar(screenWidth) {
-        $('.logocart-login').on('click', function() {
-            $(this).addClass('active');
         });
-        $('.close.login').on('click', function() {
-            $(".logocart-login.active").removeClass('active');
+
+        signuphere.addEventListener('click', function(event) {
+            event.preventDefault();
+            isiSignup.style.display = 'block';
+            login.style.display = "none";
+
         });
           // Add event listener to detect media query change
           if (window.innerWidth >= 415 && window.innerWidth <= 576) {
@@ -821,18 +816,35 @@ WHERE
                   containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
-              logocartlogin.addEventListener('click', function(event) {
-              event.preventDefault();
-              full.style.overflow = 'hidden';
-              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              
-              });
-              navprofile.addEventListener('click', function(event) {
-              event.preventDefault();
-              full.style.overflow = 'hidden';
-              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              
-              });
+                $(".close.cart").on('click', function(event) {
+                    event.preventDefault();
+                    containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                    full.style.overflow = 'visible';
+                    if ($('.logocart-login').hasClass('active')) {
+                        full.style.overflow = 'hidden';
+                    }
+                });
+                btnclose.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+                    isiSignup.style.display = 'none';
+                    login.style.display = "block";
+                    full.style.overflow = 'visible';
+                });
+            } else if (window.innerWidth < 415) { // media query condition
+                navprofile.style.display = 'block';
+                logocart.addEventListener('mouseenter', function(event) {
+                    event.preventDefault();
+                    // containercart.style.display = 'block';
+                    full.style.overflow = 'hidden';
+                    containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                });
+                // logocartlogin.addEventListener('mouseenter', function(event) {
+                //     event.preventDefault();
+                //     // containercart.style.display = 'none';
+                //     full.style.overflow = 'visible';
+                //     containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                // });
 
               btnclose.addEventListener('click', function(event) {
               event.preventDefault();
@@ -868,15 +880,21 @@ WHERE
                 containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
-              btnclose.addEventListener('click', function(event) {
-              event.preventDefault();
-              containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-              isiSignup.style.display = 'none';
-              login.style.display="block";
-              full.style.overflow = 'visible';
-              });
-          };
-      }
+                btnclose.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+                    isiSignup.style.display = 'none';
+                    login.style.display = "block";
+                    full.style.overflow = 'visible';
+                });
+            } else {
+                navprofile.style.display = 'none';
+                logocart.addEventListener('mouseenter', function(event) {
+                    event.preventDefault();
+                    // containercart.style.display = 'block';
+                    full.style.overflow = 'hidden';
+                    containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                });
 
       updateNavbar(window.innerWidth);
       // Check screen size on window resize
@@ -890,7 +908,7 @@ WHERE
             const imgHeart = document.getElementById('heart');
             const imgCard = document.getElementById('cart');
             // Add event listener to detect media query change
-            
+
             if (window.innerWidth <= 576) { // media query condition
                 imgHeart.src = 'assets/images/logo/heart-black.svg';
                 imgCard.src = 'assets/images/logo/cart-black.svg';
@@ -936,7 +954,7 @@ WHERE
             }
           });
         });
-        
+
         $('.browsemore').click(function() {
           // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
           $.ajax({
@@ -947,6 +965,23 @@ WHERE
               console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
             }
           });
+            // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+            $.ajax({
+                type: "POST",
+                url: "linksess.php",
+                data: {
+                    shopnow: ""
+                },
+                success: function() {
+                    console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+                }
+            });
+        });
+
+        $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
         });
 
       

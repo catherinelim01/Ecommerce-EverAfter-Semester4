@@ -4,20 +4,6 @@
 
 session_start();
 
-// Menyimpan nilai filter ke dalam session saat filter dipilih
-// if (isset($_GET['select2'])) {
-//   $_SESSION['selected_category'] = $_GET['select2'];
-// }
-
-// if (isset($_GET['select3'])) {
-//   $_SESSION['selected_size'] = $_GET['select3'];
-// }
-
-// if (isset($_GET['select4'])) {
-//   $_SESSION['selected_price_range'] = $_GET['select4'];
-// }
-
-// Mendapatkan nilai filter dari session
 $selected_category = $_SESSION['selected_category'] ?? '';
 $selected_size = $_SESSION['selected_size'] ?? '';
 $selected_price_range = $_SESSION['selected_price_range'] ?? '';
@@ -68,6 +54,21 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
 
 <body class="full-wrapper">
   @csrf
+  @if ($errors->any())
+  <div class="alert alert-danger">
+      <ul>
+          @foreach ($errors->all() as $error)
+              <li>{{ $error }}</li>
+          @endforeach
+      </ul>
+  </div>
+@endif
+
+@if (session('success'))
+<div class="alert alert-success">
+  {{ session('success') }}
+</div>
+@endif
   @include('header')
   <main>
     <!-- breadcrumb Start-->
@@ -132,6 +133,7 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
             foreach ($categories as $category) {
               if(session('shop_now')){
                 $selected = (session('shop_now') === $category) ? 'selected' : '';
+                
                 
               }
               else{
@@ -254,7 +256,8 @@ if ($previous_price !== null) {
           }
           
           if (session()->get('shop_now') == "") {
-              $selected_category = request()->get('select2') ?? '';
+            $selected_category = isset($_GET['select2']) ? $_GET['select2'] : '';
+
               $selected_size = request()->get('select3') ?? '';
               $selected_price_range = request()->get('select4') ?? '';
               $price_range = explode('-', $selected_price_range);
@@ -399,8 +402,20 @@ if ($previous_price !== null) {
               <!-- HTML -->
               <div class="row justify-content-center" style="margin-bottom: 15px;">
                   <div class="room-btn mt-20">
-                      <?php if ($current_page > 1): ?>
-                          <a style="padding-top: 2px;color:black;" href="{{ route('shop', ['page' => ($current_page - 1)]) }}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
+                      <?php if ($current_page > 1): 
+                      $filters = [
+                        'select2' => $selected_category,
+                        'select3' => $selected_size,
+                        'select4' => $selected_price_range
+
+                    ];
+                    
+                    $queryString = http_build_query($filters);
+                    
+                    
+                     ?>
+                      
+                          <a style="padding-top: 2px;color:black;" href="{{ route('shop', ['page' => ($current_page - 1)]) . '?' . $queryString }}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
                       <?php endif; ?>
           
                       <?php if ($results->count() > 0): ?>
@@ -538,8 +553,27 @@ if ($previous_price !== null) {
       </div>
     </div>
     <!--? Services Area End -->
-   <!-- cart -->
-   <div class="cart-container-login geser">
+    <!-- cart -->
+    <div class="cart-container-login geser">
+      <!-- {{-- @if(session('customer_id'))
+    @php
+        $loginTime = session('login_time');
+        $currentTime = time();
+        $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
+    @endphp
+
+    @if($remainingTime > 0)
+        <a href="/profile">
+    @else
+        <a href="#">
+    @endif
+        <div class="user mx-3" style="cursor:pointer;">
+            <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
+        </div>
+    </a>
+@endif --}} -->
+
+
       <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
       </svg></a>

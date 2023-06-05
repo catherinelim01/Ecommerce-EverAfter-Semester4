@@ -5,6 +5,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\WishlistController;
+
 
 
 
@@ -127,7 +129,6 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 
 
-
 Route::get('/product_details', function () {
     return view('product_details');
 });
@@ -205,6 +206,17 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 
+
+Route::match(['get', 'post'], '/wishlist', [WishlistController::class, 'insertWishlist']);
+Route::match(['get', 'post'], '/wishlistdelete', [WishlistController::class, 'deleteWishlist']);
+
+Route::get('/wishlist', function () {
+    return view('wishlist');
+})->name('wishlist');
+
+Route::get('/wishlist/page/{page}', function ($page) {
+    return view('wishlist', ['page' => $page]);
+})->name('wishlist.page');
 
 // Route::get('/cart', [VoucherController::class, 'showCart']);
 // Route::post('/cart', [VoucherController::class, 'applyVoucher'])->name('applyVoucher');
