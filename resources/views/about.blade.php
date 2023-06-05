@@ -104,25 +104,6 @@
         <!--? Services Area End -->
         <!-- cart -->
     <div class="cart-container-login geser">
-      <!-- {{-- @if(session('customer_id'))
-    @php
-        $loginTime = session('login_time');
-        $currentTime = time();
-        $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
-    @endphp
-
-    @if($remainingTime > 0)
-        <a href="/profile">
-    @else
-        <a href="#">
-    @endif
-        <div class="user mx-3" style="cursor:pointer;">
-            <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
-        </div>
-    </a>
-@endif --}} -->
-
-
       <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
       </svg></a>
@@ -152,15 +133,15 @@
           </div>
           <form class="formsignup" action="{{ route('register') }}" method="POST">
               @csrf
-              <div class="form-group mt-20 regis ">
+              <div class="form-group mt-20 regis">
                 <label for="inputEmailRegis">Name *</label>
                 <input type="text" class="form-control" id="inputNameRegis" name="customer_name" required aria-describedby="emailHelp">
             </div>
-              <div class="form-group mt-20 regis">
+              <div class="form-group mt-10 regis">
                   <label for="inputEmailRegis">Email address *</label>
                   <input type="email" class="form-control" id="inputEmailRegis" name="customer_email" required aria-describedby="emailHelp">
               </div>
-              <div class="form-group mt-20 regis">
+              <div class="form-group mt-10 regis">
                   <label for="inputPasswordRegis">Password *</label>
                   <input type="password" class="form-control" id="inputPasswordRegis" name="customer_password" required>
               </div>
@@ -211,7 +192,11 @@
           <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
           <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
           <p>Size: <?php echo $data[$i]["size"]; ?></p>
-          <p>Quantity: 1</p>
+          <div style="display: flex; align-items: center;">
+  <p style="margin-right: 10px; ">Quantity:</p>
+  <input type="number" name="quantity" min="1" max="10" value="1" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" style="width: 60px; height: 24px;">
+</div>
+          
           <button class="remove-btn mt-4">Remove</button>
         </div>
       </div>
@@ -270,7 +255,7 @@ WHERE
     
     <div class="cart-actions">
       <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
-      <button class="continue-shopping">CONTINUE SHOPPING</button>
+      <a href="/shop"><button class="continue-shopping">CONTINUE SHOPPING</button></a>
     </div>
   </div>
 <!-- cart end -->
@@ -346,8 +331,8 @@ WHERE
                 <div class="footer-tittle">
                   <h4>Get in touch</h4>
                   <ul>
-                    <li><a href="#">(+62) 812-1764-1707</a></li>
-                    <li><a href="#">everafter@gmail.com</a></li>
+                  <li><a href="https://wa.me/6281217641707/" target="_blank">(+62) 812-1764-1707</a></li>
+                    <li><a href="mailto:everafter@gmail.com">everafter@gmail.com</a></li>
                     <li><a href="#">Surabaya, Indonesia</a></li>
                   </ul>
                 </div>

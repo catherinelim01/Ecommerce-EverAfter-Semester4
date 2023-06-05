@@ -123,17 +123,17 @@ if (isset($_POST['voucherCode'])) {
                 <!-- Item size and price -->
                 <br><br>
                 <p>Size: <?php echo $data[$i]["size"]; ?></p>
-                <p class="price">Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+                <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
             </div>
 
             <div class="col-2 isicart">
                 <br><br>
                 <!-- Item price and quantity -->
-                <div class="input-group">
+                <div class="input-group" style="padding-left:30px;">
                     <span class="input-group-btn">
                         <!-- <button type="button" class="btn btn-secondary" id="decrementBtn">-</button> -->
                     </span>
-                    <input type="number"name="quantity" min="1" max="10" value="1" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>">
+                    <p>1</p>
                     <span class="input-group-btn">
                         <!-- <button type="button" class="btn btn-secondary" id="incrementBtn">+</button> -->
                     </span>
@@ -142,7 +142,7 @@ if (isset($_POST['voucherCode'])) {
 
             <div class="col-2 isicart">
                 <br><br>
-                <p id="subtotal<?php echo $i?>">IDR</p>
+                
             </div>
             
         </div>
@@ -259,7 +259,7 @@ if (isset($_POST['voucherCode'])) {
         </tr>
       </table>
       <div class="checkout-wrapper text-center">
-        <a href="payment.php"><button class="btn btn-primary co">CONTINUE TO PAYMENT</button></a>
+        <a href="/payment"><button class="btn btn-primary co">CONTINUE TO PAYMENT</button></a>
       </div>
     </div>
   </div>
@@ -273,112 +273,91 @@ if (isset($_POST['voucherCode'])) {
     <div class="pilihalamat col-12 mt-5">
     <h5>CHOOSE ADDRESS</h5>
     <div class="row">
+      @php
+      $customerId = session('customer_id');
+  
+      $addresses = \App\Models\Address::join('customer AS cu', 'address.customer_id', '=', 'cu.customer_id')
+          ->select('cu.customer_name', 'address.address', 'address.phone')
+          ->where('cu.customer_id', $customerId)
+          ->get();
+      @endphp
+  
+      @for ($i = 0; $i < count($addresses); $i++)
         <div class="col-12 col-md-6 col-lg-6 mt-14">
             <div class="card card-address">
                 <div class="pilihalamat card-header">
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="shippingAddress" id="address1" checked>
+                        <input class="form-check-input" type="radio" name="shippingAddress" id="address{{ $i }}" {{ $i === 0 ? 'checked' : '' }}>
                     </div>
                     <div class="judulheader">
-                        Address 1
+                        Address {{ $i + 1 }}
                     </div>
                 </div>
                 <div class="preview-add">
-    @php
-    $customerId = session('customer_id');
-
-    $addresses = \App\Models\Address::join('customer AS cu', 'address.customer_id', '=', 'cu.customer_id')
-        ->select('cu.customer_name', 'address.address', 'address.phone')
-        ->where('cu.customer_id', $customerId)
-        ->get();
-    @endphp
-
-    @foreach ($addresses as $address)
-    <p>{{ $address->customer_name }}</p>
-    <p>{{ $address->address }}</p>
-    <p>{{ $address->phone }}</p>
-    @endforeach
-
-    @if ($addresses->isEmpty())
-    <p>Tidak ada data alamat yang ditemukan.</p>
-    @endif
-</div>
-
-
+                    <p>{{ $addresses[$i]->customer_name }}</p>
+                    <p>{{ $addresses[$i]->address }}</p>
+                    <p>{{ $addresses[$i]->phone }}</p>
+                </div>
             </div>
         </div>
+        @endfor
+        
+            @if ($addresses->isEmpty())
+            <p>Tidak ada data alamat yang ditemukan.</p>
+            @endif
+    </div>
+  </div>
+  
+  
+</div>
+</div>
     </div>
 </div>
 
 
-    <div class="col-12 col-md-6 col-lg-6 mt-14">
-      <div class="card card-address">
-        <div class="pilihalamat card-header">
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="shippingAddress" id="address2" checked>
-        </div>
-          <div class="judulheader">
-             Address 2
-          </div>
-        </div>
-        <div class="preview-add">
-          <p>nama</p>
-          <p>tes</p>
-          <p>kota</p>
-          <p>indo</p>
-        </div>
-        
-      </div>
-    </div>
     </div>
   </div>
 
+
+<style>
+  .nice-select.form-select.dropdown-scroll{
+    display:flex;
+    align-items:center;
+
+  }
+  .form-select.dropdown-scroll ul {
+    max-height: 200px; /* Atur tinggi maksimum dropdown */
+    overflow-y: auto; /* Aktifkan scroll pada dropdown jika melebihi tinggi maksimum */
+  }
+</style>
 
 <div class="pilihshipment col-12 mt-5">
   <h5>PICK YOUR SHIPPING METHOD</h5>
   <div class="row">
-    <div class="col-12 ">
+    <div class="col-12">
       <div class="card card-address">
         <div class="pilihshipment card-header">
           <div class="form-check">
-            <select class="form-select" name="shippingAddress" id="addressSelect">
-              <option value="JNE REG" selected>JNE REG</option>
-              <option value="JNT REG">JNT REG</option>
-              <option value="SiCepat REG">SiCepat REG</option>
+            <select class="form-select dropdown-scroll" name="shippingAddress" id="addressSelect">
+              @php
+              $deliveries = DB::select('SELECT delivery_name FROM delivery');
+              @endphp
+              @foreach ($deliveries as $delivery)
+                <option value="{{ $delivery->delivery_name }}">{{ $delivery->delivery_name }}</option>
+              @endforeach
             </select>
           </div>
-         
         </div>
-        
       </div>
     </div>
   </div>
 </div>
 </div>
-
+<br><br>
 </div>
 
       <!-- cart -->
     <div class="cart-container-login geser">
-      <!-- {{-- @if(session('customer_id'))
-    @php
-        $loginTime = session('login_time');
-        $currentTime = time();
-        $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
-    @endphp
-
-    @if($remainingTime > 0)
-        <a href="/profile">
-    @else
-        <a href="#">
-    @endif
-        <div class="user mx-3" style="cursor:pointer;">
-            <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
-        </div>
-    </a>
-@endif --}} -->
-
-
       <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
       </svg></a>
@@ -465,15 +444,19 @@ if (isset($_POST['voucherCode'])) {
         </div>
         <div class=" col-7 item-details">
           <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
-          <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+          <p class="price">Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
           <p>Size: <?php echo $data[$i]["size"]; ?></p>
-          <p>Quantity: 1</p>
+          <div style="display: flex; align-items: center;">
+  <p style="margin-right: 10px; ">Quantity:</p>
+  <input type="number" name="quantity" min="1" max="10" value="1" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" style="width: 60px; height: 24px;">
+</div>
+          
           <button class="remove-btn mt-4">Remove</button>
         </div>
       </div>
       
       
-      
+      <p style="display:none;" id="subtotal<?php echo $i?>">IDR</p>
     
   <?php } ?>
     <?php } ?>
@@ -513,7 +496,7 @@ WHERE
         <tr>
         
           <td><h3>SUBTOTAL: </h3></td>
-          <td><h3>IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
+          <td><h3 class = "subtotal-cart">IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
         </tr>
         <?php } ?>
         <!-- <tr class="total">
@@ -526,7 +509,7 @@ WHERE
     
     <div class="cart-actions">
       <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
-      <button class="continue-shopping">CONTINUE SHOPPING</button>
+      <a href="/shop"><button class="continue-shopping">CONTINUE SHOPPING</button></a>
     </div>
   </div>
 <!-- cart end -->
@@ -602,8 +585,8 @@ WHERE
                 <div class="footer-tittle">
                   <h4>Get in touch</h4>
                   <ul>
-                    <li><a href="#">(+62) 812-1764-1707</a></li>
-                    <li><a href="#">everafter@gmail.com</a></li>
+                  <li><a href="https://wa.me/6281217641707/" target="_blank">(+62) 812-1764-1707</a></li>
+                    <li><a href="mailto:everafter@gmail.com">everafter@gmail.com</a></li>
                     <li><a href="#">Surabaya, Indonesia</a></li>
                   </ul>
                 </div>
@@ -718,19 +701,37 @@ WHERE
 
   $(document).ready(function() {
     $(".quantityInput").on("input", function() {
-      let harga = $(this).closest(".isicart").prev().find(".price").text();
+      let harga = $(this).closest(".cart-item").find(".price").text();
       let quantity = $(this).val();
       let substr = harga.substring(10); // Menghapus "IDR " dari substring
       let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
-      console.log(harga);
+
       // Menghitung subtotal berdasarkan quantity dan price
       let subtotal = quantity * parsedInt;
 
       // Mengubah teks pada elemen subtotal yang sesuai
       let subtotalId = $(this).data("subtotal-id");
       $("#" + subtotalId).text("IDR " + subtotal);
+      
+          var total = 0;
+          var n = 10; // Nilai n yang sesuai
+          total2= BigInt(total);
+          for (var i = 0; i <= n; i++) {
+            var subtotalElementId = "subtotal" + i;
+            var subtotalText = $("#" + subtotalElementId).text();
+            let substr2 = subtotalText.substring(4);
+            var subtotal2 = BigInt(substr2); // Mengubah teks menjadi angka jika diperlukan
+            total2 += BigInt(substr2);
+          }
+          var subtotalFormatted = total2.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', currencyDisplay: 'code', minimumFractionDigits: 0, maximumFractionDigits: 0 }); // Format subtotal se
+          console.log("Total: " + (subtotalFormatted));
+          $('.subtotal-cart').text(subtotalFormatted)
     });
+
   });
+
+
+  
       const closecart = document.querySelector('.close.cart');
       const full = document.querySelector('.full-wrapper');
       const navprofile = document.querySelector('.slicknav_menu a.navprofile');

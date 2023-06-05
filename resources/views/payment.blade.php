@@ -46,108 +46,33 @@
 
       <div class="row cartpage">
   <div class="col-12 col-lg-9">
-    <div class="row">
-      <div class="col-12 col-lg-11 isicart">
-        <br>
 
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu1" name="menu" onclick="toggleDescription(1)">
-          <label class="jenispayment navbar-toggler-label" for="menu1">OVO</label>
-          <div id="description1" class="paymentdesc">Description for Menu 1</div>
-        </div><br>
+  <div class="row">
+  <div class="col-12 col-lg-11 isicart">
+    <br>
+    <div id="description1" class="paymentdesc">Description for Menu 1</div>
+    <!-- Penambahan kode berikut -->
+    @php
+    use App\Models\Payment;
+    $payments = Payment::select('PAYMENT_METHOD', 'PAYMENT_DETAIL')->get();
+@endphp
 
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu2" name="menu" onclick="toggleDescription(2)">
-          <label class="jenispayment navbar-toggler-label" for="menu2">Shopee Pay</label>
-          <div id="description2" class="paymentdesc">Description for Menu 2</div>
-        </div><br>
-        
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu3" name="menu" onclick="toggleDescription(3)">
-          <label class="jenispayment navbar-toggler-label" for="menu3">Dana</label>
-          <div id="description3" class="paymentdesc">Description for Menu 3</div>
-        </div><br>
+@foreach ($payments as $payment)
+    <div class="pilihpayment navbar-light bg-light">
+        <input type="radio" class="navbar-toggler-input" id="menu{{ $loop->iteration + 1 }}" name="menu" onclick="toggleDescription({{ $loop->iteration + 1 }})">
+        <label class="jenispayment navbar-toggler-label" for="menu{{ $loop->iteration + 1 }}">{{ $payment->PAYMENT_METHOD }}</label>
+        <div id="description{{ $loop->iteration + 1 }}" class="paymentdesc">{!! nl2br($payment->PAYMENT_DETAIL) !!}</div>
+    </div><br>
+@endforeach
+    <!-- Penambahan kode berakhir -->
 
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu4" name="menu" onclick="toggleDescription(4)">
-          <label class="jenispayment navbar-toggler-label" for="menu4">GoPay</label>
-          <div id="description4" class="paymentdesc">Description for Menu 4</div>
-        </div><br>
-
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu5" name="menu" onclick="toggleDescription(5)">
-          <label class="jenispayment navbar-toggler-label" for="menu5">Bank BCA</label>
-          <div id="description5" class="paymentdesc">Checkout using BCA Virtual account</div>
-        </div><br>
-
-
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu6" name="menu" onclick="toggleDescription(6)">
-          <label class="jenispayment navbar-toggler-label" for="menu6">Bank Mandiri</label>
-          <div id="description6" class="paymentdesc">Checkout using Mandiri Virtual account</div>
-        </div><br>
-
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu7" name="menu" onclick="toggleDescription(7)">
-          <label class="jenispayment navbar-toggler-label" for="menu7">Bank BNI</label>
-          <div id="description7" class="paymentdesc">Checkout using BNI Virtual account</div>
-        </div><br>
-
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu8" name="menu" onclick="toggleDescription(8)">
-          <label class="jenispayment navbar-toggler-label" for="menu8">Bank BRI</label>
-          <div id="description8" class="paymentdesc">Checkout using BRI Virtual account</div>
-        </div><br>
-
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu9" name="menu" onclick="toggleDescription(9)">
-          <label class="jenispayment navbar-toggler-label" for="menu9">Bank Jago</label>
-          <div id="description9" class="paymentdesc">Checkout using Bank Jago Virtual account</div>
-        </div><br>
-
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu10" name="menu" onclick="toggleDescription(10)">
-          <label class="jenispayment navbar-toggler-label" for="menu10">PAYPAL</label>
-          <div id="description10" class="paymentdesc">Description for Menu 10</div>
-        </div><br>
-
-
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu11" name="menu" onclick="toggleDescription(11)">
-          <label class="jenispayment navbar-toggler-label" for="menu11">Alfamart</label>
-          <div id="description11" class="paymentdesc">Description for Menu 11</div>
-        </div><br>
-
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu12" name="menu" onclick="toggleDescription(12)">
-          <label class="jenispayment navbar-toggler-label" for="menu12">Indomaret</label>
-          <div id="description12" class="paymentdesc">Description for Menu 12</div>
-        </div><br>
-
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu13" name="menu" onclick="toggleDescription(13)">
-          <label class="jenispayment navbar-toggler-label" for="menu13">Cimb Niaga</label>
-          <div id="description13" class="paymentdesc">Description for Menu 13</div>
-        </div><br>
-
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu14" name="menu" onclick="toggleDescription(14)">
-          <label class="jenispayment navbar-toggler-label" for="menu14">Cash on Delivery</label>
-          <div id="description14" class="paymentdesc">Description for Menu 14</div>
-        </div><br>
-
-        <div class="pilihpayment navbar-light bg-light">
-          <input type="radio" class="navbar-toggler-input" id="menu15" name="menu" onclick="toggleDescription(15)">
-          <label class="jenispayment navbar-toggler-label" for="menu15">LinkAja</label>
-          <div id="description15" class="paymentdesc">Description for Menu 15</div>
-        </div><br>
-
-        <div class="checkout-wrapper text-center"> <!-- Modified class -->
-        <a href="payment.php"><button class="btn btn-primary co">PLACE ORDER</button></a>
-      </div>
-      <BR></BR>
-      </div>
+    <div class="checkout-wrapper text-center">
+      <a href="payment.php"><button class="btn btn-primary co">PLACE ORDER</button></a>
     </div>
+    <br></br>
+  </div>
+</div>
+ 
   </div>
 
 
@@ -216,25 +141,6 @@
 
       <!-- cart -->
     <div class="cart-container-login geser">
-      <!-- {{-- @if(session('customer_id'))
-    @php
-        $loginTime = session('login_time');
-        $currentTime = time();
-        $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
-    @endphp
-
-    @if($remainingTime > 0)
-        <a href="/profile">
-    @else
-        <a href="#">
-    @endif
-        <div class="user mx-3" style="cursor:pointer;">
-            <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
-        </div>
-    </a>
-@endif --}} -->
-
-
       <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
       </svg></a>
@@ -323,7 +229,11 @@
           <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
           <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
           <p>Size: <?php echo $data[$i]["size"]; ?></p>
-          <p>Quantity: 1</p>
+          <div style="display: flex; align-items: center;">
+  <p style="margin-right: 10px; ">Quantity:</p>
+  <input type="number" name="quantity" min="1" max="10" value="1" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" style="width: 60px; height: 24px;">
+</div>
+          
           <button class="remove-btn mt-4">Remove</button>
         </div>
       </div>
@@ -382,7 +292,7 @@ WHERE
     
     <div class="cart-actions">
       <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
-      <button class="continue-shopping">CONTINUE SHOPPING</button>
+      <a href="/shop"><button class="continue-shopping">CONTINUE SHOPPING</button></a>
     </div>
   </div>
 <!-- cart end -->
@@ -458,8 +368,8 @@ WHERE
                 <div class="footer-tittle">
                   <h4>Get in touch</h4>
                   <ul>
-                    <li><a href="#">(+62) 812-1764-1707</a></li>
-                    <li><a href="#">everafter@gmail.com</a></li>
+                  <li><a href="https://wa.me/6281217641707/" target="_blank">(+62) 812-1764-1707</a></li>
+                    <li><a href="mailto:everafter@gmail.com">everafter@gmail.com</a></li>
                     <li><a href="#">Surabaya, Indonesia</a></li>
                   </ul>
                 </div>
@@ -548,6 +458,11 @@ WHERE
 
 @if($remainingTime > 0)
 <script>
+$(document).ready(function() {
+  // Menyembunyikan semua elemen dengan kelas "paymentdesc"
+  $(".paymentdesc").hide();
+});
+
       const closecart = document.querySelector('.close.cart');
       const full = document.querySelector('.full-wrapper');
       const navprofile = document.querySelector('.slicknav_menu a.navprofile');
@@ -669,6 +584,63 @@ WHERE
             }
           });
         });
+        const address = document.querySelector('.sidebar li:nth-child(3)');
+    const profile = document.querySelector('.sidebar li:nth-child(2)');
+    const accDiv = document.querySelector('.acc');
+    const addressDiv = document.querySelector('.address');
+
+    accDiv.style.display = "block";
+    addressDiv.style.display = "none";
+
+    address.addEventListener('click', function(event) {
+      event.preventDefault();
+      accDiv.style.display = 'none';
+      addressDiv.style.display = 'block';
+      address.style.backgroundColor = '#FFD4C2';
+      profile.style.backgroundColor = '';
+    });
+
+    profile.addEventListener('click', function(event) {
+      event.preventDefault();
+      addressDiv.style.display = 'none';
+      accDiv.style.display = 'block';
+      address.style.backgroundColor = '';
+      profile.style.backgroundColor = '#FFD4C2';
+    });
+    
+    var quantityInput = document.getElementById("quantity");
+        var incrementBtn = document.getElementById("incrementBtn");
+        var decrementBtn = document.getElementById("decrementBtn");
+
+        incrementBtn.addEventListener("click", function() {
+            var currentValue = parseInt(quantityInput.value);
+            quantityInput.value = currentValue + 1;
+        });
+
+        decrementBtn.addEventListener("click", function() {
+            var currentValue = parseInt(quantityInput.value);
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+            }
+        });
+
+        
+        function toggleDescription(menuNumber) {
+        var description = document.getElementById("description" + menuNumber);
+        var radios = document.getElementsByName("menu");
+
+        for (var i = 0; i < radios.length; i++) {
+        var descriptionId = "description" + (i + 1);
+          var currentDescription = document.getElementById(descriptionId);
+
+        if (i + 1 === menuNumber) {
+           description.style.display = "block";
+          } else {
+            currentDescription.style.display = "none";
+          }
+  }
+}
+
         
 </script>
 @endif

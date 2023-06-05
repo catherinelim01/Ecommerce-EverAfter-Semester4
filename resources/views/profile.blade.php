@@ -210,7 +210,7 @@ if (Session::has('customer_id')) {
         #progressbar-2 li:nth-child(3):after {
           left: 1%;
           width: 100%;
-          background: #c5cae9 !important;
+          /* background: #c5cae9 !important; */
         }
 
         #progressbar-2 li:nth-child(4) {
@@ -458,16 +458,19 @@ if (Session::has('customer_id')) {
         </div>
         
       <?php 
-          $sql="SELECT DATE_FORMAT(MAX(o.order_date), '%d %b %Y') as tanggal, o.order_id, MAX(p.product_name) as product_name, IF(SUBSTR(MAX(po.product_id), 5, 1) = '0', 'All Size', SUBSTR(MAX(po.product_id), 5, 1)) as size, FORMAT(MAX(p.product_price), 0) as product_price, SUM(po.qty) as qty, MAX(d.delivery_name) as delivery_name, FORMAT(MAX(d.delivery_cost), 0) as delivery_cost, MAX(a.address) as address, FORMAT(((MAX(o.grand_total) * SUM(po.qty)) - MAX(o.total_potongan) + CONVERT((5/100) * MAX(o.grand_total), INT) + MAX(d.delivery_cost)), 0) as total, MAX(p.product_url) as product_url
+          $sql="SELECT DATE_FORMAT(MAX(o.order_date), '%d %b %Y') as tanggal, o.order_id, MAX(p.product_name) as product_name, IF(SUBSTR(MAX(po.product_id), 5, 1) = '0', 'All Size', SUBSTR(MAX(po.product_id), 5, 1)) as size, FORMAT(MAX(p.product_price), 0) as product_price, (select po.qty from product_order po, customer c,`order` o where o.CUSTOMER_ID = c.customer_id and o.CUSTOMER_ID = 'C00002' and po.ORDER_ID = o.order_id order by 1 asc limit 1) as qty_item , SUM(po.qty) as qty, MAX(d.delivery_name) as delivery_name, FORMAT(MAX(d.delivery_cost), 0) as delivery_cost, MAX(a.address) as address, format(o.grand_total - (o.grand_total*(v.discount/100)) + (convert((5/100)*(o.grand_total-(o.grand_total*(v.discount/100))),int)) + d.delivery_cost,0) as total,(select p.PRODUCT_URL from product p ,product_order po, customer c,`order` o where po.PRODUCT_ID = p.PRODUCT_ID and o.CUSTOMER_ID = c.customer_id and o.CUSTOMER_ID = '" . session('customer_id') . "' and po.ORDER_ID = o.order_id order by 1 asc limit 1) as product_url
           FROM `order` as `o`
           LEFT JOIN `product_order` as `po` ON `o`.`order_id` = `po`.`order_id`
           LEFT JOIN `product` as `p` ON `po`.`product_id` = `p`.`product_id`
           LEFT JOIN `delivery` as `d` ON `d`.`delivery_id` = `o`.`delivery_id`
-          LEFT JOIN `address` as `a` ON `a`.`CUSTOMER_ID` = `o`.`CUSTOMER_ID`
+          LEFT JOIN `address` as `a` ON `a`.`CUSTOMER_ID` = `o`.`CUSTOMER_ID` AND a.ADDRESS_ID = o.ADDRESS_ID
+          LEFT JOIN voucher v on v.VOUCHER_ID = o.VOUCHER_ID
           WHERE `o`.`CUSTOMER_ID` = '" . session('customer_id') . "'
-          GROUP BY `o`.`order_id`
-          ORDER BY `o`.`order_id` DESC;
+          GROUP BY `o`.`order_id` , o.grand_total, v.discount, d.delivery_cost
+          ORDER BY `o`.`order_id` asc
           ";
+
+
           $result= DB::select($sql);
         
           if (count($result) > 0) {
@@ -484,6 +487,7 @@ if (Session::has('customer_id')) {
                 $dt->delivery_cost = $row->delivery_cost;
                 $dt->address = $row->address;
                 $dt->total = $row->total;
+                $dt->qty_item = $row->qty_item;
                 $dt->product_url = $row->product_url;
                 $response[] = $dt;
             }
@@ -515,7 +519,7 @@ if (Session::has('customer_id')) {
                   <br>
                   <p>Size: <?php echo $data[$i]["size"]; ?></p>
                   <p>Price: IDR <?php echo $data[$i]["product_price"]; ?></p>
-                  <p>Qty: 1</p>
+                  <p>Qty: <?php echo $data[$i]["qty_item"]; ?></p>
                   <button id="open-popup" type="submit" class="btn btn-primary detailkiri details" onclick="document.querySelector('.popup').style.display = 'block'">Details</button>
                 </div>
                 <div class="col-2 col-sm-3">
@@ -551,25 +555,6 @@ if (Session::has('customer_id')) {
 
     <!-- cart -->
     <div class="cart-container-login geser">
-      <!-- {{-- @if(session('customer_id'))
-    @php
-        $loginTime = session('login_time');
-        $currentTime = time();
-        $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
-    @endphp
-
-    @if($remainingTime > 0)
-        <a href="/profile">
-    @else
-        <a href="#">
-    @endif
-        <div class="user mx-3" style="cursor:pointer;">
-            <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
-        </div>
-    </a>
-@endif --}} -->
-
-
       <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
       </svg></a>
@@ -658,7 +643,11 @@ if (Session::has('customer_id')) {
           <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
           <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
           <p>Size: <?php echo $data[$i]["size"]; ?></p>
-          <p>Quantity: 1</p>
+          <div style="display: flex; align-items: center;">
+  <p style="margin-right: 10px; ">Quantity:</p>
+  <input type="number" name="quantity" min="1" max="10" value="1" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" style="width: 60px; height: 24px;">
+</div>
+          
           <button class="remove-btn mt-4">Remove</button>
         </div>
       </div>
@@ -717,7 +706,7 @@ WHERE
     
     <div class="cart-actions">
       <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
-      <button class="continue-shopping">CONTINUE SHOPPING</button>
+      <a href="/shop"><button class="continue-shopping">CONTINUE SHOPPING</button></a>
     </div>
   </div>
 <!-- cart end -->
@@ -793,8 +782,8 @@ WHERE
                 <div class="footer-tittle">
                   <h4>Get in touch</h4>
                   <ul>
-                    <li><a href="#">(+62) 812-1764-1707</a></li>
-                    <li><a href="#">everafter@gmail.com</a></li>
+                  <li><a href="https://wa.me/6281217641707/" target="_blank">(+62) 812-1764-1707</a></li>
+                    <li><a href="mailto:everafter@gmail.com">everafter@gmail.com</a></li>
                     <li><a href="#">Surabaya, Indonesia</a></li>
                   </ul>
                 </div>

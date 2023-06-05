@@ -474,39 +474,44 @@ echo $link_tes;
           <div class="cart-header login">
             <h2>Log in</h2>
           </div>
-          <form class="formlogin" action="profile.php">
+          <form class="formlogin" action="{{ route('login') }}" method="POST">
+            @csrf
             <div class="form-group mt-20">
-              <input type="email" class="form-control" id="inputEmail" required placeholder="Email address *" aria-describedby="emailHelp">
+                <input type="email" class="form-control" name="customer_email" required placeholder="Username or email address *" aria-describedby="emailHelp">
             </div>
             <div class="form-group mt-20">
-              <input type="password" class="form-control" required placeholder="Password *" id="inputPassword">
+                <input type="password" class="form-control" name="customer_password" required placeholder="Password *" id="inputPassword">
             </div>
-            <div class="form-group form-check mt-10">
-              <input type="checkbox" class="form-check-input" id="checkboxRemember">
-              <label class="form-check-label remember" for="exampleCheck1">Remember me</label>
-            </div>
+            <!-- Tambahkan elemen lain yang diperlukan untuk form login -->
             <button type="submit" class="btn btn-primary mt-10 login">LOG IN</button>
-            <p class="signuphere mt-3">Don't have an account? <a href="#"><u>Sign Up</u></a> Here</p>
-          </form>
+            <p class="signuphere mt-3">Don't have an account? <a href="/login"><u>Sign Up</u></a> Here</p>
+        </form>
+        
         </div>
         <div class="col-12 isisignup">
           <div class="cart-header login">
-            <h2>Sign Up</h2>
+              <h2>Sign Up</h2>
           </div>
-          <form class="formsignup" action="profile.php">
-            <div class="form-group mt-20">
-            <input type="email" class="form-control" id="inputEmailRegis" required placeholder="Email address *" aria-describedby="emailHelp">
+          <form class="formsignup" action="{{ route('register') }}" method="POST">
+              @csrf
+              <div class="form-group mt-20 regis">
+                <label for="inputEmailRegis">Name *</label>
+                <input type="text" class="form-control" id="inputNameRegis" name="customer_name" required aria-describedby="emailHelp">
             </div>
-            <div class="form-group mt-20">
-            <input type="password" class="form-control" required placeholder="Password *" id="inputPasswordRegis">
-            </div>
-            <small id="info" class="form-text">By providing your personal information, you allow us to enhance your shopping experience and securely manage your account.</small>
-            <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
-            <a href="#" class="backlogin mt-3"><u>Back to Login</u></a>
-        </form>
-        </div>
+              <div class="form-group mt-10 regis">
+                  <label for="inputEmailRegis">Email address *</label>
+                  <input type="email" class="form-control" id="inputEmailRegis" name="customer_email" required aria-describedby="emailHelp">
+              </div>
+              <div class="form-group mt-10 regis">
+                  <label for="inputPasswordRegis">Password *</label>
+                  <input type="password" class="form-control" id="inputPasswordRegis" name="customer_password" required>
+              </div>
+              <small id="info" class="form-text">By providing your personal information, you allow us to enhance your shopping experience and securely manage your account.</small>
+              <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
+              <a href="/registration" class="backlogin mt-3"><u>Back to Login</u></a>
+          </form>
       </div>
-    </div>
+      
   <!-- cart login end -->
  
   <!-- cart -->
@@ -519,40 +524,88 @@ echo $link_tes;
     </div>
     <hr class="garisunderline">
     <div class="cart-items">
+  <?php 
+          $sql="SELECT p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.PRODUCT_PRICE, PRODUCT_URL , size;";
+          $result= DB::select($sql);
+        
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+                $dt->size = $row->size;
+                $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+                $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                
+                $response[] = $dt;
+            }
+            
+            $hasil_json=json_encode($response);
+            $data = json_decode($hasil_json,true);
+            for($i = 0; $i < count($data); $i++) { 
+              ?>
+
       <div class="row cart-item">
         <div class="col-5 item-image">
-          <img src="assets/images/denim/2.jpg" alt="Product Image">
+        <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
         </div>
         <div class=" col-7 item-details">
-          <h3>Kai Ripped Jacket</h3>
-          <p>Price: IDR 260,000</p>
-          <p>Size: Allsize</p>
-          <p>Quantity: 1</p>
+          <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
+          <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+          <p>Size: <?php echo $data[$i]["size"]; ?></p>
+          <div style="display: flex; align-items: center;">
+  <p style="margin-right: 10px; ">Quantity:</p>
+  <input type="number" name="quantity" min="1" max="10" value="1" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" style="width: 60px; height: 24px;">
+</div>
+          
           <button class="remove-btn mt-4">Remove</button>
         </div>
       </div>
       
-      <div class="row cart-item">
-        <div class="col-5 item-image">
-          <img src="assets/images/tops/7.jpg" alt="Product Image">
-        </div>
-        <div class="col-7 item-details">
-          <h3>Kaelyn Checkered Sheer Top</h3>
-          <p>Price: IDR 180,000</p>
-          <p>Size: All Size</p>
-          <p>Quantity: 1</p>
-          <button class="remove-btn mt-4">Remove</button>
-        </div>
-
-      </div>
       
+      
+    
+  <?php } ?>
+    <?php } ?>
     </div>
     <div class="cart-summary">
       <table>
+        <?php
+        $sql="SELECT
+  c.CART_ID,
+  FORMAT(
+    (
+      SELECT SUM(p.PRODUCT_PRICE)
+      FROM PRODUCT p
+      JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID
+      WHERE pc.CART_ID = c.CART_ID
+    ),
+    0
+  ) AS subtotal
+FROM
+  CART c
+WHERE
+  c.CUSTOMER_ID = '" . session('customer_id') . "';
+        ";
+        $result= DB::select($sql);
+      
+        if (count($result) > 0) {
+          $response = [];
+          foreach ($result as $row) {
+              $dt = new stdClass();
+              $dt->subtotal = $row->subtotal;
+              $response[] = $dt;
+          }
+          
+          $hasil_json=json_encode($response);
+          $data = json_decode($hasil_json,true);
+            ?>
         <tr>
+        
           <td><h3>SUBTOTAL: </h3></td>
-          <td><h3>IDR 440,000</h3></td>
+          <td><h3>IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
         </tr>
+        <?php } ?>
         <!-- <tr class="total">
           <td>Total:</td>
           <td>IDR 260,000</td> -->
@@ -562,8 +615,8 @@ echo $link_tes;
 
     
     <div class="cart-actions">
-      <a href="cart.php"><button class="checkout-btn">CHECKOUT</button></a> 
-      <button class="continue-shopping">CONTINUE SHOPPING</button>
+      <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
+      <a href="/shop"><button class="continue-shopping">CONTINUE SHOPPING</button></a>
     </div>
   </div>
 <!-- cart end -->

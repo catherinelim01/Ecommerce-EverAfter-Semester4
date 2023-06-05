@@ -20,7 +20,7 @@ class OrderController extends Controller
     public function orderDetail(Request $request)
     {
         $orderid = $request->input('orderid');
-        
+        session(['orderid' => $orderid]);
         // Merender tampilan order_detail.blade.php
         $view = View::make('order_detail')->render();
         
