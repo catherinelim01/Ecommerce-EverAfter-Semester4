@@ -5,38 +5,6 @@ if (isset($_POST['orderid'])) {
     $_SESSION['order_id'] = $orderid;      
 }
   
-$sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, pa.payment_method, format(o.grand_total,0) as grand_total, ca.category_name,format(o.total_potongan,0) as total_potongan ,format(convert((5/100)*o.GRAND_TOTAL,int),0) as pajak, format(p.product_price*po.qty,0) as product_price, po.qty ,d.delivery_name, format(d.delivery_cost,0) as delivery_cost, a.address ,format((o.grand_total - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url 
-from `order` o left join product_order po on o.order_id = po.order_id left join product p on po.product_id = p.product_id left join delivery d on d.delivery_id = o.delivery_id left join address a on a.CUSTOMER_ID = o.CUSTOMER_ID and a.ADDRESS_ID = o.ADDRESS_ID left join category ca on ca.CATEGORY_ID = p.CATEGORY_ID left join payment pa on pa.payment_id = o.payment_id where po.order_id  = '" . session('orderid') . "' order by o.order_date desc;";
-
-
-$result= DB::select($sql);
-
-if (count($result) > 0) {
-$response = [];
-foreach ($result as $row) {
-    $dt = new stdClass();
-    $dt->tanggal = $row->tanggal;
-    $dt->order_id = $row->order_id;
-    $dt->product_name = $row->product_name;
-    $dt->size = $row->size;
-    $dt->grand_total = $row->grand_total;
-    $dt->payment_method = $row->payment_method;
-    $dt->category_name = $row->category_name;
-    $dt->total_potongan = $row->total_potongan;
-    $dt->pajak = $row->pajak;
-    $dt->product_price = $row->product_price;
-    $dt->qty = $row->qty;
-    $dt->delivery_name = $row->delivery_name;
-    $dt->delivery_cost = $row->delivery_cost;
-    $dt->address = $row->address;
-    $dt->total = $row->total;
-    $dt->product_url = $row->product_url;
-    $response[] = $dt;
-}
-
-
-$hasil_json=json_encode($response);
-$data = json_decode($hasil_json,true);
 
 ?>
 <!-- popup -->
@@ -89,31 +57,100 @@ $data = json_decode($hasil_json,true);
     </div>
   </div>
 </div>
+<?php
+ 
+ $sql3="SELECT a.PHONE, d.delivery_name, c.customer_name, a.address
+ FROM `order` o
+ LEFT JOIN product_order po ON o.order_id = po.order_id
+ LEFT JOIN product p ON po.product_id = p.product_id
+ LEFT JOIN delivery d ON d.delivery_id = o.delivery_id
+ LEFT JOIN address a ON a.CUSTOMER_ID = o.CUSTOMER_ID AND a.ADDRESS_ID = o.ADDRESS_ID
+ LEFT JOIN customer c ON c.CUSTOMER_ID = o.CUSTOMER_ID
+ WHERE po.order_id = '" . session('orderid') . "' group by o.ORDER_ID, a.phone, d.delivery_name,c.customer_name, a.address
+ ORDER BY o.order_date DESC;
+ ";
+ 
+ 
+$result3= DB::select($sql3);
 
+if (count($result3) > 0) {
+    $response3 = [];
+    foreach ($result3 as $row) {
+     $dt = new stdClass();
+     $dt->delivery_name = $row->delivery_name;
+     $dt->address = $row->address;
+     $dt->PHONE = $row->PHONE;
+     $dt->customer_name = $row->customer_name;
+     $response3[] = $dt;
+ }
+
+ 
+ $hasil_json3=json_encode($response3);
+ $data3 = json_decode($hasil_json3,true);
+ 
+ ?>
 <br>
                       <div class="d-flex justify-content-between" style="justify-content: space-between;">
-                        <p class="text-muted mb-0">Kurir</p>
-                        <p class="text-muted mb-0"><span class="fw-bold me-4">J&T</span></p>
+                        <p class="text-muted mb-0">Delivery</p>
+                        <p class="text-muted mb-0"><span class="fw-bold me-4"><?php echo $data3[0]["delivery_name"]; ?></span></p>
                       </div>
 
                       <div class="d-flex justify-content-between" style="justify-content: space-between;">
-                        <p class="text-muted mb-0">Nama penerima</p>
-                        <p class="text-muted mb-0"><span class="fw-bold me-4">Jess</span></p>
+                        <p class="text-muted mb-0">Name</p>
+                        <p class="text-muted mb-0"><span class="fw-bold me-4"><?php echo $data3[0]["customer_name"]; ?></span></p>
                       </div>
                       <div class="d-flex justify-content-between" style="justify-content: space-between;">
-                        <p class="text-muted mb-0">No</p>
-                        <p class="text-muted mb-0"><span class="fw-bold me-4">084254284</span></p>
+                        <p class="text-muted mb-0">Phone</p>
+                        <p class="text-muted mb-0"><span class="fw-bold me-4"><?php echo $data3[0]["PHONE"]; ?></span></p>
                       </div>
                       <div class="d-flex justify-content-between" style="justify-content: space-between;">
-                        <p class="text-muted mb-0">Alamat</p>
-                        <p class="text-muted mb-0"><span class="fw-bold me-4">Alamat</span></p>
+                        <p class="text-muted mb-0">Address</p>
+                        <p class="text-muted mb-0"><span class="fw-bold me-4"><?php echo $data3[0]["address"]; ?></span></p>
                       </div>
                 </div>
             </div>
             </div>
         </div>
         </div>
-        <?php for($i = 0; $i < count($data); $i++) { ?>
+        <?php } ?>
+
+
+
+        <?php 
+        $sql="SELECT date_format(o.order_date,'%d %b %Y') as tanggal , o.order_id , p.product_name, if(substr(po.product_id, 5, 1) = '0' , 'All Size',substr(po.product_id, 5, 1)) as size, pa.payment_method, format(o.grand_total,0) as grand_total, ca.category_name,format(o.total_potongan,0) as total_potongan ,format(convert((5/100)*o.GRAND_TOTAL,int),0) as pajak, format(p.product_price*po.qty,0) as product_price, po.qty ,d.delivery_name, format(d.delivery_cost,0) as delivery_cost, a.address ,format((o.grand_total - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total, p.product_url 
+        from `order` o left join product_order po on o.order_id = po.order_id left join product p on po.product_id = p.product_id left join delivery d on d.delivery_id = o.delivery_id left join address a on a.CUSTOMER_ID = o.CUSTOMER_ID and a.ADDRESS_ID = o.ADDRESS_ID left join category ca on ca.CATEGORY_ID = p.CATEGORY_ID left join payment pa on pa.payment_id = o.payment_id where po.order_id  = '" . session('orderid') . "' order by o.order_date desc;";
+        
+        
+        $result= DB::select($sql);
+        
+        if (count($result) > 0) {
+        $response = [];
+        foreach ($result as $row) {
+            $dt = new stdClass();
+            $dt->tanggal = $row->tanggal;
+            $dt->order_id = $row->order_id;
+            $dt->product_name = $row->product_name;
+            $dt->size = $row->size;
+            $dt->grand_total = $row->grand_total;
+            $dt->payment_method = $row->payment_method;
+            $dt->category_name = $row->category_name;
+            $dt->total_potongan = $row->total_potongan;
+            $dt->pajak = $row->pajak;
+            $dt->product_price = $row->product_price;
+            $dt->qty = $row->qty;
+            $dt->delivery_name = $row->delivery_name;
+            $dt->delivery_cost = $row->delivery_cost;
+            $dt->address = $row->address;
+            $dt->total = $row->total;
+            $dt->product_url = $row->product_url;
+            $response[] = $dt;
+        }
+        
+        
+        $hasil_json=json_encode($response);
+        $data = json_decode($hasil_json,true);
+        
+        for($i = 0; $i < count($data); $i++) { ?>
         <div class="card shadow-0 border mb-4" style="margin:35px;">
         <div class="card-body">
             <div class="row" style="justify-content: space-between;">
