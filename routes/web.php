@@ -26,6 +26,9 @@ use App\Http\Controllers\OrderController;
 Route::get('/', function () {
     return view('index');
 });
+Route::get('/index', function () {
+    return view('index');
+});
 Route::get('/cart', function () {
     return view('cart');
 });
@@ -132,6 +135,11 @@ Route::get('/shop/page/{page}', function ($page) {
 // })->name('product.details.post');
 
 
+Route::get('/product_details', function () {
+    return view('product_details');
+})->name('product_details');
+
+Route::get('/product_details/{product_name}', [App\Http\Controllers\ProductController::class, 'showProductDetails']);
 
 Route::post('/product_details', [App\Http\Controllers\ProductController::class, 'getProductDetails']);
 Route::post('/cart', [App\Http\Controllers\CartController::class, 'cartVoucher']);
@@ -140,11 +148,6 @@ Route::post('/cart', [App\Http\Controllers\CartController::class, 'cartVoucher']
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
-
-
-
-
-Route::post('/product_details', [App\Http\Controllers\ProductController::class, 'getProductDetails']);
 
 // Route::post('/login', [App\Http\Controllers\AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
