@@ -614,7 +614,7 @@ WHERE
       const containercart = document.querySelector('.cart-container');
       const navv = document.querySelector('a.navprofile');
 
-      // containercart.style.display = "none";
+        // containercart.style.display = "none";
 
       full.style.overflow = 'visible';
       navprofile.style.display = 'none';
@@ -684,7 +684,7 @@ WHERE
             const imgHeart = document.getElementById('heart');
             const imgCard = document.getElementById('cart');
             // Add event listener to detect media query change
-            
+
             if (window.innerWidth <= 576) { // media query condition
                 imgHeart.src = 'assets/images/logo/heart-black.svg';
                 imgCard.src = 'assets/images/logo/cart-black.svg';
@@ -717,7 +717,7 @@ WHERE
             }
           });
         });
-        
+
         $('.browsemore').click(function() {
           // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
           $.ajax({
@@ -728,6 +728,23 @@ WHERE
               console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
             }
           });
+            // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+            $.ajax({
+                type: "POST",
+                url: "linksess.php",
+                data: {
+                    shopnow: ""
+                },
+                success: function() {
+                    console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+                }
+            });
+        });
+
+        $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
         });
         
 </script>

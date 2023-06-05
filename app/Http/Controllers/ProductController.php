@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Product; // Assuming your product model is named "Product"
+use App\Http\Controllers\ProductController;
+use Illuminate\Support\Facades\View;
 
 class ProductController extends Controller
 {
     public function getProductDetails(Request $request)
     {
         $link = $request->input('link');
-        session(['link_tes' => $link]);
- 
-        return response()->json(['success' => true, 'link' => $link]);
+        $view = View::make('product_details')->render();
+      
+    //     // Contoh: Mengembalikan tampilan atau respon JSON
+        // return response()->json(['success' => true, 'link' => $link]);
+        return response()->json(['success' => true, 'link' => $link, 'content' => $view]);
     }
 //     public function getRelatedProducts(Request $request)
 // {
@@ -60,6 +63,22 @@ class ProductController extends Controller
 
         return view('product_details', compact('product', 'related_products'));
     }
-    
+
+    public function search(Request $request)
+    {
+        $searchTerm = $request->input('searching');
+        
+        // Perform your search query using $searchTerm
+
+        // Example: Searching in the 'product' table using product_name column
+        $results = DB::table('product')
+            ->where('product_name', 'LIKE', "%{$searchTerm}%")
+            ->get();
+
+        // Pass the search results to the view
+        // echo "<script>alert('Search term: $results->product_name');</script>";
+        return view('search-results', compact('results'));
+    }
+
     
 }

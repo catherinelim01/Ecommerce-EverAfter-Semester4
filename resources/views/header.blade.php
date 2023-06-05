@@ -1,4 +1,4 @@
-<div id="preloader-active">
+{{-- <div id="preloader-active">
       <div class="preloader d-flex align-items-center justify-content-center">
         <div class="preloader-inner position-relative">
           <div class="preloader-circle"></div>
@@ -7,12 +7,13 @@
           </div>
         </div>
       </div>
-</div>
-    <!-- Preloader Start-->
-    
-    <header>
-      <!-- Header Start -->
-      <div class="header-area">
+    </div> --}}
+<!-- Preloader Start-->
+
+@csrf
+<header>
+    <!-- Header Start -->
+    <div class="header-area">
         <div class="main-header header-sticky">
           <div class="container-fluid">
             <div
@@ -47,30 +48,27 @@
                   ></a>
                   <a href="#"><i class="fab fa-pinterest-p"></i></a>
                 </div> -->
-                <!-- Search Box -->
-                <div class="search d-md-block">
-                  <ul class="d-flex align-items-center">
+               <!-- Search Box -->
+               <div class="search d-md-block">
+                <ul class="d-flex align-items-center">
                     <li class="srch">
-                      <form class="form-inline">
-                        <input class="form-control mr-sm-2 search" type="search" placeholder="Search" aria-label="Search"/>
-                        <div class="btn search-switch">
-                          <i class="ti-search"></i>
-                        </div>
-                      </form>
+                        @include('search')
                     </li>
                     <li>
-                      <a href="{{ url('wishlist') }}">
-                      <div class="card-stor mx-3">
-                        <img id="heart" src="{{ asset('assets/images/logo/heart.svg') }}" media="(min-width: 800px)" alt="" />
-                        <span>0</span>
-                      </div>
-                    </a>
+                        <a href="wishlist">
+                            <div class="card-stor mx-3">
+                                <img id="heart" src="{{ asset('assets/images/logo/heart.svg') }}"
+                                    media="(min-width: 800px)" alt="" />
+                                <span>0</span>
+                            </div>
+                        </a>
                     </li>
                     <li class="logocart">
-                      <div class="card-stor">
-                        <img id="cart" src="{{ asset('assets/images/logo/card.svg') }}" alt="" />
-                        <span>0</span>
-                      </div>
+                        <div class="card-stor">
+                            <img id="cart" src="{{ asset('assets/images/logo/card.svg') }}"
+                                alt="" />
+                            <span>0</span>
+                        </div>
                     </li>
                     
                     {{-- <li class="logocart-login">
@@ -123,16 +121,30 @@
                 @endif
                     
                   </ul>
+                    </li>
+                                <li class="logocart-login">
+                                    @if (session('customer_id'))
+                                        <a href="/profile">
+                                        @else
+                                            <a href="/login">
+                                    @endif
+                                    <div class="user mx-3" style="cursor:pointer;">
+                                        <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
+                                    </div>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Mobile Menu -->
+                    <div class="col-12">
+                        <div class="mobile_menu d-block d-lg-none"></div>
+                    </div>
                 </div>
-              </div>
-              <!-- Mobile Menu -->
-              <div class="col-12">
-                <div class="mobile_menu d-block d-lg-none"></div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
-      <!-- Header End -->
-      
-    </header>
+    </div>
+    <!-- Header End -->
+
+</header>
