@@ -1,22 +1,9 @@
 <?php
 
 
+
 session_start();
 
-// Menyimpan nilai filter ke dalam session saat filter dipilih
-// if (isset($_GET['select2'])) {
-//   $_SESSION['selected_category'] = $_GET['select2'];
-// }
-
-// if (isset($_GET['select3'])) {
-//   $_SESSION['selected_size'] = $_GET['select3'];
-// }
-
-// if (isset($_GET['select4'])) {
-//   $_SESSION['selected_price_range'] = $_GET['select4'];
-// }
-
-// Mendapatkan nilai filter dari session
 $selected_category = $_SESSION['selected_category'] ?? '';
 $selected_size = $_SESSION['selected_size'] ?? '';
 $selected_price_range = $_SESSION['selected_price_range'] ?? '';
@@ -67,6 +54,21 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
 
 <body class="full-wrapper">
   @csrf
+  @if ($errors->any())
+  <div class="alert alert-danger">
+      <ul>
+          @foreach ($errors->all() as $error)
+              <li>{{ $error }}</li>
+          @endforeach
+      </ul>
+  </div>
+@endif
+
+@if (session('success'))
+<div class="alert alert-success">
+  {{ session('success') }}
+</div>
+@endif
   @include('header')
   <main>
     <!-- breadcrumb Start-->
@@ -129,8 +131,15 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
             $categories = DB::table('category')->pluck('category_name');
             
             foreach ($categories as $category) {
+              if(session('shop_now')){
+                $selected = (session('shop_now') === $category) ? 'selected' : '';
+                
+                
+              }
+              else{
                 $selected = (isset($_GET['select2']) && $_GET['select2'] === $category) ? 'selected' : '';
-                echo "<option value='$category' $selected>$category</option>";
+              }
+              echo "<option value='$category' $selected>$category</option>";
             }
             
             ?>
@@ -247,7 +256,8 @@ if ($previous_price !== null) {
           }
           
           if (session()->get('shop_now') == "") {
-              $selected_category = request()->get('select2') ?? '';
+            $selected_category = isset($_GET['select2']) ? $_GET['select2'] : '';
+
               $selected_size = request()->get('select3') ?? '';
               $selected_price_range = request()->get('select4') ?? '';
               $price_range = explode('-', $selected_price_range);
@@ -392,8 +402,20 @@ if ($previous_price !== null) {
               <!-- HTML -->
               <div class="row justify-content-center" style="margin-bottom: 15px;">
                   <div class="room-btn mt-20">
-                      <?php if ($current_page > 1): ?>
-                          <a style="padding-top: 2px;color:black;" href="{{ route('shop', ['page' => ($current_page - 1)]) }}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
+                      <?php if ($current_page > 1): 
+                      $filters = [
+                        'select2' => $selected_category,
+                        'select3' => $selected_size,
+                        'select4' => $selected_price_range
+
+                    ];
+                    
+                    $queryString = http_build_query($filters);
+                    
+                    
+                     ?>
+                      
+                          <a style="padding-top: 2px;color:black;" href="{{ route('shop', ['page' => ($current_page - 1)]) . '?' . $queryString }}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
                       <?php endif; ?>
           
                       <?php if ($results->count() > 0): ?>
@@ -475,80 +497,13 @@ if ($previous_price !== null) {
            
 
 
+           <?php session()->forget('shop_now') ?>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <!-- Button -->
-    <!-- <div class="row justify-content-center">
-    <div class="room-btn mt-20">
-        <a href="catagori.html" class="border-btn">Browse More</a>
-    </div>
-</div>
-</div> -->
-    <!--? New Arrival End -->
-
-    <!-- listing-area Area End -->
-    <!--? Popular Items Start -->
-    <!-- <div class="popular-items">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-3 col-md-6 col-sm-6">
-                <div class="single-popular-items mb-50 text-center">
-                    <div class="popular-img">
-                        <img src="assets/img/gallery/popular1.png" alt="">
-                        <div class="img-cap">
-                            <span>Glasses</span>
-                        </div>
-                        <div class="favorit-items">
-                            <a href="shop.html" class="btn">Shop Now</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
-                <div class="single-popular-items mb-50 text-center">
-                    <div class="popular-img">
-                        <img src="assets/img/gallery/popular2.png" alt="">
-                        <div class="img-cap">
-                            <span>Watches</span>
-                        </div>
-                        <div class="favorit-items">
-                         <a href="shop.html" class="btn">Shop Now</a>
-                     </div>
-                 </div>
-             </div>
-         </div>
-         <div class="col-lg-3 col-md-6 col-sm-6">
-            <div class="single-popular-items mb-50 text-center">
-                <div class="popular-img">
-                    <img src="assets/img/gallery/popular3.png" alt="">
-                    <div class="img-cap">
-                        <span>Jackets</span>
-                    </div>
-                    <div class="favorit-items">
-                     <a href="shop.html" class="btn">Shop Now</a>
-                 </div>
-             </div>
-         </div>
-     </div>
-     <div class="col-lg-3 col-md-6 col-sm-6">
-        <div class="single-popular-items mb-50 text-center">
-            <div class="popular-img">
-                <img src="assets/img/gallery/popular4.png" alt="">
-                <div class="img-cap">
-                    <span>Clothes</span>
-                </div>
-                <div class="favorit-items">
-                 <a href="shop.html" class="btn">Shop Now</a>
-             </div>
-         </div>
-     </div>
- </div>
-</div>
-</div>
-</div> -->
+  
     <!-- Popular Items End -->
     <!--? Services Area Start -->
     <div class="categories-area section-padding40 gray-bg">
@@ -600,7 +555,7 @@ if ($previous_price !== null) {
     <!--? Services Area End -->
     <!-- cart -->
     <div class="cart-container-login geser">
-      {{-- @if(session('customer_id'))
+      <!-- {{-- @if(session('customer_id'))
     @php
         $loginTime = session('login_time');
         $currentTime = time();
@@ -616,7 +571,7 @@ if ($previous_price !== null) {
             <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
         </div>
     </a>
-@endif --}}
+@endif --}} -->
 
 
       <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
@@ -648,15 +603,15 @@ if ($previous_price !== null) {
           </div>
           <form class="formsignup" action="{{ route('register') }}" method="POST">
               @csrf
-              <div class="form-group mt-20">
+              <div class="form-group mt-20 regis">
                 <label for="inputEmailRegis">Name *</label>
                 <input type="text" class="form-control" id="inputNameRegis" name="customer_name" required aria-describedby="emailHelp">
             </div>
-              <div class="form-group mt-20">
+              <div class="form-group mt-10 regis">
                   <label for="inputEmailRegis">Email address *</label>
                   <input type="email" class="form-control" id="inputEmailRegis" name="customer_email" required aria-describedby="emailHelp">
               </div>
-              <div class="form-group mt-20">
+              <div class="form-group mt-10 regis">
                   <label for="inputPasswordRegis">Password *</label>
                   <input type="password" class="form-control" id="inputPasswordRegis" name="customer_password" required>
               </div>
@@ -665,6 +620,7 @@ if ($previous_price !== null) {
               <a href="/registration" class="backlogin mt-3"><u>Back to Login</u></a>
           </form>
       </div>
+      
   <!-- cart login end -->
  
   <!-- cart -->
@@ -677,40 +633,84 @@ if ($previous_price !== null) {
     </div>
     <hr class="garisunderline">
     <div class="cart-items">
+  <?php 
+          $sql="SELECT p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.PRODUCT_PRICE, PRODUCT_URL , size;";
+          $result= DB::select($sql);
+        
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+                $dt->size = $row->size;
+                $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+                $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                
+                $response[] = $dt;
+            }
+            
+            $hasil_json=json_encode($response);
+            $data = json_decode($hasil_json,true);
+            for($i = 0; $i < count($data); $i++) { 
+              ?>
+
       <div class="row cart-item">
         <div class="col-5 item-image">
-          <img src="assets/images/denim/2.jpg" alt="Product Image">
+        <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
         </div>
         <div class=" col-7 item-details">
-          <h3>Kai Ripped Jacket</h3>
-          <p>Price: IDR 260,000</p>
-          <p>Size: Allsize</p>
+          <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
+          <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+          <p>Size: <?php echo $data[$i]["size"]; ?></p>
           <p>Quantity: 1</p>
           <button class="remove-btn mt-4">Remove</button>
         </div>
       </div>
       
-      <div class="row cart-item">
-        <div class="col-5 item-image">
-          <img src="assets/images/tops/7.jpg" alt="Product Image">
-        </div>
-        <div class="col-7 item-details">
-          <h3>Kaelyn Checkered Sheer Top</h3>
-          <p>Price: IDR 180,000</p>
-          <p>Size: All Size</p>
-          <p>Quantity: 1</p>
-          <button class="remove-btn mt-4">Remove</button>
-        </div>
-
-      </div>
       
+      
+    
+  <?php } ?>
+    <?php } ?>
     </div>
     <div class="cart-summary">
       <table>
+        <?php
+        $sql="SELECT
+  c.CART_ID,
+  FORMAT(
+    (
+      SELECT SUM(p.PRODUCT_PRICE)
+      FROM PRODUCT p
+      JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID
+      WHERE pc.CART_ID = c.CART_ID
+    ),
+    0
+  ) AS subtotal
+FROM
+  CART c
+WHERE
+  c.CUSTOMER_ID = '" . session('customer_id') . "';
+        ";
+        $result= DB::select($sql);
+      
+        if (count($result) > 0) {
+          $response = [];
+          foreach ($result as $row) {
+              $dt = new stdClass();
+              $dt->subtotal = $row->subtotal;
+              $response[] = $dt;
+          }
+          
+          $hasil_json=json_encode($response);
+          $data = json_decode($hasil_json,true);
+            ?>
         <tr>
+        
           <td><h3>SUBTOTAL: </h3></td>
-          <td><h3>IDR 440,000</h3></td>
+          <td><h3>IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
         </tr>
+        <?php } ?>
         <!-- <tr class="total">
           <td>Total:</td>
           <td>IDR 260,000</td> -->
@@ -720,118 +720,119 @@ if ($previous_price !== null) {
 
     
     <div class="cart-actions">
-      <a href="cart.php"><button class="checkout-btn">CHECKOUT</button></a> 
+      <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
       <button class="continue-shopping">CONTINUE SHOPPING</button>
     </div>
   </div>
 <!-- cart end -->
-  </main>
-  <footer>
-    <!-- Footer Start-->
-    <div class="footer-area footer-padding">
-      <div class="container-fluid">
-        <div class="row d-flex justify-content-between">
-          <div class="col-xl-5 col-lg-5 col-md-8 col-sm-8">
-            <div class="single-footer-caption mb-50">
-              <div class="single-footer-caption mb-30">
-                <!-- logo -->
-                <div class="footer-logo mb-35">
-                  <a href="index.html"><img src="assets/images/logo/logo_putih.png" alt="" /></a>
-                </div>
-                <div class="footer-tittle">
-                  <div class="footer-pera">
-                    <p>
-                      "The most beautiful thing a woman can wear is
-                      confidence." - Blake Lively
-                    </p>
+
+    </main>
+    <footer>
+      <!-- Footer Start-->
+      <div class="footer-area footer-padding">
+        <div class="container-fluid">
+          <div class="row d-flex justify-content-between">
+            <div class="col-xl-5 col-lg-5 col-md-8 col-sm-8">
+              <div class="single-footer-caption mb-50">
+                <div class="single-footer-caption mb-30">
+                  <!-- logo -->
+                  <div class="footer-logo mb-35">
+                    <a href="{{ url('index') }}"
+                      ><img src="assets/images/logo/logo_putih.png" alt=""
+                    /></a>
+                  </div>
+                  <div class="footer-tittle">
+                    <div class="footer-pera">
+                      <p>
+                        "The most beautiful thing a woman can wear is
+                        confidence." - Blake Lively
+                      </p>
+                    </div>
+                  </div>
+                  <!-- social -->
+                  <div class="footer-social">
+                  <a href="https://instagram.com/"><svg class="change-my-color" xmlns="http://www.w3.org/2000/svg" width=18px viewBox="0 0 448 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg></a>
+                    <a href="https://facebook.com/"
+                      ><i class="fab fa-facebook-f"></i
+                    ></a>
+                    <a href="https://twitter.com/"><i class="fab fa-twitter"></i></a>
                   </div>
                 </div>
-                <!-- social -->
-                <div class="footer-social">
-                  <a href="https://instagram.com/"><svg class="change-my-color" xmlns="http://www.w3.org/2000/svg" width=18px viewBox="0 0 448 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-                      <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z" />
-                    </svg></a>
-                  <a href="https://facebook.com/"><i class="fab fa-facebook-f"></i></a>
-                  <a href="https://twitter.com/"><i class="fab fa-twitter"></i></a>
-                </div>
               </div>
             </div>
-          </div>
-          <div class="foot row">
-            <div class="col-lg-12 footcat">
-              <h4>Shop Category</h4>
-            </div>
+            <div class="foot row">
+              <div class="col-lg-12 footcat"><h4>Shop Category</h4></div>
 
-            <div class="col-5">
+              <div class="col-5">
+                <div class="single-footer-caption mb-50">
+                  <div class="footer-tittle categ">
+                    <ul>
+                      <li><a href="{{ url('shop') }}">Tops</a></li>
+                      <li><a href="{{ url('shop') }}">Dresses</a></li>
+                      <li><a href="{{ url('shop') }}">Shorts</a></li>
+                      <li><a href="{{ url('shop') }}">Skirts</a></li>
+                      <li><a href="{{ url('shop') }}">Trousers</a></li>
+                      <li><a href="{{ url('shop') }}">Jumpsuits</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="single-footer-caption mb-50">
+                  <div class="footer-tittle categ">
+                    <ul class="">
+                      <li><a href="{{ url('shop') }}">Sets</a></li>
+                      <li><a href="{{ url('shop') }}">Denim</a></li>
+                      <li><a href="{{ url('shop') }}">Outerwear</a></li>
+                      <li><a href="{{ url('shop') }}">Bags</a></li>
+                      <li><a href="{{ url('shop') }}">Fragrance</a></li>
+                      <li><a href="{{ url('shop') }}">Accessories</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3">
               <div class="single-footer-caption mb-50">
-                <div class="footer-tittle categ">
+                <div class="footer-tittle">
+                  <h4>Get in touch</h4>
                   <ul>
-                    <li><a href="shop.php">Tops</a></li>
-                    <li><a href="shop.php">Dresses</a></li>
-                    <li><a href="shop.php">Shorts</a></li>
-                    <li><a href="shop.php">Skirts</a></li>
-                    <li><a href="shop.php">Trousers</a></li>
-                    <li><a href="shop.php">Jumpsuits</a></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="single-footer-caption mb-50">
-                <div class="footer-tittle categ">
-                  <ul class="">
-                    <li><a href="shop.php">Sets</a></li>
-                    <li><a href="shop.php">Denim</a></li>
-                    <li><a href="shop.php">Outerwear</a></li>
-                    <li><a href="shop.php">Bags</a></li>
-                    <li><a href="shop.php">Fragrance</a></li>
-                    <li><a href="shop.php">Accessories</a></li>
+                    <li><a href="#">(+62) 812-1764-1707</a></li>
+                    <li><a href="#">everafter@gmail.com</a></li>
+                    <li><a href="#">Surabaya, Indonesia</a></li>
                   </ul>
                 </div>
               </div>
             </div>
           </div>
-          <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3">
-            <div class="single-footer-caption mb-50">
-              <div class="footer-tittle">
-                <h4>Get in touch</h4>
-                <ul>
-                  <li><a href="#">(+62) 812-1764-1707</a></li>
-                  <li><a href="#">everafter@gmail.com</a></li>
-                  <li><a href="#">Surabaya, Indonesia</a></li>
-                </ul>
+        </div>
+      </div>
+      <!-- footer-bottom area -->
+      <div class="footer-bottom-area">
+        <div class="container">
+          <div class="footer-border">
+            <div class="row d-flex align-items-center">
+              <div class="col-xl-12">
+                <div class="footer-copy-right text-center">
+                  <p>
+                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                    Copyright &copy;
+                    <script>
+                      document.write(new Date().getFullYear());
+                    </script>
+                    All rights reserved | This template is made with
+                    <i class="fa fa-heart" aria-hidden="true"></i> by
+                    <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <!-- footer-bottom area -->
-    <div class="footer-bottom-area">
-      <div class="container">
-        <div class="footer-border">
-          <div class="row d-flex align-items-center">
-            <div class="col-xl-12">
-              <div class="footer-copy-right text-center">
-                <p>
-                  <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                  Copyright &copy;
-                  <script>
-                    document.write(new Date().getFullYear());
-                  </script>
-                  All rights reserved | This template is made with
-                  <i class="fa fa-heart" aria-hidden="true"></i> by
-                  <a href="https://colorlib.com" target="_blank">Colorlib</a>
-                  <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Footer End-->
-  </footer>
+      <!-- Footer End-->
+    </footer>
   <!--? Search model Begin -->
   <div class="search-model-box">
     <div class="h-100 d-flex align-items-center justify-content-center">
@@ -895,7 +896,7 @@ if ($previous_price !== null) {
 
 @if($remainingTime > 0)
 <script>
-      const closecart = document.querySelector('.close.cart');
+           const closecart = document.querySelector('.close.cart');
       const full = document.querySelector('.full-wrapper');
       const navprofile = document.querySelector('.slicknav_menu a.navprofile');
       const logocart = document.querySelector('.logocart');
@@ -927,7 +928,6 @@ if ($previous_price !== null) {
                 }
               });
           }
-          
           else if (window.innerWidth < 415) { // media query condition
               navprofile.style.display = 'block';
               logocart.addEventListener('click', function(event) {
@@ -936,7 +936,6 @@ if ($previous_price !== null) {
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
-
               navprofile.addEventListener('click', function(event) {
               event.preventDefault();
               full.style.overflow = 'hidden';
@@ -960,8 +959,6 @@ if ($previous_price !== null) {
                   full.style.overflow = 'hidden';
                 }
               });
-
-              
           };
       }
 
@@ -970,6 +967,32 @@ if ($previous_price !== null) {
       window.addEventListener("resize", function() {
           updateNavbar(window.innerWidth);
       });
+        window.onpageshow = function(event) {
+          if (event.persisted) {
+            // Page is loaded from cache (user clicked back button)
+            location.reload();
+          }
+        };
+        function updateImageSrc(screenWidth) {
+            // Select elemen gambar
+            const imgHeart = document.getElementById('heart');
+            const imgCard = document.getElementById('cart');
+            // Add event listener to detect media query change
+            
+            if (window.innerWidth <= 576) { // media query condition
+                imgHeart.src = 'assets/images/logo/heart-black.svg';
+                imgCard.src = 'assets/images/logo/cart-black.svg';
+            } else {
+                imgHeart.src = 'assets/images/logo/heart.svg';
+                imgCard.src = 'assets/images/logo/card.svg';
+            };
+        }
+
+        updateImageSrc(window.innerWidth);
+        // Check screen size on window resize
+        window.addEventListener("resize", function() {
+            updateImageSrc(window.innerWidth);
+        });
    // Mengambil token CSRF dari meta tag
    $.ajaxSetup({
           headers: {
@@ -998,56 +1021,25 @@ $('h3 a').click(function(event) {
   });
 });
 
-
-
-
-
-
-
-    function updateImageSrc(screenWidth) {
-      // Select elemen gambar
-      const imgHeart = document.getElementById('heart');
-      const imgCard = document.getElementById('cart');
-      // Add event listener to detect media query change
-
-      if (window.innerWidth < 576) { // media query condition
-        imgHeart.src = 'assets/images/logo/heart-black.svg';
-        imgCard.src = 'assets/images/logo/cart-black.svg';
-      } else {
-        imgHeart.src = 'assets/images/logo/heart.svg';
-        imgCard.src = 'assets/images/logo/card.svg';
-      };
-    }
-
-    updateImageSrc(window.innerWidth);
-    // Check screen size on window resize
-    window.addEventListener("resize", function() {
-      updateImageSrc(window.innerWidth);
-    });
-
-    $('.footer-tittle.categ ul li a').click(function() {
+$('.footer-tittle.categ ul li a').click(function() {
       // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
       let isiShopNow = $(this).text();
       $.ajax({
         type: "POST",
-        url: "linksess.php",
-        data: {
-          shopnow: isiShopNow
-        },
+        url: "/shop",
+        data: { shopnow: isiShopNow },
         success: function() {
           console.log("Data berhasil dikirim ke PHP");
         }
       });
     });
-
+    
     $('.browsemore').click(function() {
       // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
       $.ajax({
         type: "POST",
-        url: "linksess.php",
-        data: {
-          shopnow: ""
-        },
+        url: "/shop",
+        data: { shopnow: "" },
         success: function() {
           console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
         }
@@ -1190,23 +1182,6 @@ $('h3 a').click(function(event) {
               event.preventDefault();
               full.style.overflow = 'hidden';
               containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              // $('.cart-container-login').one('animationend', function() {
-              //     $(document).on('click', function(event) {
-              //         if ($('.cart-container-login').css('right') === '0px') {
-              //         const container = $('.cart-container-login');
-              //         const iconcart = $('.logocart-login');
-
-              //         if (!container.is(event.target) && container.has(event.target).length === 0 && !iconcart.is(event.target) && iconcart.has(event.target).length === 0) {
-              //             // Click was outside the div, do something here
-              //             event.preventDefault();
-              //             containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-              //             isiSignup.style.display = 'none';
-              //             login.style.display="block";
-              //             full.style.overflow = 'visible';
-              //         }
-              //         }
-              //     });
-              // });
               
               });
 
@@ -1225,6 +1200,27 @@ $('h3 a').click(function(event) {
       window.addEventListener("resize", function() {
           updateNavbar(window.innerWidth);
       });
+
+        function updateImageSrc(screenWidth) {
+            // Select elemen gambar
+            const imgHeart = document.getElementById('heart');
+            const imgCard = document.getElementById('cart');
+            // Add event listener to detect media query change
+            
+            if (window.innerWidth <= 576) { // media query condition
+                imgHeart.src = 'assets/images/logo/heart-black.svg';
+                imgCard.src = 'assets/images/logo/cart-black.svg';
+            } else {
+                imgHeart.src = 'assets/images/logo/heart.svg';
+                imgCard.src = 'assets/images/logo/card.svg';
+            };
+        }
+
+        updateImageSrc(window.innerWidth);
+        // Check screen size on window resize
+        window.addEventListener("resize", function() {
+            updateImageSrc(window.innerWidth);
+        });
    // Mengambil token CSRF dari meta tag
    $.ajaxSetup({
           headers: {
@@ -1254,55 +1250,25 @@ $('h3 a').click(function(event) {
 });
 
 
-
-
-
-
-
-    function updateImageSrc(screenWidth) {
-      // Select elemen gambar
-      const imgHeart = document.getElementById('heart');
-      const imgCard = document.getElementById('cart');
-      // Add event listener to detect media query change
-
-      if (window.innerWidth < 576) { // media query condition
-        imgHeart.src = 'assets/images/logo/heart-black.svg';
-        imgCard.src = 'assets/images/logo/cart-black.svg';
-      } else {
-        imgHeart.src = 'assets/images/logo/heart.svg';
-        imgCard.src = 'assets/images/logo/card.svg';
-      };
-    }
-
-    updateImageSrc(window.innerWidth);
-    // Check screen size on window resize
-    window.addEventListener("resize", function() {
-      updateImageSrc(window.innerWidth);
-    });
-
     $('.footer-tittle.categ ul li a').click(function() {
       // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
       let isiShopNow = $(this).text();
       $.ajax({
         type: "POST",
-        url: "linksess.php",
-        data: {
-          shopnow: isiShopNow
-        },
+        url: "/shop",
+        data: { shopnow: isiShopNow },
         success: function() {
           console.log("Data berhasil dikirim ke PHP");
         }
       });
     });
-
+    
     $('.browsemore').click(function() {
       // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
       $.ajax({
         type: "POST",
-        url: "linksess.php",
-        data: {
-          shopnow: ""
-        },
+        url: "/shop",
+        data: { shopnow: "" },
         success: function() {
           console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
         }

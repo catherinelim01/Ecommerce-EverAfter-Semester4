@@ -1,33 +1,30 @@
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
   <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>Ever After | Fashion</title>
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="manifest" href="site.webmanifest" />
-    <link
-      rel="shortcut icon"
-      type="image/x-icon"
-      href="assets/img/favicon.ico"
-    />
+    <link rel="manifest" href="{{ asset('site.webmanifest')}}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/favicon.ico') }}" />
 
     <!-- CSS here -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
-<link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
   </head>
   <body class="full-wrapper">
     @if ($errors->any())
@@ -40,18 +37,11 @@
     </div>
 @endif
 
-    <!-- ? Preloader Start -->
-    {{-- <div id="preloader-active">
-      <div class="preloader d-flex align-items-center justify-content-center">
-        <div class="preloader-inner position-relative">
-          <div class="preloader-circle"></div>
-          <div class="preloader-img pere-text">
-            <img src="{{ asset('assets/images/logo/logo.png') }}" alt="" />
-          </div>
-        </div>
-      </div>
-    </div --}}
-    <!-- Preloader Start-->
+@if (session('success'))
+<div class="alert alert-success">
+    {{ session('success') }}
+</div>
+@endif
     @include('header')
     <!-- header end -->
     <main>
@@ -70,7 +60,7 @@
                     <!-- Hero Caption -->
                     <div class="hero__caption">
                       <h1>fashion<br />changing<br />always</h1>
-                      <a href="shop.php" class="btn shopnow browsemore">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow browsemore">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -86,7 +76,7 @@
                     <!-- Hero Caption -->
                     <div class="hero__caption">
                       <h1>fashion<br />changing<br />always</h1>
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -102,7 +92,7 @@
                     <!-- Hero Caption -->
                     <div class="hero__caption">
                       <h1>fashion<br />changing<br />always</h1>
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -114,6 +104,7 @@
       <!-- End Hero -->
       <!--? Popular Items Start -->
       <div class="popular-items pt-50">
+      @csrf
         <div class="container-fluid">
           <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-6">
@@ -128,7 +119,7 @@
                     <span>Tops</span>
                   </div>
                   <div class="favorit-items">
-                    <a href="shop.php" class="btn shopnow">Shop Now</a>
+                    <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                   </div>
                 </div>
               </div>
@@ -145,7 +136,7 @@
                     <span>Dresses</span>
                   </div>
                   <div class="favorit-items">
-                    <a href="shop.php" class="btn shopnow">Shop Now</a>
+                    <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                   </div>
                 </div>
               </div>
@@ -162,7 +153,7 @@
                     <span>Shorts</span>
                   </div>
                   <div class="favorit-items">
-                    <a href="shop.php" class="btn shopnow">Shop Now</a>
+                    <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                   </div>
                 </div>
               </div>
@@ -179,7 +170,7 @@
                     <span>Skirts</span>
                   </div>
                   <div class="favorit-items">
-                    <a href="shop.php" class="btn shopnow">Shop Now</a>
+                    <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                   </div>
                 </div>
               </div>
@@ -198,7 +189,7 @@
                       <span>Trousers</span>
                     </div>
                     <div class="favorit-items">
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -215,7 +206,7 @@
                       <span>Jumpsuits</span>
                     </div>
                     <div class="favorit-items">
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -232,7 +223,7 @@
                       <span>Sets</span>
                     </div>
                     <div class="favorit-items">
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -249,7 +240,7 @@
                       <span>Denim</span>
                     </div>
                     <div class="favorit-items">
-                      <a href="shop.php" class="btn shopnow">Shop Now</a>
+                      <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                     </div>
                   </div>
                 </div>
@@ -267,7 +258,7 @@
                         <span>Outerwear</span>
                       </div>
                       <div class="favorit-items">
-                        <a href="shop.php" class="btn shopnow">Shop Now</a>
+                        <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                       </div>
                     </div>
                   </div>
@@ -284,7 +275,7 @@
                         <span>Bags</span>
                       </div>
                       <div class="favorit-items">
-                        <a href="shop.php" class="btn shopnow">Shop Now</a>
+                        <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                       </div>
                     </div>
                   </div>
@@ -301,7 +292,7 @@
                         <span>Fragrance</span>
                       </div>
                       <div class="favorit-items">
-                        <a href="shop.php" class="btn shopnow">Shop Now</a>
+                        <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                       </div>
                     </div>
                   </div>
@@ -314,7 +305,7 @@
                         <span>Accessories</span>
                       </div>
                       <div class="favorit-items">
-                        <a href="shop.php" class="btn shopnow">Shop Now</a>
+                        <a href="{{ url('shop') }}" class="btn shopnow">Shop Now</a>
                       </div>
                     </div>
                   </div>
@@ -355,7 +346,7 @@
                   </div>
                   <div class="popular-caption">
                     <h3>
-                      <a href="product_details.html">Yuna Tweed Crop Top</a>
+                      <a href="{{ url('product_details') }}">Yuna Tweed Crop Top</a>
                     </h3>
                     <span>IDR 230,000</span>
                   </div>
@@ -376,7 +367,7 @@
                   </div>
                   <div class="popular-caption">
                     <h3>
-                      <a href="#">Sunhwa Floral Dress</a>
+                      <a href="{{ url('product_details') }}">Sunhwa Floral Dress</a>
                     </h3>
                     <span>IDR 220,000</span>
                   </div>
@@ -397,7 +388,7 @@
                   </div>
                   <div class="popular-caption">
                     <h3>
-                      <a href="product_details.html"
+                      <a href="{{ url('product_details') }}"
                         >Yerim Scrunch Shoulder Bag</a
                       >
                     </h3>
@@ -419,7 +410,7 @@
                     </div>
                   </div>
                   <div class="popular-caption">
-                    <h3><a href="product_details.html">Meow Beanie</a></h3>
+                    <h3><a href="{{ url('product_details') }}">Meow Beanie</a></h3>
                     <span>IDR 150,000</span>
                   </div>
                 </div>
@@ -429,7 +420,7 @@
           <!-- Button -->
           <div class="row justify-content-center">
             <div class="room-btn">
-              <a href="shop.php" class="border-btn browsemore">Browse More</a>
+              <a href="{{ url('shop') }}" class="border-btn browsemore">Browse More</a>
             </div>
           </div>
         </div>
@@ -452,7 +443,7 @@
                 Trendy Fashion for Women
               </h2>
               <a
-                href="about.html"
+                href="{{ url('about') }}"
                 class="btn wow fadeInUp"
                 data-wow-duration="2s"
                 data-wow-delay=".4s"
@@ -530,7 +521,7 @@
       <!--? Services Area End -->
       <!-- cart -->
     <div class="cart-container-login geser">
-      {{-- @if(session('customer_id'))
+      <!-- {{-- @if(session('customer_id'))
     @php
         $loginTime = session('login_time');
         $currentTime = time();
@@ -546,7 +537,7 @@
             <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
         </div>
     </a>
-@endif --}}
+@endif --}} -->
 
 
       <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
@@ -566,6 +557,7 @@
             <div class="form-group mt-20">
                 <input type="password" class="form-control" name="customer_password" required placeholder="Password *" id="inputPassword">
             </div>
+            
             <!-- Tambahkan elemen lain yang diperlukan untuk form login -->
             <button type="submit" class="btn btn-primary mt-10 login">LOG IN</button>
             <p class="signuphere mt-3">Don't have an account? <a href="/login"><u>Sign Up</u></a> Here</p>
@@ -578,22 +570,25 @@
           </div>
           <form class="formsignup" action="{{ route('register') }}" method="POST">
               @csrf
-              <div class="form-group mt-20">
+              <div class="form-group mt-20 regis">
                 <label for="inputEmailRegis">Name *</label>
                 <input type="text" class="form-control" id="inputNameRegis" name="customer_name" required aria-describedby="emailHelp">
             </div>
-              <div class="form-group mt-20">
+              <div class="form-group mt-10 regis">
                   <label for="inputEmailRegis">Email address *</label>
                   <input type="email" class="form-control" id="inputEmailRegis" name="customer_email" required aria-describedby="emailHelp">
               </div>
-              <div class="form-group mt-20">
+              <div class="form-group mt-10 regis">
                   <label for="inputPasswordRegis">Password *</label>
                   <input type="password" class="form-control" id="inputPasswordRegis" name="customer_password" required>
               </div>
+
               <small id="info" class="form-text">By providing your personal information, you allow us to enhance your shopping experience and securely manage your account.</small>
               <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
               <a href="/registration" class="backlogin mt-3"><u>Back to Login</u></a>
           </form>
+
+
       </div>
       
   <!-- cart login end -->
@@ -608,40 +603,84 @@
     </div>
     <hr class="garisunderline">
     <div class="cart-items">
+  <?php 
+          $sql="SELECT p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.PRODUCT_PRICE, PRODUCT_URL , size;";
+          $result= DB::select($sql);
+        
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+                $dt->size = $row->size;
+                $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+                $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                
+                $response[] = $dt;
+            }
+            
+            $hasil_json=json_encode($response);
+            $data = json_decode($hasil_json,true);
+            for($i = 0; $i < count($data); $i++) { 
+              ?>
+
       <div class="row cart-item">
         <div class="col-5 item-image">
-          <img src="{{ asset('assets/images/denim/2.jpg') }}" alt="" />
+        <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
         </div>
         <div class=" col-7 item-details">
-          <h3>Kai Ripped Jacket</h3>
-          <p>Price: IDR 260,000</p>
-          <p>Size: Allsize</p>
+          <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
+          <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+          <p>Size: <?php echo $data[$i]["size"]; ?></p>
           <p>Quantity: 1</p>
           <button class="remove-btn mt-4">Remove</button>
         </div>
       </div>
       
-      <div class="row cart-item">
-        <div class="col-5 item-image">
-          <img src="{{ asset('assets/images/tops/7.jpg') }}" alt="Product Image" />
-        </div>
-        <div class="col-7 item-details">
-          <h3>Kaelyn Checkered Sheer Top</h3>
-          <p>Price: IDR 180,000</p>
-          <p>Size: All Size</p>
-          <p>Quantity: 1</p>
-          <button class="remove-btn mt-4">Remove</button>
-        </div>
-
-      </div>
       
+      
+    
+  <?php } ?>
+    <?php } ?>
     </div>
     <div class="cart-summary">
       <table>
+        <?php
+        $sql="SELECT
+  c.CART_ID,
+  FORMAT(
+    (
+      SELECT SUM(p.PRODUCT_PRICE)
+      FROM PRODUCT p
+      JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID
+      WHERE pc.CART_ID = c.CART_ID
+    ),
+    0
+  ) AS subtotal
+FROM
+  CART c
+WHERE
+  c.CUSTOMER_ID = '" . session('customer_id') . "';
+        ";
+        $result= DB::select($sql);
+      
+        if (count($result) > 0) {
+          $response = [];
+          foreach ($result as $row) {
+              $dt = new stdClass();
+              $dt->subtotal = $row->subtotal;
+              $response[] = $dt;
+          }
+          
+          $hasil_json=json_encode($response);
+          $data = json_decode($hasil_json,true);
+            ?>
         <tr>
+        
           <td><h3>SUBTOTAL: </h3></td>
-          <td><h3>IDR 440,000</h3></td>
+          <td><h3>IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
         </tr>
+        <?php } ?>
         <!-- <tr class="total">
           <td>Total:</td>
           <td>IDR 260,000</td> -->
@@ -651,7 +690,7 @@
 
     
     <div class="cart-actions">
-      <a href="cart.php"><button class="checkout-btn">CHECKOUT</button></a> 
+      <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
       <button class="continue-shopping">CONTINUE SHOPPING</button>
     </div>
   </div>
@@ -668,7 +707,7 @@
                 <div class="single-footer-caption mb-30">
                   <!-- logo -->
                   <div class="footer-logo mb-35">
-                    <a href="index.html"
+                    <a href="{{ url('index') }}"
                       ><img src="assets/images/logo/logo_putih.png" alt=""
                     /></a>
                   </div>
@@ -698,12 +737,12 @@
                 <div class="single-footer-caption mb-50">
                   <div class="footer-tittle categ">
                     <ul>
-                      <li><a href="shop.php">Tops</a></li>
-                      <li><a href="shop.php">Dresses</a></li>
-                      <li><a href="shop.php">Shorts</a></li>
-                      <li><a href="shop.php">Skirts</a></li>
-                      <li><a href="shop.php">Trousers</a></li>
-                      <li><a href="shop.php">Jumpsuits</a></li>
+                      <li><a href="{{ url('shop') }}">Tops</a></li>
+                      <li><a href="{{ url('shop') }}">Dresses</a></li>
+                      <li><a href="{{ url('shop') }}">Shorts</a></li>
+                      <li><a href="{{ url('shop') }}">Skirts</a></li>
+                      <li><a href="{{ url('shop') }}">Trousers</a></li>
+                      <li><a href="{{ url('shop') }}">Jumpsuits</a></li>
                     </ul>
                   </div>
                 </div>
@@ -712,12 +751,12 @@
                 <div class="single-footer-caption mb-50">
                   <div class="footer-tittle categ">
                     <ul class="">
-                      <li><a href="shop.php">Sets</a></li>
-                      <li><a href="shop.php">Denim</a></li>
-                      <li><a href="shop.php">Outerwear</a></li>
-                      <li><a href="shop.php">Bags</a></li>
-                      <li><a href="shop.php">Fragrance</a></li>
-                      <li><a href="shop.php">Accessories</a></li>
+                      <li><a href="{{ url('shop') }}">Sets</a></li>
+                      <li><a href="{{ url('shop') }}">Denim</a></li>
+                      <li><a href="{{ url('shop') }}">Outerwear</a></li>
+                      <li><a href="{{ url('shop') }}">Bags</a></li>
+                      <li><a href="{{ url('shop') }}">Fragrance</a></li>
+                      <li><a href="{{ url('shop') }}">Accessories</a></li>
                     </ul>
                   </div>
                 </div>
@@ -770,9 +809,9 @@
       <a title="Go to Top" href="#"> <i class="fas fa-level-up-alt"></i></a>
     </div>
 
-    <!-- JS here -->
-    <!-- Jquery, Popper, Bootstrap -->
-    <script src="{{ asset('assets/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+<!-- JS here -->
+<!-- Jquery, Popper, Bootstrap -->
+<script src="{{ asset('assets/js/vendor/modernizr-3.5.0.min.js') }}"></script>
 <script src="{{ asset('assets/js/vendor/jquery-1.12.4.min.js') }}"></script>
 <script src="{{ asset('assets/js/popper.min.js') }}"></script>
 <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
@@ -819,7 +858,6 @@
 
 @if($remainingTime > 0)
 <script>
-   $(".cart-container-login").remove();
       const closecart = document.querySelector('.close.cart');
       const full = document.querySelector('.full-wrapper');
       const navprofile = document.querySelector('.slicknav_menu a.navprofile');
@@ -836,8 +874,7 @@
       function updateNavbar(screenWidth) {
           // Add event listener to detect media query change
           if (window.innerWidth >= 415 && window.innerWidth <= 576) {
-            navprofile.style.display = 'none';
-              logocart.addEventListener('mouseenter', function(event) {
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
@@ -853,23 +890,14 @@
                 }
               });
           }
-          
-          else if (window.innerWidth <= 415) { // media query condition
+          else if (window.innerWidth < 415) { // media query condition
               navprofile.style.display = 'block';
-              logocart.addEventListener('mouseenter', function(event) {
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
-              
-              containercart.addEventListener('mouseleave', function(event) {
-                  event.preventDefault();
-                  // containercart.style.display = 'none';
-                  full.style.overflow = 'visible';
-                  containercart.style.animation = 'slideInToRightMobile 1s forwards';
-              });
-
               navprofile.addEventListener('click', function(event) {
               event.preventDefault();
               full.style.overflow = 'hidden';
@@ -878,116 +906,114 @@
               });
           } else {
               navprofile.style.display = 'none';
-              logocart.addEventListener('mouseenter', function(event) {
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
-              
-              containercart.addEventListener('mouseleave', function(event) {
-                  event.preventDefault();
-                  // containercart.style.display = 'none';
-                  full.style.overflow = 'visible';
-                  containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                  if($('.logocart-login').hasClass('active')){
-                    full.style.overflow = 'hidden';
-                    
-                  }
+
+              $(".close.cart").on('click', function(event) {
+                event.preventDefault();
+                containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                full.style.overflow = 'visible';
+                if($('.logocart-login').hasClass('active')){
+                  full.style.overflow = 'hidden';
+                }
               });
           };
       }
+
       updateNavbar(window.innerWidth);
       // Check screen size on window resize
       window.addEventListener("resize", function() {
           updateNavbar(window.innerWidth);
       });
-   // Mengambil token CSRF dari meta tag
-   $.ajaxSetup({
+        window.onpageshow = function(event) {
+          if (event.persisted) {
+            // Page is loaded from cache (user clicked back button)
+            location.reload();
+          }
+        };
+        function updateImageSrc(screenWidth) {
+            // Select elemen gambar
+            const imgHeart = document.getElementById('heart');
+            const imgCard = document.getElementById('cart');
+            // Add event listener to detect media query change
+            
+            if (window.innerWidth <= 576) { // media query condition
+                imgHeart.src = 'assets/images/logo/heart-black.svg';
+                imgCard.src = 'assets/images/logo/cart-black.svg';
+            } else {
+                imgHeart.src = 'assets/images/logo/heart.svg';
+                imgCard.src = 'assets/images/logo/card.svg';
+            };
+        }
+
+        updateImageSrc(window.innerWidth);
+        // Check screen size on window resize
+        window.addEventListener("resize", function() {
+            updateImageSrc(window.innerWidth);
+        });
+        
+        $.ajaxSetup({
           headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           }
         });
+        $('.btn.shopnow').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          let isiShopNow = $(this).closest('.single-popular-items').find('.img-cap span').text();
+          $.ajax({
+            method: "POST",
+            url: "/shop",
+            data: { shopnow: isiShopNow },
+            success: function(response) {
+              console.log("Data berhasil dikirim ke PHP");
+              console.log(response);
+            }
+          });
+        });
+        $('.footer-tittle.categ ul li a').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          let isiShopNow = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: isiShopNow },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
+            }
+          });
+        });
+        
+        $('.browsemore').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: "" },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+            }
+          });
+        });
 
-let csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-$('h3 a').click(function(event) {
-  let isiLink = $(this).text();
-
-  // Mengirim permintaan AJAX dengan token CSRF
-  $.ajax({
-    method: "POST",
-    url: "/product_details",
-    data: {
-      _token: csrfToken, // Menyertakan token CSRF dalam data permintaan
-      link: isiLink
-    },
-     success: function(response) {
-          // Menampilkan div dengan hasil respons di dalamnya
-          console.log(response);
-        },
-    
-  });
-});
-
-
-    function updateImageSrc(screenWidth) {
-      // Select elemen gambar
-      const imgHeart = document.getElementById('heart');
-      const imgCard = document.getElementById('cart');
-      // Add event listener to detect media query change
-
-      if (window.innerWidth < 576) { // media query condition
-        imgHeart.src = 'assets/images/logo/heart-black.svg';
-        imgCard.src = 'assets/images/logo/cart-black.svg';
-      } else {
-        imgHeart.src = 'assets/images/logo/heart.svg';
-        imgCard.src = 'assets/images/logo/card.svg';
-      };
-    }
-
-    updateImageSrc(window.innerWidth);
-    // Check screen size on window resize
-    window.addEventListener("resize", function() {
-      updateImageSrc(window.innerWidth);
-    });
-
-    $('.footer-tittle.categ ul li a').click(function() {
-      // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-      let isiShopNow = $(this).text();
-      $.ajax({
-        type: "POST",
-        url: "linksess.php",
-        data: {
-          shopnow: isiShopNow
-        },
-        success: function() {
-          console.log("Data berhasil dikirim ke PHP");
-        }
-      });
-    });
-
-    $('.browsemore').click(function() {
-      // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-      $.ajax({
-        type: "POST",
-        url: "linksess.php",
-        data: {
-          shopnow: ""
-        },
-        success: function() {
-          console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-        }
-      });
-    });
-
-
-    function updateSelectedText() {
-    var select3 = document.getElementsByName('select3')[0];
-    var selectedText = select3.options[select3.selectedIndex].text;
-    var selectedTextElement = document.getElementById('selected-text');
-    selectedTextElement.textContent = selectedText;}
-   
+        $('h3 a').click(function() {
+          // Mengambil isi dari elemen a yang diklik
+          let isiLink = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "/product_details",
+            data: {
+              link: isiLink
+            },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
+            }
+          });
+        });
+        
 </script>
 @endif
 @else
@@ -1036,25 +1062,18 @@ $('h3 a').click(function(event) {
         });
           // Add event listener to detect media query change
           if (window.innerWidth >= 415 && window.innerWidth <= 576) {
-            navprofile.style.display = 'none';
               logocartlogin.addEventListener('click', function(event) {
                 event.preventDefault();
                 // containercart.style.display = 'none';
                 full.style.overflow = 'visible';
                 containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
-              logocart.addEventListener('mouseenter', function(event) {
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
-              // logocartlogin.addEventListener('mouseenter', function(event) {
-              //     event.preventDefault();
-              //     // containercart.style.display = 'none';
-              //     full.style.overflow = 'visible';
-              //     containercart.style.animation = 'slideInToRightMobile 1s forwards';
-              // });
 
               $(".close.cart").on('click', function(event) {
                 event.preventDefault();
@@ -1073,26 +1092,13 @@ $('h3 a').click(function(event) {
               });
           }
           
-          else if (window.innerWidth <= 415) { // media query condition
+          else if (window.innerWidth < 415) { // media query condition
               navprofile.style.display = 'block';
-              logocart.addEventListener('mouseenter', function(event) {
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              });
-              // logocartlogin.addEventListener('mouseenter', function(event) {
-              //     event.preventDefault();
-              //     // containercart.style.display = 'none';
-              //     full.style.overflow = 'visible';
-              //     containercart.style.animation = 'slideInToRightMobile 1s forwards';
-              // });
-              
-              containercart.addEventListener('mouseleave', function(event) {
-                  event.preventDefault();
-                  // containercart.style.display = 'none';
-                  full.style.overflow = 'visible';
-                  containercart.style.animation = 'slideInToRightMobile 1s forwards';
               });
 
               logocartlogin.addEventListener('click', function(event) {
@@ -1117,59 +1123,27 @@ $('h3 a').click(function(event) {
               });
           } else {
               navprofile.style.display = 'none';
-              logocart.addEventListener('mouseenter', function(event) {
+              logocart.addEventListener('click', function(event) {
                   event.preventDefault();
                   // containercart.style.display = 'block';
                   full.style.overflow = 'hidden';
                   containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
               });
 
-              // logocartlogin.addEventListener('mouseenter', function(event) {
-              //     event.preventDefault();
-              //     // containercart.style.display = 'none';
-              //     full.style.overflow = 'visible';
-              //     containercart.style.animation = 'slideInToRightMobile 1s forwards';
-              // });
-              
-              containercart.addEventListener('mouseleave', function(event) {
-                  event.preventDefault();
-                  // containercart.style.display = 'none';
-                  full.style.overflow = 'visible';
-                  containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                  if($('.logocart-login').hasClass('active')){
-                    full.style.overflow = 'hidden';
-                    
-                  }
+              $(".close.cart").on('click', function(event) {
+                event.preventDefault();
+                containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                full.style.overflow = 'visible';
+                if($('.logocart-login').hasClass('active')){
+                  full.style.overflow = 'hidden';
+                }
               });
 
               logocartlogin.addEventListener('click', function(event) {
               event.preventDefault();
               full.style.overflow = 'hidden';
               containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              $('.cart-container-login').one('animationend', function() {
-                  $(document).on('click', function(event) {
-                      if ($('.cart-container-login').css('right') === '0px') {
-                      const container = $('.cart-container-login');
-                      const iconcart = $('.logocart-login');
-
-                      if (!container.is(event.target) && container.has(event.target).length === 0 && !iconcart.is(event.target) && iconcart.has(event.target).length === 0) {
-                          // Click was outside the div, do something here
-                          event.preventDefault();
-                          containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-                          isiSignup.style.display = 'none';
-                          login.style.display="block";
-                          full.style.overflow = 'visible';
-                      }
-                      }
-                  });
               });
-              
-              });
-              // navprofile.addEventListener('click', function(event) {
-              // event.preventDefault();
-              // full.style.overflow = 'hidden';
-              // containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              // });
 
               btnclose.addEventListener('click', function(event) {
               event.preventDefault();
@@ -1215,16 +1189,21 @@ $('h3 a').click(function(event) {
             updateImageSrc(window.innerWidth);
         });
         
-
+        $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
         $('.btn.shopnow').click(function() {
           // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
           let isiShopNow = $(this).closest('.single-popular-items').find('.img-cap span').text();
           $.ajax({
-            type: "POST",
-            url: "linksess.php",
+            method: "POST",
+            url: "/shop",
             data: { shopnow: isiShopNow },
-            success: function() {
+            success: function(response) {
               console.log("Data berhasil dikirim ke PHP");
+              console.log(response);
             }
           });
         });
@@ -1233,7 +1212,7 @@ $('h3 a').click(function(event) {
           let isiShopNow = $(this).text();
           $.ajax({
             type: "POST",
-            url: "linksess.php",
+            url: "/shop",
             data: { shopnow: isiShopNow },
             success: function() {
               console.log("Data berhasil dikirim ke PHP");
@@ -1245,10 +1224,25 @@ $('h3 a').click(function(event) {
           // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
           $.ajax({
             type: "POST",
-            url: "linksess.php",
+            url: "/shop",
             data: { shopnow: "" },
             success: function() {
               console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+            }
+          });
+        });
+
+        $('h3 a').click(function() {
+          // Mengambil isi dari elemen a yang diklik
+          let isiLink = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "/product_details",
+            data: {
+              link: isiLink
+            },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
             }
           });
         });

@@ -105,7 +105,9 @@ if ($customer && isset($customer->customer_id)) {
     $customer->save();
 
     // Redirect ke halaman sukses pendaftaran
-    return redirect('/profile');
+
+    return redirect()->back()->withInput()->with('success', 'Registration successful! Please Log In');
+
 }
 
     
