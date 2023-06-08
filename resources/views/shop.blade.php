@@ -410,8 +410,13 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
                     
                     
                      ?>
+               <a style="padding-top: 2px; color: black;" class="page-btn" href="{{ route('shop', ['page' => ($current_page - 1)] + Request::query()) }}">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            
+                    
+                    
                       
-                          <a style="padding-top: 2px;color:black;" href="{{ route('shop', ['page' => ($current_page - 1)]) . '?' . $queryString }}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
                       <?php endif; ?>
           
                       <?php if ($results->count() > 0): ?>

@@ -69,6 +69,8 @@ if (isset($_POST['product_name'])) {
 </head>
 <body class="full-wrapper">
   @csrf
+
+  @include('header')
   @if ($errors->any())
   <div class="alert alert-danger">
       <ul>
@@ -183,7 +185,7 @@ if (isset($_POST['product_name'])) {
                   <div class="add-to-cart">
                     <button id="add-to-cart-btn" class="btn add-to-cart-btn" data-product-id="{{ $row->product_id }}">Add to Cart</button>
 
-                    <button class="btn">Checkout</button>
+                    {{-- <button class="btn">Checkout</button> --}}
                   </div>
                   <br>
                   <div class="product-info" onclick="showProductDetail()">
@@ -695,6 +697,7 @@ WHERE
                 </div>
               </div>
             </div>
+            
             <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3">
               <div class="single-footer-caption mb-50">
                 <div class="footer-tittle">
@@ -1259,6 +1262,35 @@ WHERE
           
         });
       });
+      // addtocartt
+      
+      $(document).ready(function() {
+    $('#add-to-cart-btn').click(function() {
+      $.ajax({
+      url: '/product_details/2',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+      },
+      // data: { link_tes: '<?php echo session('link_tes'); ?>',customer_id: '<?php echo session('customer_id'); ?>' },
+      success: function(response) {
+        // Jika permintaan berhasil, tampilkan pesan sukses atau lakukan tindakan lainnya
+        console.log(response);
+      },
+      error: function(xhr, status, error) {
+        // Jika permintaan gagal, tangani kesalahan atau tampilkan pesan error
+        console.error('Failed to add product to cart');
+      }
+    });
+    });
+  });
+
+  function addToCart(productId) {
+    // Lakukan permintaan ke controller menggunakan AJAX
+    
+  }
+
 </script>
 @endif
 @else
