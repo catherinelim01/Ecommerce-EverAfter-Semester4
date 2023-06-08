@@ -8,7 +8,7 @@ use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\WishlistController;
 
 
-
+use App\Http\Controllers\CartController;
 
 use App\Http\Controllers\OrderController;
 
@@ -22,8 +22,11 @@ use App\Http\Controllers\OrderController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
+Route::post('/product_details/2', [CartController::class,'addToCart']);
 Route::get('/', function () {
+    return view('index');
+});
+Route::get('/index', function () {
     return view('index');
 });
 Route::get('/cart', function () {
@@ -88,10 +91,15 @@ Route::get('/shop', function () {
     return view('shop');
 })->name('shop');
 
+// Route::get('/shop/page/{page}', function () {
+//     // Logika penanganan halaman utama shop
+//     return view('shop');
+// })->name('shop');
+
 Route::get('/shop/page/{page}', function ($page) {
-    // Logika penanganan halaman berikutnya
     return view('shop', ['page' => $page]);
 })->name('shop.page');
+Route::get('/product_details/{product_name}', [App\Http\Controllers\ProductController::class, 'showProductDetails']);
 
 // Route::get('/product/{product_name}', function ($product_name) {
 //     // Logika penanganan halaman "product_details"
@@ -106,7 +114,9 @@ Route::get('/shop/page/{page}', function ($page) {
 // })->name('product.details.post');
 
 
-
+Route::get('/product_details', function () {
+    return view('product_details');
+})->name('product_details');
 Route::post('/product_details', [App\Http\Controllers\ProductController::class, 'getProductDetails']);
 Route::post('/cart', [App\Http\Controllers\CartController::class, 'cartVoucher']);
 
