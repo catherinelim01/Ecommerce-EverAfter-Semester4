@@ -178,13 +178,38 @@ if (isset($_POST['voucherCode'])) {
       }}
         ?>
       <?php
-        if(session('voucherCode')){
-          $sql="SELECT format(o.grand_total,0) as grand_total, FORMAT((o.grand_total ) * ((select voucher.DISCOUNT from voucher where voucher_name = '" . $potongan . "')/100), 0) AS total_potongan, format(convert((5/100)*o.GRAND_TOTAL,int),0) as pajak, format(d.delivery_cost,0) as delivery_cost ,format((o.grand_total - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total
-          from `order` o left join product_order po on o.order_id = po.order_id left join product p on po.product_id = p.product_id left join delivery d on d.delivery_id = o.delivery_id left join address a on a.CUSTOMER_ID = o.CUSTOMER_ID left join category ca on ca.CATEGORY_ID = p.CATEGORY_ID left join payment pa on pa.payment_id = o.payment_id where o.customer_id  = '" . session('customer_id') . "'  order by o.order_id desc;";
-          }else{
-            $sql="SELECT format(o.grand_total,0) as grand_total, format(o.total_potongan,0) as total_potongan ,format(convert((5/100)*o.GRAND_TOTAL,int),0) as pajak, format(d.delivery_cost,0) as delivery_cost ,format((o.grand_total - o.total_potongan + convert((5/100)*o.GRAND_TOTAL,int) +d.delivery_cost),0) as total
-          from `order` o left join product_order po on o.order_id = po.order_id left join product p on po.product_id = p.product_id left join delivery d on d.delivery_id = o.delivery_id left join address a on a.CUSTOMER_ID = o.CUSTOMER_ID left join category ca on ca.CATEGORY_ID = p.CATEGORY_ID left join payment pa on pa.payment_id = o.payment_id where o.customer_id  = '" . session('customer_id') . "' order by o.order_id desc;";
-          }
+       if (session('voucherCode')) {
+    $sql = "SELECT FORMAT(o.grand_total, 0) AS grand_total,
+            FORMAT((o.grand_total) * ((SELECT voucher.DISCOUNT FROM voucher WHERE voucher_name = '" . $potongan . "') / 100), 0) AS total_potongan,
+            FORMAT((5 / 100) * o.GRAND_TOTAL, 0) AS pajak,
+            FORMAT(d.delivery_cost, 0) AS delivery_cost,
+            FORMAT((o.grand_total - o.total_potongan + (5 / 100) * o.GRAND_TOTAL + d.delivery_cost), 0) AS total
+            FROM `order` o
+            LEFT JOIN product_order po ON o.order_id = po.order_id
+            LEFT JOIN product p ON po.product_id = p.product_id
+            LEFT JOIN delivery d ON d.delivery_id = o.delivery_id
+            LEFT JOIN address a ON a.CUSTOMER_ID = o.CUSTOMER_ID
+            LEFT JOIN category ca ON ca.CATEGORY_ID = p.CATEGORY_ID
+            LEFT JOIN payment pa ON pa.payment_id = o.payment_id
+            WHERE o.customer_id = '" . session('customer_id') . "'
+            ORDER BY o.order_id DESC;";
+} else {
+    $sql = "SELECT FORMAT(o.grand_total, 0) AS grand_total,
+            FORMAT(o.total_potongan, 0) AS total_potongan,
+            FORMAT((5 / 100) * o.GRAND_TOTAL, 0) AS pajak,
+            FORMAT(d.delivery_cost, 0) AS delivery_cost,
+            FORMAT((o.grand_total - o.total_potongan + (5 / 100) * o.GRAND_TOTAL + d.delivery_cost), 0) AS total
+            FROM `order` o
+            LEFT JOIN product_order po ON o.order_id = po.order_id
+            LEFT JOIN product p ON po.product_id = p.product_id
+            LEFT JOIN delivery d ON d.delivery_id = o.delivery_id
+            LEFT JOIN address a ON a.CUSTOMER_ID = o.CUSTOMER_ID
+            LEFT JOIN category ca ON ca.CATEGORY_ID = p.CATEGORY_ID
+            LEFT JOIN payment pa ON pa.payment_id = o.payment_id
+            WHERE o.customer_id = '" . session('customer_id') . "'
+            ORDER BY o.order_id DESC;";
+}
+
           
           $result= DB::select($sql);
         

@@ -15,10 +15,10 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Ever After | Fashion</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="manifest" href="site.webmanifest">
     <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
 
@@ -69,8 +69,20 @@
                         <div class="section-tittle mb-50">
                             <h2>Wishlist</h2>
                             <?php
-                            $count = DB::table('wishlist_product')->count();
-                            echo '<p>Browse from ' . $count . ' wishlist</p>';
+                            $count =
+                                "SELECT COUNT(DISTINCT product_name) AS total  
+                                                                                              FROM product 
+                                                                                              WHERE product_id IN (SELECT product_id 
+                                                                                                                   FROM wishlist_product wp 
+                                                                                                                   LEFT JOIN wishlist w ON w.wishlist_id = wp.wishlist_id 
+                                                                                                                   WHERE customer_id = '" .
+                                session('customer_id') .
+                                "')";
+                            $count = DB::select($count);
+                            $total = $count[0]->total;
+                            echo '<p>Browse from ' . $total . ' wishlist</p>';
+                            
+                            session(['total_wishlist' => $total]);
                             ?>
                         </div>
                     </div>
@@ -86,7 +98,6 @@
                                 <div class="select-job-items2">
                                     <select name="select2" onchange="filterByCategory(this.value)">
                                         <option value="">Category</option>
-
                                         @php
                                             $categories = DB::table('category')
                                                 ->select('category_name')
@@ -97,6 +108,8 @@
                                         @endphp
                                     </select>
                                 </div>
+
+                                
                                 <!-- </form> -->
 
                                 <!--  Select City items End-->
@@ -173,7 +186,15 @@
                                             $limit = 15;
                                             
                                             // Hitung jumlah total produk
-                                            $sql = 'SELECT DISTINCT COUNT(DISTINCT product_name) as total FROM product where product_id in (select product_id from wishlist_product) order by product_name asc;';
+                                            $sql =
+                                                "SELECT COUNT(DISTINCT product_name) AS total  
+                                                                                                                              FROM product 
+                                                                                                                              WHERE product_id IN (SELECT product_id 
+                                                                                                                                                   FROM wishlist_product wp 
+                                                                                                                                                   LEFT JOIN wishlist w ON w.wishlist_id = wp.wishlist_id 
+                                                                                                                                                   WHERE customer_id = '" .
+                                                session('customer_id') .
+                                                "')";
                                             $result = DB::select($sql);
                                             
                                             if (count($result) > 0) {
@@ -277,9 +298,27 @@
                                             padding: 5px 10px;
                                         }
                                     </style>
-
                                     <!-- cart -->
                                     <div class="cart-container-login geser">
+                                        <!-- {{-- @if (session('customer_id'))
+      @php
+          $loginTime = session('login_time');
+          $currentTime = time();
+          $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
+      @endphp
+  
+      @if ($remainingTime > 0)
+          <a href="/profile">
+      @else
+          <a href="#">
+      @endif
+          <div class="user mx-3" style="cursor:pointer;">
+              <img src="{{ asset('assets/images/logo/person.svg') }}" alt="" />
+          </div>
+      </a>
+  @endif --}} -->
+
+
                                         <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg"
                                                 width="30" height="32" fill="currentColor" class="bi bi-x"
                                                 viewBox="0 0 16 16">
@@ -365,25 +404,25 @@
                                                 <hr class="garisunderline">
                                                 <div class="cart-items">
                                                     <?php 
-          $sql="SELECT p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.PRODUCT_PRICE, PRODUCT_URL , size;";
-          $result= DB::select($sql);
-        
-          if (count($result) > 0) {
-            $response = [];
-            foreach ($result as $row) {
-                $dt = new stdClass();
-                $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
-                $dt->size = $row->size;
-                $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
-                $dt->PRODUCT_URL = $row->PRODUCT_URL;
-                
-                $response[] = $dt;
-            }
-            
-            $hasil_json=json_encode($response);
-            $data = json_decode($hasil_json,true);
-            for($i = 0; $i < count($data); $i++) { 
-              ?>
+            $sql="SELECT p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.PRODUCT_PRICE, PRODUCT_URL , size;";
+            $result= DB::select($sql);
+          
+            if (count($result) > 0) {
+              $response = [];
+              foreach ($result as $row) {
+                  $dt = new stdClass();
+                  $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+                  $dt->size = $row->size;
+                  $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+                  $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                  
+                  $response[] = $dt;
+              }
+              
+              $hasil_json=json_encode($response);
+              $data = json_decode($hasil_json,true);
+              for($i = 0; $i < count($data); $i++) { 
+                ?>
 
                                                     <div class="row cart-item">
                                                         <div class="col-5 item-image">
@@ -415,28 +454,35 @@
                                                 <div class="cart-summary">
                                                     <table>
                                                         <?php
-        $sql="SELECT c.CART_ID, FORMAT(SELECT SUM(p.PRODUCT_PRICE)FROM PRODUCT pJOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_IDWHERE pc.CART_ID = c.CART_ID
-    ),
-    0
-  ) AS subtotal
-FROM
-  CART c
-WHERE
-  c.CUSTOMER_ID = '" . session('customer_id') . "';
-        ";
-        $result= DB::select($sql);
-      
-        if (count($result) > 0) {
-          $response = [];
-          foreach ($result as $row) {
-              $dt = new stdClass();
-              $dt->subtotal = $row->subtotal;
-              $response[] = $dt;
-          }
-          
-          $hasil_json=json_encode($response);
-          $data = json_decode($hasil_json,true);
-            ?>
+          $sql="SELECT
+    c.CART_ID,
+    FORMAT(
+      (
+        SELECT SUM(p.PRODUCT_PRICE)
+        FROM PRODUCT p
+        JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID
+        WHERE pc.CART_ID = c.CART_ID
+      ),
+      0
+    ) AS subtotal
+  FROM
+    CART c
+  WHERE
+    c.CUSTOMER_ID = '" . session('customer_id') . "';
+          ";
+          $result= DB::select($sql);
+        
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->subtotal = $row->subtotal;
+                $response[] = $dt;
+            }
+            
+            $hasil_json=json_encode($response);
+            $data = json_decode($hasil_json,true);
+              ?>
                                                         <tr>
 
                                                             <td>
@@ -448,8 +494,8 @@ WHERE
                                                         </tr>
                                                         <?php } ?>
                                                         <!-- <tr class="total">
-          <td>Total:</td>
-          <td>IDR 260,000</td> -->
+            <td>Total:</td>
+            <td>IDR 260,000</td> -->
                                                         </tr>
                                                     </table>
                                                 </div>
@@ -549,44 +595,33 @@ WHERE
                     </div>
                 </div>
             </div>
-            <!-- footer-bottom area -->
-            <div class="footer-bottom-area">
-                <div class="container">
-                    <div class="footer-border">
-                        <div class="row d-flex align-items-center">
-                            <div class="col-xl-12">
-                                <div class="footer-copy-right text-center">
-                                    <p>
-                                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                                        Copyright &copy;
-                                        <script>
-                                            document.write(new Date().getFullYear());
-                                        </script>
-                                        All rights reserved | This template is made with
-                                        <i class="fa fa-heart" aria-hidden="true"></i> by
-                                        <a href="https://colorlib.com" target="_blank">Colorlib</a>
-                                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                                    </p>
-                                </div>
+        </div>
+        <!-- footer-bottom area -->
+        <div class="footer-bottom-area">
+            <div class="container">
+                <div class="footer-border">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-xl-12">
+                            <div class="footer-copy-right text-center">
+                                <p>
+                                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                                    Copyright &copy;
+                                    <script>
+                                        document.write(new Date().getFullYear());
+                                    </script>
+                                    All rights reserved | This template is made with
+                                    <i class="fa fa-heart" aria-hidden="true"></i> by
+                                    <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Footer End-->
-    </footer>
-
-
-    <!--? Search model Begin -->
-    <div class="search-model-box">
-        <div class="h-100 d-flex align-items-center justify-content-center">
-            <div class="search-close-btn">+</div>
-            <form class="search-model-form">
-                <input type="text" id="search-input" placeholder="Searching key.....">
-            </form>
         </div>
-    </div>
-    <!-- Search model end -->
+        <!-- Footer End-->
+    </footer>
 
     <!-- Scroll Up -->
     <div id="back-top">
@@ -711,6 +746,12 @@ WHERE
                 window.addEventListener("resize", function() {
                     updateNavbar(window.innerWidth);
                 });
+                window.onpageshow = function(event) {
+                    if (event.persisted) {
+                        // Page is loaded from cache (user clicked back button)
+                        location.reload();
+                    }
+                };
 
                 function updateImageSrc(screenWidth) {
                     // Select elemen gambar
@@ -731,6 +772,33 @@ WHERE
                 // Check screen size on window resize
                 window.addEventListener("resize", function() {
                     updateImageSrc(window.innerWidth);
+                });
+                // Mengambil token CSRF dari meta tag
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                $('h3 a').click(function(event) {
+                    let isiLink = $(this).text();
+
+                    // Mengirim permintaan AJAX dengan token CSRF
+                    $.ajax({
+                        method: "POST",
+                        url: "/product_details",
+                        data: {
+                            _token: csrfToken, // Menyertakan token CSRF dalam data permintaan
+                            link: isiLink
+                        },
+                        success: function(response) {
+                            // Menampilkan div dengan hasil respons di dalamnya
+                            console.log(response);
+                        },
+
+                    });
                 });
 
                 $('.footer-tittle.categ ul li a').click(function() {
@@ -760,24 +828,15 @@ WHERE
                             console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
                         }
                     });
-                    // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-                    $.ajax({
-                        type: "POST",
-                        url: "linksess.php",
-                        data: {
-                            shopnow: ""
-                        },
-                        success: function() {
-                            console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-                        }
-                    });
                 });
 
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
+
+                function updateSelectedText() {
+                    var select3 = document.getElementsByName('select3')[0];
+                    var selectedText = select3.options[select3.selectedIndex].text;
+                    var selectedTextElement = document.getElementById('selected-text');
+                    selectedTextElement.textContent = selectedText;
+                }
             </script>
         @endif
     @else
@@ -816,139 +875,122 @@ WHERE
                 login.style.display = "none";
 
             });
-            // Add event listener to detect media query change
-            if (window.innerWidth >= 415 && window.innerWidth <= 576) {
-                logocartlogin.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    // containercart.style.display = 'none';
-                    full.style.overflow = 'visible';
-                    containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                });
-                logocart.addEventListener('click', function(event) {
-                    // event.preventDefault();
-                    // // containercart.style.display = 'block';
-                    // full.style.overflow = 'hidden';
-                    // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                    event.preventDefault();
-                    // containercart.style.display = 'none';
-                    full.style.overflow = 'visible';
-                    containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                });
 
-                // $(".close.cart").on('click', function(event) {
-                //   event.preventDefault();
-                //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                //   full.style.overflow = 'visible';
-                //   if($('.logocart-login').hasClass('active')){
-                //     full.style.overflow = 'hidden';
-                //   }
-                // });
-                btnclose.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-                    isiSignup.style.display = 'none';
-                    login.style.display = "block";
-                    full.style.overflow = 'visible';
+            function updateNavbar(screenWidth) {
+                $('.logocart-login').on('click', function() {
+                    $(this).addClass('active');
                 });
-            } else if (window.innerWidth < 415) { // media query condition
-                navprofile.style.display = 'block';
-                logocart.addEventListener('click', function(event) {
-                    // event.preventDefault();
-                    // // containercart.style.display = 'block';
-                    // full.style.overflow = 'hidden';
-                    // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                    event.preventDefault();
-                    full.style.overflow = 'hidden';
-                    containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                $('.close.login').on('click', function() {
+                    $(".logocart-login.active").removeClass('active');
                 });
+                // Add event listener to detect media query change
+                if (window.innerWidth >= 415 && window.innerWidth <= 576) {
+                    logocartlogin.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        // containercart.style.display = 'none';
+                        full.style.overflow = 'visible';
+                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                    });
+                    logocart.addEventListener('click', function(event) {
+                        // event.preventDefault();
+                        // // containercart.style.display = 'block';
+                        // full.style.overflow = 'hidden';
+                        // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                        event.preventDefault();
+                        // containercart.style.display = 'none';
+                        full.style.overflow = 'visible';
+                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                    });
 
-                $(".close.cart").on('click', function(event) {
-                    event.preventDefault();
-                    containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                    full.style.overflow = 'visible';
-                    if ($('.logocart-login').hasClass('active')) {
+                    // $(".close.cart").on('click', function(event) {
+                    //   event.preventDefault();
+                    //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                    //   full.style.overflow = 'visible';
+                    //   if($('.logocart-login').hasClass('active')){
+                    //     full.style.overflow = 'hidden';
+                    //   }
+                    // });
+                    btnclose.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+                        isiSignup.style.display = 'none';
+                        login.style.display = "block";
+                        full.style.overflow = 'visible';
+                    });
+                } else if (window.innerWidth < 415) { // media query condition
+                    navprofile.style.display = 'block';
+                    logocart.addEventListener('click', function(event) {
+                        // event.preventDefault();
+                        // // containercart.style.display = 'block';
+                        // full.style.overflow = 'hidden';
+                        // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                        event.preventDefault();
                         full.style.overflow = 'hidden';
-                    }
-                });
-                btnclose.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-                    isiSignup.style.display = 'none';
-                    login.style.display = "block";
-                    full.style.overflow = 'visible';
-                });
-            } else if (window.innerWidth < 415) { // media query condition
-                navprofile.style.display = 'block';
-                logocart.addEventListener('mouseenter', function(event) {
-                    event.preventDefault();
-                    // containercart.style.display = 'block';
-                    full.style.overflow = 'hidden';
-                    containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                });
-                // logocartlogin.addEventListener('mouseenter', function(event) {
-                //     event.preventDefault();
-                //     // containercart.style.display = 'none';
-                //     full.style.overflow = 'visible';
-                //     containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                // });
+                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                    });
 
-                btnclose.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-                    isiSignup.style.display = 'none';
-                    login.style.display = "block";
-                    full.style.overflow = 'visible';
-                });
-            } else {
-                navprofile.style.display = 'none';
-                logocart.addEventListener('click', function(event) {
-                    // event.preventDefault();
-                    // // containercart.style.display = 'block';
-                    // full.style.overflow = 'hidden';
-                    // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                    event.preventDefault();
-                    full.style.overflow = 'hidden';
-                    containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                });
+                    logocartlogin.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        full.style.overflow = 'hidden';
+                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
 
-                // $(".close.cart").on('click', function(event) {
-                //   event.preventDefault();
-                //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                //   full.style.overflow = 'visible';
-                //   if($('.logocart-login').hasClass('active')){
-                //     full.style.overflow = 'hidden';
-                //   }
-                // });
+                    });
+                    navprofile.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        full.style.overflow = 'hidden';
+                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
 
-                logocartlogin.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    full.style.overflow = 'hidden';
-                    containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                });
+                    });
 
-                btnclose.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-                    isiSignup.style.display = 'none';
-                    login.style.display = "block";
-                    full.style.overflow = 'visible';
-                });
-            } else {
-                navprofile.style.display = 'none';
-                logocart.addEventListener('mouseenter', function(event) {
-                    event.preventDefault();
-                    // containercart.style.display = 'block';
-                    full.style.overflow = 'hidden';
-                    containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                });
+                    btnclose.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+                        isiSignup.style.display = 'none';
+                        login.style.display = "block";
+                        full.style.overflow = 'visible';
+                    });
+                } else {
+                    navprofile.style.display = 'none';
+                    logocart.addEventListener('click', function(event) {
+                        // event.preventDefault();
+                        // // containercart.style.display = 'block';
+                        // full.style.overflow = 'hidden';
+                        // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                        event.preventDefault();
+                        full.style.overflow = 'hidden';
+                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                    });
 
+                    // $(".close.cart").on('click', function(event) {
+                    //   event.preventDefault();
+                    //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                    //   full.style.overflow = 'visible';
+                    //   if($('.logocart-login').hasClass('active')){
+                    //     full.style.overflow = 'hidden';
+                    //   }
+                    // });
+
+                    logocartlogin.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        full.style.overflow = 'hidden';
+                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                    });
+
+                    btnclose.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+                        isiSignup.style.display = 'none';
+                        login.style.display = "block";
+                        full.style.overflow = 'visible';
+                    });
+                };
+            }
+
+            updateNavbar(window.innerWidth);
+            // Check screen size on window resize
+            window.addEventListener("resize", function() {
                 updateNavbar(window.innerWidth);
-                // Check screen size on window resize
-                window.addEventListener("resize", function() {
-                    updateNavbar(window.innerWidth);
-                })
-            };
-
+            });
 
             function updateImageSrc(screenWidth) {
                 // Select elemen gambar
@@ -970,22 +1012,35 @@ WHERE
             window.addEventListener("resize", function() {
                 updateImageSrc(window.innerWidth);
             });
+            // Mengambil token CSRF dari meta tag
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
 
-            $('.btn.shopnow').click(function() {
-                // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-                let isiShopNow = $(this).closest('.single-popular-items').find('.img-cap span').text();
+            let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            $('h3 a').click(function(event) {
+                let isiLink = $(this).text();
+
+                // Mengirim permintaan AJAX dengan token CSRF
                 $.ajax({
                     method: "POST",
-                    url: "/shop",
+                    url: "/product_details",
                     data: {
-                        shopnow: isiShopNow
+                        _token: csrfToken, // Menyertakan token CSRF dalam data permintaan
+                        link: isiLink
                     },
                     success: function(response) {
-                        console.log("Data berhasil dikirim ke PHP");
+                        // Menampilkan div dengan hasil respons di dalamnya
                         console.log(response);
-                    }
+                    },
+
                 });
             });
+
+
             $('.footer-tittle.categ ul li a').click(function() {
                 // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
                 let isiShopNow = $(this).text();
@@ -1013,25 +1068,17 @@ WHERE
                         console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
                     }
                 });
-                // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-                $.ajax({
-                    type: "POST",
-                    url: "linksess.php",
-                    data: {
-                        shopnow: ""
-                    },
-                    success: function() {
-                        console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-                    }
-                });
             });
 
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
+
+            function updateSelectedText() {
+                var select3 = document.getElementsByName('select3')[0];
+                var selectedText = select3.options[select3.selectedIndex].text;
+                var selectedTextElement = document.getElementById('selected-text');
+                selectedTextElement.textContent = selectedText;
+            }
         </script>
+    @endif
 </body>
 
 </html>

@@ -57,16 +57,31 @@ Route::get('/wishlist', function () {
 Route::get('/wishlist/page/{page}', function ($page) {
     return view('wishlist', ['page' => $page]);
 })->name('wishlist.page');
+
+
   
 use App\Http\Controllers\MailController;
 
 Route::get('/email', [App\Http\Controllers\MailController::class, 'create']);
 Route::match(['get', 'post'], '/email', [App\Http\Controllers\MailController::class, 'sendEmail'])->name('send.email');
+Route::get('/shop', function () {
+    // Logika penanganan halaman utama shop
+    return view('shop');
+})->name('shop');
 
-//Route::get('/shop/search', [App\Http\Controllers\ProductController::class, 'search'])->name('shop.search');
-Route::get('/shop/search/{search}', function ($search) {
-    return view('shop', ['search' => $search]);
-})->name('shop.search');
+Route::get('/shop/page/{page}', function ($page) {
+    // Logika penanganan halaman berikutnya
+    return view('shop', ['page' => $page]);
+})->name('shop.page');
+
+Route::match(['get', 'post'],'/shop/search', [App\Http\Controllers\ProductController::class, 'search'])->name('shop.search');
+
+
+Route::post('/save-address', [AddressController::class, 'saveAddress'])->name('save.address');
+
+// Route::get('/shop/search/{search}', function ($search) {
+//     return view('shop', ['search' => $search]);
+// })->name('shop.search');
 
 Route::get('/order_detail', function () {
     return view('order_detail');
@@ -74,7 +89,7 @@ Route::get('/order_detail', function () {
 
 
 Route::post('/order_detail', [App\Http\Controllers\OrderController::class, 'orderDetail']);
-Route::post('/shop', [App\Http\Controllers\CategoryController::class, 'Category']);
+//Route::post('/shop', [App\Http\Controllers\CategoryController::class, 'Category']);
 // Route::post('/profile', [App\Http\Controllers\ProfileController::class, 'EditProfile']);
 use App\Http\Controllers\ProfileController;
 
@@ -112,15 +127,7 @@ Route::get('/profile', function () {
 //         return view('product_details');
 //     });
 // });
-Route::get('/shop', function () {
-    // Logika penanganan halaman utama shop
-    return view('shop');
-})->name('shop');
 
-Route::get('/shop/page/{page}', function ($page) {
-    // Logika penanganan halaman berikutnya
-    return view('shop', ['page' => $page]);
-})->name('shop.page');
 
 // Route::get('/product/{product_name}', function ($product_name) {
 //     // Logika penanganan halaman "product_details"
@@ -153,8 +160,6 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
-
-
 
 
 // Route::get('/cart', [VoucherController::class, 'showCart']);

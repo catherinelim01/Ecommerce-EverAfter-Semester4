@@ -13,7 +13,7 @@ class WishlistController extends Controller
     public function insertWishlist(Request $request)
     {
         // Mendapatkan nilai wishlist_id dan product_id dari permintaan POST
-        $wishlist_id = $request->input('wishlist_id');
+        $wishlist_id = 'W00002';//$request->input('wishlist_id');
         $product_id = $request->input('product_id');
 
         // Melakukan insert ke dalam tabel WISHLIST_PRODUCT menggunakan Query Builder
