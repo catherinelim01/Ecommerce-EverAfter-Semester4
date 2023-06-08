@@ -55,10 +55,15 @@
               </li>
                 <li>
                   <a href="{{ url('wishlist') }}">
-                  <div class="card-stor mx-3">
-                    <img id="heart" src="{{ asset('assets/images/logo/heart.svg') }}" media="(min-width: 800px)" alt="" />
-                    <span>0</span>
+                    <div class="card-stor mx-3">
+                      <img id="heart" src="{{ asset('assets/images/logo/heart.svg') }}" media="(min-width: 800px)" alt="" />
+                      <span id="totalWishlist"></span>
                   </div>
+                  
+                  <script>
+                      var totalWishlist = {{ session('total_wishlist') }};
+                      document.getElementById('totalWishlist').innerText = totalWishlist;
+                  </script>
                 </a>
                 </li>
                 <li class="logocart">
@@ -131,3 +136,6 @@
   <!-- Header End -->
   
 </header>
+
+
+

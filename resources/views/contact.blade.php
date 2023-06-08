@@ -345,99 +345,109 @@ WHERE
     <footer>
         <!-- Footer Start-->
         <div class="footer-area footer-padding">
-            <div class="container-fluid">
-                <div class="row d-flex justify-content-between">
-                    <div class="col-xl-5 col-lg-5 col-md-8 col-sm-8">
-                        <div class="single-footer-caption mb-50">
-                            <div class="single-footer-caption mb-30">
-                                <!-- logo -->
-                                <div class="footer-logo mb-35">
-                                    <a href="{{ url('index') }}"><img src="assets/images/logo/logo_putih.png"
-                                            alt="" /></a>
-                                </div>
-                                <div class="footer-tittle">
-                                    <div class="footer-pera">
-                                        <p>
-                                            "The most beautiful thing a woman can wear is
-                                            confidence." - Blake Lively
-                                        </p>
-                                    </div>
-                                    <div class="foot row">
-                                        <div class="col-lg-12 footcat">
-                                            <h4>Shop Category</h4>
-                                        </div>
-
-                                        <div class="col-5">
-                                            <div class="single-footer-caption mb-50">
-                                                <div class="footer-tittle categ">
-                                                    <ul>
-                                                        <li><a href="{{ url('shop') }}">Tops</a></li>
-                                                        <li><a href="{{ url('shop') }}">Dresses</a></li>
-                                                        <li><a href="{{ url('shop') }}">Shorts</a></li>
-                                                        <li><a href="{{ url('shop') }}">Skirts</a></li>
-                                                        <li><a href="{{ url('shop') }}">Trousers</a></li>
-                                                        <li><a href="{{ url('shop') }}">Jumpsuits</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="single-footer-caption mb-50">
-                                                <div class="footer-tittle categ">
-                                                    <ul class="">
-                                                        <li><a href="{{ url('shop') }}">Sets</a></li>
-                                                        <li><a href="{{ url('shop') }}">Denim</a></li>
-                                                        <li><a href="{{ url('shop') }}">Outerwear</a></li>
-                                                        <li><a href="{{ url('shop') }}">Bags</a></li>
-                                                        <li><a href="{{ url('shop') }}">Fragrance</a></li>
-                                                        <li><a href="{{ url('shop') }}">Accessories</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3">
-                                        <div class="single-footer-caption mb-50">
-                                            <div class="footer-tittle">
-                                                <h4>Get in touch</h4>
-                                                <ul>
-                                                    <li><a href="https://wa.me/6281217641707/" target="_blank">(+62)
-                                                            812-1764-1707</a></li>
-                                                    <li><a href="mailto:everafter@gmail.com">everafter@gmail.com</a>
-                                                    </li>
-                                                    <li><a href="#">Surabaya, Indonesia</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- footer-bottom area -->
-                            <div class="footer-bottom-area">
-                                <div class="container">
-                                    <div class="footer-border">
-                                        <div class="row d-flex align-items-center">
-                                            <div class="col-xl-12">
-                                                <div class="footer-copy-right text-center">
-                                                    <p>
-                                                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                                                        Copyright &copy;
-                                                        <script>
-                                                            document.write(new Date().getFullYear());
-                                                        </script>
-                                                        All rights reserved | This template is made with
-                                                        <i class="fa fa-heart" aria-hidden="true"></i> by
-                                                        <a href="https://colorlib.com" target="_blank">Colorlib</a>
-                                                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Footer End-->
-    </footer>
+          <div class="container-fluid">
+            <div class="row d-flex justify-content-between">
+              <div class="col-xl-5 col-lg-5 col-md-8 col-sm-8">
+                <div class="single-footer-caption mb-50">
+                  <div class="single-footer-caption mb-30">
+                    <!-- logo -->
+                    <div class="footer-logo mb-35">
+                      <a href="{{ url('index') }}"
+                        ><img src="assets/images/logo/logo_putih.png" alt=""
+                      /></a>
+                    </div>
+                    <div class="footer-tittle">
+                      <div class="footer-pera">
+                        <p>
+                          "The most beautiful thing a woman can wear is
+                          confidence." - Blake Lively
+                        </p>
+                      </div>
+                    </div>
+                    <!-- social -->
+                    <div class="footer-social">
+                    <a href="https://instagram.com/"><svg class="change-my-color" xmlns="http://www.w3.org/2000/svg" width=18px viewBox="0 0 448 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg></a>
+                      <a href="https://facebook.com/"
+                        ><i class="fab fa-facebook-f"></i
+                      ></a>
+                      <a href="https://twitter.com/"><i class="fab fa-twitter"></i></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="foot row">
+                <div class="col-lg-12 footcat"><h4>Shop Category</h4></div>
+  
+                <div class="col-5">
+                  <div class="single-footer-caption mb-50">
+                    <div class="footer-tittle categ">
+                      <ul>
+                        <li><a href="{{ url('shop') }}">Tops</a></li>
+                        <li><a href="{{ url('shop') }}">Dresses</a></li>
+                        <li><a href="{{ url('shop') }}">Shorts</a></li>
+                        <li><a href="{{ url('shop') }}">Skirts</a></li>
+                        <li><a href="{{ url('shop') }}">Trousers</a></li>
+                        <li><a href="{{ url('shop') }}">Jumpsuits</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="single-footer-caption mb-50">
+                    <div class="footer-tittle categ">
+                      <ul class="">
+                        <li><a href="{{ url('shop') }}">Sets</a></li>
+                        <li><a href="{{ url('shop') }}">Denim</a></li>
+                        <li><a href="{{ url('shop') }}">Outerwear</a></li>
+                        <li><a href="{{ url('shop') }}">Bags</a></li>
+                        <li><a href="{{ url('shop') }}">Fragrance</a></li>
+                        <li><a href="{{ url('shop') }}">Accessories</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3">
+                <div class="single-footer-caption mb-50">
+                  <div class="footer-tittle">
+                    <h4>Get in touch</h4>
+                    <ul>
+                      <li><a href="https://wa.me/6281217641707/" target="_blank">(+62) 812-1764-1707</a></li>
+                      <li><a href="mailto:everafter@gmail.com">everafter@gmail.com</a></li>
+                      <li><a href="#">Surabaya, Indonesia</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- footer-bottom area -->
+        <div class="footer-bottom-area">
+          <div class="container">
+            <div class="footer-border">
+              <div class="row d-flex align-items-center">
+                <div class="col-xl-12">
+                  <div class="footer-copy-right text-center">
+                    <p>
+                      <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                      Copyright &copy;
+                      <script>
+                        document.write(new Date().getFullYear());
+                      </script>
+                      All rights reserved | This template is made with
+                      <i class="fa fa-heart" aria-hidden="true"></i> by
+                      <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                      <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Footer End-->
+      </footer>
     <!--? Search model Begin -->
     <div class="search-model-box">
         <div class="h-100 d-flex align-items-center justify-content-center">

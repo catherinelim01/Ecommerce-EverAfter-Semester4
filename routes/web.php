@@ -54,6 +54,44 @@ Route::get('/profile', function () {
 Route::get('/profile.php', function () {
     return view('profile');
 });
+
+
+Route::match(['get', 'post'], '/wishlist', [WishlistController::class, 'insertWishlist']);
+Route::match(['get', 'post'], '/wishlistdelete', [WishlistController::class, 'deleteWishlist']);
+
+Route::get('/wishlist', function () {
+    return view('wishlist');
+})->name('wishlist');
+
+Route::get('/wishlist/page/{page}', function ($page) {
+    return view('wishlist', ['page' => $page]);
+})->name('wishlist.page');
+
+
+  
+use App\Http\Controllers\MailController;
+
+Route::get('/email', [App\Http\Controllers\MailController::class, 'create']);
+Route::match(['get', 'post'], '/email', [App\Http\Controllers\MailController::class, 'sendEmail'])->name('send.email');
+Route::get('/shop', function () {
+    // Logika penanganan halaman utama shop
+    return view('shop');
+})->name('shop');
+
+Route::get('/shop/page/{page}', function ($page) {
+    // Logika penanganan halaman berikutnya
+    return view('shop', ['page' => $page]);
+})->name('shop.page');
+
+Route::match(['get', 'post'],'/shop/search', [App\Http\Controllers\ProductController::class, 'search'])->name('shop.search');
+
+
+Route::post('/save-address', [AddressController::class, 'saveAddress'])->name('save.address');
+
+// Route::get('/shop/search/{search}', function ($search) {
+//     return view('shop', ['search' => $search]);
+// })->name('shop.search');
+
 Route::get('/order_detail', function () {
     return view('order_detail');
 });
@@ -62,7 +100,9 @@ Route::get('/order_detail', function () {
 // });
 
 Route::post('/order_detail', [App\Http\Controllers\OrderController::class, 'orderDetail']);
-Route::post('/shop', [App\Http\Controllers\CategoryController::class, 'Category']);
+//Route::post('/shop', [App\Http\Controllers\CategoryController::class, 'Category']);
+// Route::post('/profile', [App\Http\Controllers\ProfileController::class, 'EditProfile']);
+use App\Http\Controllers\ProfileController;
 
 
 // Route::get('/shop', function () {
@@ -87,10 +127,6 @@ Route::get('/profile', function () {
 //         return view('product_details');
 //     });
 // });
-Route::get('/shop', function () {
-    // Logika penanganan halaman utama shop
-    return view('shop');
-})->name('shop');
 
 // Route::get('/shop/page/{page}', function () {
 //     // Logika penanganan halaman utama shop

@@ -1,7 +1,7 @@
 <?php
 
 // Query to retrieve the total number of products
-$sql_count = 'SELECT COUNT(DISTINCT product_name) as total FROM product WHERE product_id IN (SELECT product_id FROM wishlist_product)';
+$sql_count = "SELECT COUNT(DISTINCT product_name) AS total  FROM product WHERE product_id IN (SELECT product_id FROM wishlist_product wp LEFT JOIN wishlist w ON w.wishlist_id = wp.wishlist_id  WHERE customer_id = '" . session('customer_id') . "')";
 $result_count = DB::select($sql_count);
 $total_products = $result_count[0]->total;
 
@@ -12,16 +12,58 @@ $total_pages = ceil($total_products / $limit);
 $current_page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $start_index = ($current_page - 1) * $limit;
 
-$category = isset($_GET['select2']);
-if ($category == null) {
-    // Query to retrieve the products for the current page
-    $sql = "SELECT DISTINCT p.product_name, p.product_price, p.product_url, wp.product_id, wp.wishlist_id FROM product p, wishlist w, wishlist_product wp WHERE p.product_id = wp.PRODUCT_ID and w.WISHLIST_ID = wp.WISHLIST_ID ORDER BY product_name ASC LIMIT $start_index, $limit";
-    $result = DB::select($sql);
-} else {
-    // Query to retrieve the products for the current page and selected category
-    $sql = "SELECT DISTINCT p.product_name, p.product_price, p.product_url, c.category_name FROM product p, category c WHERE p.category_id = c.category_id and product_id IN (SELECT product_id FROM wishlist_product) AND category_name = '$category' ORDER BY product_name ASC;";
-    $result = DB::select($sql);
+
+// $selected_category = isset($_GET['select2']) ? $_GET['select2'] : '';
+// $selected_size = request()->get('select3') ?? '';
+// $selected_price_range = request()->get('select4') ?? '';
+
+
+// $sql = "SELECT DISTINCT p.product_name, p.product_price, p.product_url, wp.product_id, wp.wishlist_id FROM product p, wishlist w, wishlist_product wp WHERE p.product_id = wp.PRODUCT_ID and w.WISHLIST_ID = wp.WISHLIST_ID and w.customer_id = '".session('customer_id')."' ORDER BY product_name ASC LIMIT $start_index, $limit";
+// $result = DB::select($sql);
+
+$selected_category = isset($_GET['select2']) ? $_GET['select2'] : '';
+$selected_size = request()->get('select3') ?? '';
+$selected_price_range = request()->get('select6') ?? '';
+
+$sql = "SELECT DISTINCT p.product_name, p.product_price, p.product_url, wp.product_id, wp.wishlist_id 
+        FROM product p, wishlist w, wishlist_product wp 
+        WHERE p.product_id = wp.PRODUCT_ID AND w.WISHLIST_ID = wp.WISHLIST_ID AND w.customer_id = '".session('customer_id')."'";
+
+if (!empty($selected_category)) {
+    $sql .= " AND p.category_id = (SELECT category_id FROM category WHERE category_name = '$selected_category')";
 }
+
+if (!empty($selected_size)) {
+    if ($selected_size == "All Size") {
+        $sql .= " AND SUBSTRING(p.product_id, 5, 1) = '0'";
+    } else {
+        $sql .= " AND SUBSTRING(p.product_id, 5, 1) LIKE '$selected_size%'";
+    }
+}
+
+if (!empty($selected_price_range)) {
+    $price_range = explode('-', $selected_price_range);
+    $price_min = str_replace(['Rp', '.'], '', $price_range[0]);
+    $price_max = str_replace(['Rp', '.'], '', $price_range[1]);
+
+    $sql .= " AND p.product_price BETWEEN $price_min AND $price_max";
+}
+
+$sql .= " ORDER BY product_name ASC LIMIT $start_index, $limit";
+
+$result = DB::select($sql);
+
+
+
+// if ($selected_category == null) {
+//     // Query to retrieve the products for the current page
+//     $sql = "SELECT DISTINCT p.product_name, p.product_price, p.product_url, wp.product_id, wp.wishlist_id FROM product p, wishlist w, wishlist_product wp WHERE p.product_id = wp.PRODUCT_ID and w.WISHLIST_ID = wp.WISHLIST_ID and w.customer_id = '".session('customer_id')."' ORDER BY product_name ASC LIMIT $start_index, $limit";
+//     $result = DB::select($sql);
+// } else {
+//     // Query to retrieve the products for the current page and selected category
+//     $sql = "SELECT DISTINCT p.product_name, p.product_price, p.product_url, c.category_name FROM product p, category c WHERE p.category_id = c.category_id and product_id IN (SELECT product_id FROM wishlist_product) AND category_name = '$category' ORDER BY product_name ASC;";
+//     $result = DB::select($sql);
+// }
 
 if (count($result) > 0) {
     $response = [];
@@ -40,6 +82,7 @@ if (count($result) > 0) {
 
 ?>
 
+<?php if (!empty($data2)): ?>
 <?php for ($i = 0; $i < count($data2); $i++) { ?>
 @csrf
 <div class="col-md-4">
@@ -61,6 +104,9 @@ if (count($result) > 0) {
     </div>
 </div>
 <?php } ?>
+<?php else: ?>
+    <p>Tambahkan product yang diinginkan!</p>
+<?php endif; ?>
 
 <script>
     function changeImage(elem) {
@@ -92,7 +138,7 @@ if (count($result) > 0) {
             sessionStorage.setItem("favorite-" + index, "true");
             image.src = "assets/images/logo/love.png";
 
-            var wishlist_id = 'W00005';
+            var wishlist_id = elem.dataset.wishlist;
             var product_id = elem.dataset.product;
             alert("wishlist_id: " + wishlist_id + "\nproduct_id: " + product_id);
             
@@ -112,6 +158,7 @@ if (count($result) > 0) {
             });
             
             location.reload(); // Memperbarui halaman setelah menghapus item dari wishlist
+
        // }
     }
 
