@@ -29,6 +29,7 @@ use App\Http\Controllers\PaymentController;
 */
 Route::get('/getDeliveryCost', [DeliveryController::class, 'getProvinces']);
 Route::post('/product_details/2', [CartController::class,'addToCart']);
+Route::post('/product_details/3', [CartController::class,'addToCart2']);
 Route::get('/', function () {
     return view('index');
 });

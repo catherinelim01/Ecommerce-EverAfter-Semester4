@@ -142,13 +142,13 @@ if (isset($_POST['product_name'])) {
                       All Size
                       @else
                       @if (strpos($product_id, 'L') !== false)
-                      <button class="button-17" role="button">L</button>
+                      <button class="button-17 btn-size" role="button">L</button>
                       @endif
                       @if (strpos($product_id, 'M') !== false)
-                      <button class="button-17" role="button">M</button>
+                      <button class="button-17 btn-size" role="button">M</button>
                       @endif
                       @if (strpos($product_id, 'S') !== false)
-                      <button class="button-17" role="button">S</button>
+                      <button class="button-17 btn-size" role="button">S</button>
                       @endif
                       @endif
                       @endforeach
@@ -1241,33 +1241,72 @@ WHERE
         });
       });
       // addtocartt
+      var btnGroupText = $('.button-group').text();
+console.log(btnGroupText);
+if (btnGroupText.includes('All Size')){
+  $(document).ready(function() {
+        var quantity = $('#quantity').val(); 
+    $('#quantity').change(function() {
+      quantity = $(this).val(); // Mengambil nilai input quantity yang berubah
+    });
+
+    // $('.btn-size').click(function() {
       
-      $(document).ready(function() {
-    $('#add-to-cart-btn').click(function() {
-      $.ajax({
-      url: '/product_details/2',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-      },
-      // data: { link_tes: '<?php echo session('link_tes'); ?>',customer_id: '<?php echo session('customer_id'); ?>' },
+      // let btnSize = $(this).text(); // Mengambil teks dari tombol yang diklik
+      // console.log(btnSize);
+      $('#add-to-cart-btn').click(function() {
+    $.ajax({
+      url: 'product_details/2', // Ganti dengan URL yang sesuai
+      method: 'POST', // Ganti dengan metode yang sesuai (POST, GET, dll.)
+      data: {  quantity : quantity }, // Mengirim data tombol ke server
       success: function(response) {
-        // Jika permintaan berhasil, tampilkan pesan sukses atau lakukan tindakan lainnya
+        // Tanggapan dari server
         console.log(response);
       },
       error: function(xhr, status, error) {
-        // Jika permintaan gagal, tangani kesalahan atau tampilkan pesan error
-        console.error('Failed to add product to cart');
+        // Kesalahan saat melakukan permintaan AJAX
+        console.log('AJAX error: ' + error);
       }
     });
+    location.reload();
+        });
+  });
+      }
+     else {
+        $(document).ready(function() {
+        var quantity = $('#quantity').val(); 
+    $('#quantity').change(function() {
+      quantity = $(this).val(); // Mengambil nilai input quantity yang berubah
     });
+
+    $('.btn-size').click(function() {
+      
+      let btnSize = $(this).text(); // Mengambil teks dari tombol yang diklik
+      // console.log(btnSize);
+      $('#add-to-cart-btn').click(function() {
+    $.ajax({
+      url: 'product_details/2', // Ganti dengan URL yang sesuai
+      method: 'POST', // Ganti dengan metode yang sesuai (POST, GET, dll.)
+      data: { btnSize: btnSize , quantity : quantity }, // Mengirim data tombol ke server
+      success: function(response) {
+        // Tanggapan dari server
+        console.log(response);
+      },
+      error: function(xhr, status, error) {
+        // Kesalahan saat melakukan permintaan AJAX
+        console.log('AJAX error: ' + error);
+      }
+    });
+    location.reload();
+        });
   });
 
-  function addToCart(productId) {
-    // Lakukan permintaan ke controller menggunakan AJAX
-    
-  }
+  });
+      }
+      
+      
+  // });
+
 
 </script>
 @endif
