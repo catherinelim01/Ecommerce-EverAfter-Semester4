@@ -1,12 +1,21 @@
 <?php
-include 'connection.php';
+// if (isset($_POST['wishlist_id']) && isset($_POST['product_id'])) {
+//     $wishlist_id = $_POST['wishlist_id'];
+//     $product_id = $_POST['product_id'];
+
+//     // Lakukan operasi yang diinginkan dengan wishlist_id dan product_id, misalnya menyimpannya ke database
+
+//     echo 'Data berhasil disimpan.'; // Ganti pesan konfirmasi dengan yang sesuai
+// }
 ?>
+
 <!doctype html>
 <html class="no-js" lang="zxx">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Ever After | Fashion</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,26 +23,27 @@ include 'connection.php';
     <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
 
     <!-- CSS here -->
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="assets/css/slicknav.css">
-    <link rel="stylesheet" href="assets/css/flaticon.css">
-    <link rel="stylesheet" href="assets/css/progressbar_barfiller.css">
-    <link rel="stylesheet" href="assets/css/gijgo.css">
-    <link rel="stylesheet" href="assets/css/animate.min.css">
-    <link rel="stylesheet" href="assets/css/animated-headline.css">
-    <link rel="stylesheet" href="assets/css/magnific-popup.css">
-    <link rel="stylesheet" href="assets/css/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/css/themify-icons.css">
-    <link rel="stylesheet" href="assets/css/slick.css">
-    <link rel="stylesheet" href="assets/css/nice-select.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
 
 </head>
 
 <body class="full-wrapper">
-<?php require('header.php'); ?>
-    <!-- header end -->
+    @csrf
+    <!-- header -->
+    @include('header')
     <main>
         <!-- breadcrumb Start-->
         <div class="page-notification">
@@ -59,15 +69,8 @@ include 'connection.php';
                         <div class="section-tittle mb-50">
                             <h2>Wishlist</h2>
                             <?php
-                            include 'connection.php';
-                            $sql = "SELECT COUNT(DISTINCT product_id) as total FROM wishlist_product";
-                            $result = $conn->query($sql);
-                            if ($result->num_rows > 0) {
-                                $row = $result->fetch_assoc();
-                                $total_products = $row['total'];
-                                echo '<p>Browse from ' . $total_products . ' wislist</p>';
-                            }
-                            $conn->close();
+                            $count = DB::table('wishlist_product')->count();
+                            echo '<p>Browse from ' . $count . ' wishlist</p>';
                             ?>
                         </div>
                     </div>
@@ -81,25 +84,17 @@ include 'connection.php';
                             <div class="single-listing">
                                 <!-- Select City items start -->
                                 <div class="select-job-items2">
-                                    <select name="select2">
+                                    <select name="select2" onchange="filterByCategory(this.value)">
                                         <option value="">Category</option>
-                                        <?php
-                                        include 'connection.php';
-                                        $sql = "SELECT category_name FROM category";
-                                        $result = $conn->query($sql);
-                                        if ($result->num_rows > 0) {
-                                            $category = array();
-                                            while ($row = $result->fetch_assoc()) {
-                                                $dt['category_name'] = $row['category_name'];
-                                                array_push($category, $dt);
+
+                                        @php
+                                            $categories = DB::table('category')
+                                                ->select('category_name')
+                                                ->get();
+                                            foreach ($categories as $category) {
+                                                echo '<option value="' . $category->category_name . '">' . $category->category_name . '</option>';
                                             }
-                                            $hasil_json = json_encode($category);
-                                            $data = json_decode($hasil_json, true);
-                                            for ($i = 0; $i < count($data); $i++) { ?>
-                                                <option value=""><?php echo $data[$i]["category_name"]; ?></option>
-                                            <?php } ?>
-                                        <?php } ?>
-                                        <?php $conn->close(); ?>
+                                        @endphp
                                     </select>
                                 </div>
                                 <!-- </form> -->
@@ -117,64 +112,42 @@ include 'connection.php';
                                     </select>
                                 </div>
 
-                                <!-- <div class="select-job-items2">
-                                    <select name="select4">
-                                        <option value="">Size</option>
-                                        <option value="">1.2ft</option>
-                                        <option value="">2.5ft</option>
-                                        <option value="">5.2ft</option>
-                                        <option value="">3.2ft</option>
-                                    </select>
-                                </div> -->
-                                <!--  Select km items End-->
-                                <!-- Select km items start -->
-                                <!-- <div class="select-job-items2">
-                                    <select name="select5">
-                                        <option value="">Color</option>
-                                        <option value="">Whit</option>
-                                        <option value="">Green</option>
-                                        <option value="">Blue</option>
-                                        <option value="">Sky Blue</option>
-                                        <option value="">Gray</option>
-                                    </select>
-                                </div> -->
-                                <!--  Select km items End-->
                                 <!-- Select km items start -->
 
                                 <div class="select-job-items2">
                                     <select name="select6">
                                         <option value="">Price range</option>
-                                        <?php
-                                        include 'connection.php';
+                                        @php
+                                            $prices = DB::table('product')
+                                                ->distinct()
+                                                ->orderBy('product_price', 'asc')
+                                                ->pluck('product_price');
+                                        @endphp
 
-                                        $sql = "SELECT DISTINCT product_price FROM product ORDER BY product_price ASC";
-                                        $result = $conn->query($sql);
-
-                                        if ($result->num_rows > 0) {
-                                            $price = array();
-                                            while ($row = $result->fetch_assoc()) {
-                                                $dt['product_price'] = $row['product_price'];
-                                                array_push($price, $dt);
+                                        @php
+                                            $priceIncrement = 50000; // Nilai penambahan harga untuk setiap range
+                                            $priceStart = 0; // Harga awal
+                                            $priceEnd = $priceStart + ($priceIncrement - 1); // Harga akhir untuk setiap range
+                                            foreach ($prices as $price) {
+                                                $price_min = number_format($priceStart, 0, ',', '.');
+                                                $price_max = number_format($priceEnd, 0, ',', '.');
+                                                $priceRange = 'Rp' . $price_min . ' - Rp' . $price_max;
+                                                echo '<option value="' . $priceStart . '-' . $priceEnd . '">' . $priceRange . '</option>';
+                                            
+                                                // Mengupdate harga awal dan harga akhir untuk range berikutnya
+                                                $priceStart += $priceIncrement;
+                                                $priceEnd += $priceIncrement;
+                                            
+                                                // Batasi harga maksimal menjadi 1.000.000
+                                                if ($priceEnd >= 1000000) {
+                                                    break;
+                                                }
                                             }
-
-                                            $hasil_json2 = json_encode($price);
-                                            $data2 = json_decode($hasil_json2, true);
-
-                                            foreach ($data2 as $row) {
-                                                $price = $row['product_price'];
-                                                $price_min = number_format($price, 0, ",", ".");
-                                                $price_max = number_format($price + 99999, 0, ",", ".");
-                                        ?>
-                                                <option value="<?php echo $price . '-' . ($price + 99999); ?>">
-                                                    <?php echo 'Rp' . $price_min . ' - Rp' . $price_max; ?>
-                                                </option>
-                                        <?php }
-                                        }
-                                        $conn->close();
-                                        ?>
-
+                                        @endphp
                                     </select>
                                 </div>
+
+
                                 <!--  Select km items End-->
                             </div>
                         </div>
@@ -186,9 +159,9 @@ include 'connection.php';
                         <!-- PRODUCT -->
                         <div class="new-arrival new-arrival2">
                             <div class="row">
-                                <?php
-                                include 'pagination1.php';
-                                ?>
+
+                                @include ('pagination1')
+
                                 <!-- HTML -->
                                 <div class="col-xl-9 col-lg-9 col-md-8 offset-md-1 ">
                                     <!-- HTML -->
@@ -196,35 +169,65 @@ include 'connection.php';
                                     <div class="row justify-content-center" style="padding-bottom:20px;">
                                         <div class="room-btn mt-20">
                                             <?php
-                                            // Tampilkan tombol sebelumnya jika tidak di halaman pertama
-                                            if ($current_page > 1) {
-                                                echo '<a style="padding-top: 5px;color:black;" href="wishlist.php?page=' . ($current_page - 1) . '" class="page-btn"><i class="fas fa-chevron-left"></i></a>';
+                                            
+                                            $limit = 15;
+                                            
+                                            // Hitung jumlah total produk
+                                            $sql = 'SELECT DISTINCT COUNT(DISTINCT product_name) as total FROM product where product_id in (select product_id from wishlist_product) order by product_name asc;';
+                                            $result = DB::select($sql);
+                                            
+                                            if (count($result) > 0) {
+                                                $response = [];
+                                                foreach ($result as $row) {
+                                                    $dt = new stdClass();
+                                                    $dt->total = $row->total;
+                                                    $response[] = $dt;
+                                                }
+                                                $hasil_json = json_encode($response);
+                                                $data = json_decode($hasil_json, true);
                                             }
-                                            ?>
+                                            // Hitung jumlah halaman yang dibutuhkan
+                                            $total_pages = ceil($data[0]['total'] / $limit);
+                                            
+                                            // Tentukan halaman saat ini
+                                            $current_page = isset($_GET['page']) ? $_GET['page'] : 1;
+                                            
+                                            // Hitung offset
+                                            $offset = ($current_page - 1) * $limit; ?>
+
+
+                                            <?php if ($current_page > 1): ?>
+                                            <a style="padding-top: 2px;color:black;"
+                                                href="{{ route('wishlist', ['page' => $current_page - 1]) }}"
+                                                class="page-btn"><i class="fas fa-chevron-left"></i></a>
+                                            <?php endif; ?>
+
+                                            <?php if ($data[0]["total"] > 0): ?>
                                             <div class="page-numbers">
                                                 <?php
-                                                // Batasi jumlah halaman yang ditampilkan
                                                 $max_pages = 5;
                                                 $start_page = max($current_page - 2, 1);
                                                 $end_page = min($current_page + 2, $total_pages);
-                                                // Tampilkan tombol halaman jika masih ada halaman tersedia
-                                                for ($i = $start_page; $i <= $end_page; $i++) {
-                                                    // Highlight tombol halaman saat ini
-                                                    if ($i == $current_page) {
-                                                        echo '<a href="#" class="page-numbers current">' . $i . '</a>';
-                                                    } else {
-                                                        echo '<a href="wishlist.php?page=' . $i . '" class="page-numbers">' . $i . '</a>';
-                                                    }
-                                                }
                                                 ?>
+
+                                                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                                <?php if ($i == $current_page): ?>
+                                                <a href="#" class="page-btn current-page">{{ $i }}</a>
+                                                <?php else: ?>
+                                                <a href="{{ route('wishlist', ['page' => $i]) }}"
+                                                    class="page-btn">{{ $i }}</a>
+
+                                                <?php endif; ?>
+                                                <?php endfor; ?>
                                             </div>
-                                            <?php
-                                            // Tampilkan tombol berikutnya jika tidak di halaman terakhir
- 
-                                            if ($current_page < $total_pages) {
-                                                echo '<a style="color:black;" href="wishlist.php?page=' . ($current_page + 1) . '" class="page-btn"><i class="fas fa-chevron-right"></i></a>';
-                                            }
-                                            ?>
+                                            <?php endif; ?>
+
+
+                                            <?php if ($current_page < $total_pages): ?>
+                                            <a style="padding-top: 5px;color:black;"
+                                                href="{{ route('wishlist', ['page' => $current_page + 1]) }}"
+                                                class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <!-- CSS -->
@@ -274,53 +277,81 @@ include 'connection.php';
                                             padding: 5px 10px;
                                         }
                                     </style>
+
                                     <!-- cart -->
-    <div class="cart-container-login geser">
-      <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-      </svg></a>
-      
-      <div class="row formlogin ">
-        <div class="col-12 isilogin">
-          <div class="cart-header login">
-            <h2>Log in</h2>
-          </div>
-          <form class="formlogin" action="profile.php">
-            <div class="form-group mt-20">
-              <input type="email" class="form-control" id="inputEmail" required placeholder="Username or email address *" aria-describedby="emailHelp">
-            </div>
-            <div class="form-group mt-20">
-              <input type="password" class="form-control" required placeholder="Password *" id="inputPassword">
-            </div>
-            <div class="form-group form-check mt-10">
-              <input type="checkbox" class="form-check-input" id="checkboxRemember">
-              <label class="form-check-label remember" for="exampleCheck1">Remember me</label>
-            </div>
-            <button type="submit" class="btn btn-primary mt-10 login">LOG IN</button>
-            <p class="signuphere mt-3">Don't have an account? <a href="#"><u>Sign Up</u></a> Here</p>
-          </form>
-        </div>
-        <div class="col-12 isisignup">
-          <div class="cart-header login">
-            <h2>Sign Up</h2>
-          </div>
-          <form class="formsignup" action="profile.php">
-            <div class="form-group mt-20">
-            <input type="email" class="form-control" id="inputEmailRegis" required placeholder="Email address *" aria-describedby="emailHelp">
-            </div>
-            <div class="form-group mt-20">
-            <input type="password" class="form-control" required placeholder="Password *" id="inputPasswordRegis">
-            </div>
-            <small id="info" class="form-text">By providing your personal information, you allow us to enhance your shopping experience and securely manage your account.</small>
-            <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
-            <a href="#" class="backlogin mt-3"><u>Back to Login</u></a>
-        </form>
-        </div>
-      </div>
-    </div>
-  <!-- cart login end -->
- 
-  <!-- cart -->
+                                    <div class="cart-container-login geser">
+                                        <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg"
+                                                width="30" height="32" fill="currentColor" class="bi bi-x"
+                                                viewBox="0 0 16 16">
+                                                <path
+                                                    d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                                            </svg></a>
+
+                                        <div class="row formlogin ">
+                                            <div class="col-12 isilogin">
+                                                <div class="cart-header login">
+                                                    <h2>Log in</h2>
+                                                </div>
+                                                <form class="formlogin" action="{{ route('login') }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <div class="form-group mt-20">
+                                                        <input type="email" class="form-control"
+                                                            name="customer_email" required
+                                                            placeholder="Username or email address *"
+                                                            aria-describedby="emailHelp">
+                                                    </div>
+                                                    <div class="form-group mt-20">
+                                                        <input type="password" class="form-control"
+                                                            name="customer_password" required placeholder="Password *"
+                                                            id="inputPassword">
+                                                    </div>
+                                                    <!-- Tambahkan elemen lain yang diperlukan untuk form login -->
+                                                    <button type="submit" class="btn btn-primary mt-10 login">LOG
+                                                        IN</button>
+                                                    <p class="signuphere mt-3">Don't have an account? <a
+                                                            href="/login"><u>Sign Up</u></a> Here</p>
+                                                </form>
+
+                                            </div>
+                                            <div class="col-12 isisignup">
+                                                <div class="cart-header login">
+                                                    <h2>Sign Up</h2>
+                                                </div>
+                                                <form class="formsignup" action="{{ route('register') }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <div class="form-group mt-20 regis">
+                                                        <label for="inputEmailRegis">Name *</label>
+                                                        <input type="text" class="form-control"
+                                                            id="inputNameRegis" name="customer_name" required
+                                                            aria-describedby="emailHelp">
+                                                    </div>
+                                                    <div class="form-group mt-10 regis">
+                                                        <label for="inputEmailRegis">Email address *</label>
+                                                        <input type="email" class="form-control"
+                                                            id="inputEmailRegis" name="customer_email" required
+                                                            aria-describedby="emailHelp">
+                                                    </div>
+                                                    <div class="form-group mt-10 regis">
+                                                        <label for="inputPasswordRegis">Password *</label>
+                                                        <input type="password" class="form-control"
+                                                            id="inputPasswordRegis" name="customer_password" required>
+                                                    </div>
+                                                    <small id="info" class="form-text">By providing your personal
+                                                        information, you allow us to enhance your shopping experience
+                                                        and securely manage your account.</small>
+                                                    <button type="submit"
+                                                        class="btn btn-primary login mt-10">REGISTER</button>
+                                                    <a href="/registration" class="backlogin mt-3"><u>Back to
+                                                            Login</u></a>
+                                                </form>
+                                            </div>
+
+                                            <!-- cart login end -->
+
+                                            
+  <!-- side cart -->
   <div class="cart-container">
   <a class="close cart" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -330,40 +361,84 @@ include 'connection.php';
     </div>
     <hr class="garisunderline">
     <div class="cart-items">
-      <div class="row cart-item">
-        <div class="col-5 item-image">
-          <img src="assets/images/denim/2.jpg" alt="Product Image">
-        </div>
-        <div class=" col-7 item-details">
-          <h3>Kai Ripped Jacket</h3>
-          <p>Price: IDR 260,000</p>
-          <p>Size: Allsize</p>
-          <p>Quantity: 1</p>
-          <button class="remove-btn mt-4">Remove</button>
-        </div>
-      </div>
-      
-      <div class="row cart-item">
-        <div class="col-5 item-image">
-          <img src="assets/images/tops/7.jpg" alt="Product Image">
-        </div>
-        <div class="col-7 item-details">
-          <h3>Kaelyn Checkered Sheer Top</h3>
-          <p>Price: IDR 180,000</p>
-          <p>Size: All Size</p>
-          <p>Quantity: 1</p>
-          <button class="remove-btn mt-4">Remove</button>
-        </div>
-
-      </div>
-      
+  <?php 
+          $sql="SELECT p.product_id,p.PRODUCT_NAME,pc.QTY, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.product_id, p.PRODUCT_PRICE, PRODUCT_URL , size, pc.QTY;";
+          $result= DB::select($sql);
+        
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+                $dt->size = $row->size;
+                $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+                $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                $dt->product_id = $row->product_id;
+                $dt->QTY = $row->QTY;
+                
+                $response[] = $dt;
+            }
+            
+            $hasil_json=json_encode($response);
+            $data = json_decode($hasil_json,true);
+            for ($i = 0; $i < count($data); $i++) { ?>
+              <div class="row cart-item">
+                <div class="col-5 item-image">
+                  <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
+                </div>
+                <div class="col-7 item-details">
+                  <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
+                  <p class="price">Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+                  <p>Size: <?php echo $data[$i]["size"]; ?></p>
+                  <div style="display: flex; align-items: center;">
+                    <p style="margin-right: 10px; ">Quantity:</p>
+                    <input type="number" name="quantity" min="1" max="10" value="<?php echo $data[$i]["QTY"]; ?>" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" data-product-id="<?php echo $data[$i]['product_id']; ?>" style="width: 60px; height: 24px;">
+                  </div>
+                  <button class="remove-btn mt-4" data-product-id="<?php echo $data[$i]['product_id']; ?>">Remove</button>
+                </div>
+              </div>
+              <p style="display:none;" id="subtotal<?php echo $i?>">IDR</p>
+            <?php } ?>
+    <?php } ?>
     </div>
     <div class="cart-summary">
       <table>
+        <?php
+        $sql="SELECT
+  c.CART_ID,
+  FORMAT(
+    (
+      SELECT SUM(p.PRODUCT_PRICE)
+      FROM PRODUCT p
+      JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID
+      WHERE pc.CART_ID = c.CART_ID
+    ),
+    0
+  ) AS subtotal
+FROM
+  CART c
+WHERE
+  c.CUSTOMER_ID = '" . session('customer_id') . "';
+        ";
+        $result= DB::select($sql);
+      
+        if (count($result) > 0) {
+          $response = [];
+          foreach ($result as $row) {
+              $dt = new stdClass();
+              $dt->subtotal = $row->subtotal;
+              $response[] = $dt;
+          }
+          
+          $hasil_json=json_encode($response);
+          $data = json_decode($hasil_json,true);
+            ?>
         <tr>
+        
           <td><h3>SUBTOTAL: </h3></td>
-          <td><h3>IDR 440,000</h3></td>
+          <td><h3 class = "subtotal-cart">IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
         </tr>
+        <?php } ?>
         <!-- <tr class="total">
           <td>Total:</td>
           <td>IDR 260,000</td> -->
@@ -373,119 +448,125 @@ include 'connection.php';
 
     
     <div class="cart-actions">
-      <a href="cart.php"><button class="checkout-btn">CHECKOUT</button></a> 
-      <button class="continue-shopping">CONTINUE SHOPPING</button>
+      <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
+      <a href="/shop"><button class="continue-shopping">CONTINUE SHOPPING</button></a>
     </div>
   </div>
 <!-- cart end -->
+
     </main>
-
     <footer>
-      <!-- Footer Start-->
-      <div class="footer-area footer-padding">
-        <div class="container-fluid">
-          <div class="row d-flex justify-content-between">
-            <div class="col-xl-5 col-lg-5 col-md-8 col-sm-8">
-              <div class="single-footer-caption mb-50">
-                <div class="single-footer-caption mb-30">
-                  <!-- logo -->
-                  <div class="footer-logo mb-35">
-                    <a href="index.html"
-                      ><img src="assets/images/logo/logo_putih.png" alt=""
-                    /></a>
-                  </div>
-                  <div class="footer-tittle">
-                    <div class="footer-pera">
-                      <p>
-                        "The most beautiful thing a woman can wear is
-                        confidence." - Blake Lively
-                      </p>
+        <!-- Footer Start-->
+        <div class="footer-area footer-padding">
+            <div class="container-fluid">
+                <div class="row d-flex justify-content-between">
+                    <div class="col-xl-5 col-lg-5 col-md-8 col-sm-8">
+                        <div class="single-footer-caption mb-50">
+                            <div class="single-footer-caption mb-30">
+                                <!-- logo -->
+                                <div class="footer-logo mb-35">
+                                    <a href="{{ url('index') }}"><img src="assets/images/logo/logo_putih.png"
+                                            alt="" /></a>
+                                </div>
+                                <div class="footer-tittle">
+                                    <div class="footer-pera">
+                                        <p>
+                                            "The most beautiful thing a woman can wear is
+                                            confidence." - Blake Lively
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- social -->
+                                <div class="footer-social">
+                                    <a href="https://instagram.com/"><svg class="change-my-color"
+                                            xmlns="http://www.w3.org/2000/svg" width=18px viewBox="0 0 448 512">
+                                            <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                                            <path
+                                                d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z" />
+                                        </svg></a>
+                                    <a href="https://facebook.com/"><i class="fab fa-facebook-f"></i></a>
+                                    <a href="https://twitter.com/"><i class="fab fa-twitter"></i></a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
-                  <!-- social -->
-                  <div class="footer-social">
-                    <a href="https://instagram.com/"><svg class="change-my-color" xmlns="http://www.w3.org/2000/svg" width=18px viewBox="0 0 448 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg></a>
-                    <a href="https://facebook.com/"
-                      ><i class="fab fa-facebook-f"></i
-                    ></a>
-                    <a href="https://twitter.com/"><i class="fab fa-twitter"></i></a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="foot row">
-              <div class="col-lg-12 footcat"><h4>Shop Category</h4></div>
+                    <div class="foot row">
+                        <div class="col-lg-12 footcat">
+                            <h4>Shop Category</h4>
+                        </div>
 
-              <div class="col-5">
-                <div class="single-footer-caption mb-50">
-                  <div class="footer-tittle categ">
-                    <ul>
-                      <li><a href="shop.php">Tops</a></li>
-                      <li><a href="shop.php">Dresses</a></li>
-                      <li><a href="shop.php">Shorts</a></li>
-                      <li><a href="shop.php">Skirts</a></li>
-                      <li><a href="shop.php">Trousers</a></li>
-                      <li><a href="shop.php">Jumpsuits</a></li>
-                    </ul>
-                  </div>
+                        <div class="col-5">
+                            <div class="single-footer-caption mb-50">
+                                <div class="footer-tittle categ">
+                                    <ul>
+                                        <li><a href="{{ url('shop') }}">Tops</a></li>
+                                        <li><a href="{{ url('shop') }}">Dresses</a></li>
+                                        <li><a href="{{ url('shop') }}">Shorts</a></li>
+                                        <li><a href="{{ url('shop') }}">Skirts</a></li>
+                                        <li><a href="{{ url('shop') }}">Trousers</a></li>
+                                        <li><a href="{{ url('shop') }}">Jumpsuits</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="single-footer-caption mb-50">
+                                <div class="footer-tittle categ">
+                                    <ul class="">
+                                        <li><a href="{{ url('shop') }}">Sets</a></li>
+                                        <li><a href="{{ url('shop') }}">Denim</a></li>
+                                        <li><a href="{{ url('shop') }}">Outerwear</a></li>
+                                        <li><a href="{{ url('shop') }}">Bags</a></li>
+                                        <li><a href="{{ url('shop') }}">Fragrance</a></li>
+                                        <li><a href="{{ url('shop') }}">Accessories</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3">
+                        <div class="single-footer-caption mb-50">
+                            <div class="footer-tittle">
+                                <h4>Get in touch</h4>
+                                <ul>
+                                    <li><a href="https://wa.me/6281217641707/" target="_blank">(+62) 812-1764-1707</a>
+                                    </li>
+                                    <li><a href="mailto:everafter@gmail.com">everafter@gmail.com</a></li>
+                                    <li><a href="#">Surabaya, Indonesia</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <div class="col-4">
-                <div class="single-footer-caption mb-50">
-                  <div class="footer-tittle categ">
-                    <ul class="">
-                      <li><a href="shop.php">Sets</a></li>
-                      <li><a href="shop.php">Denim</a></li>
-                      <li><a href="shop.php">Outerwear</a></li>
-                      <li><a href="shop.php">Bags</a></li>
-                      <li><a href="shop.php">Fragrance</a></li>
-                      <li><a href="shop.php">Accessories</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
             </div>
-            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3">
-              <div class="single-footer-caption mb-50">
-                <div class="footer-tittle">
-                  <h4>Get in touch</h4>
-                  <ul>
-                    <li><a href="#">(+62) 812-1764-1707</a></li>
-                    <li><a href="#">everafter@gmail.com</a></li>
-                    <li><a href="#">Surabaya, Indonesia</a></li>
-                  </ul>
+            <!-- footer-bottom area -->
+            <div class="footer-bottom-area">
+                <div class="container">
+                    <div class="footer-border">
+                        <div class="row d-flex align-items-center">
+                            <div class="col-xl-12">
+                                <div class="footer-copy-right text-center">
+                                    <p>
+                                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                                        Copyright &copy;
+                                        <script>
+                                            document.write(new Date().getFullYear());
+                                        </script>
+                                        All rights reserved | This template is made with
+                                        <i class="fa fa-heart" aria-hidden="true"></i> by
+                                        <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
-        </div>
-      </div>
-      <!-- footer-bottom area -->
-      <div class="footer-bottom-area">
-        <div class="container">
-          <div class="footer-border">
-            <div class="row d-flex align-items-center">
-              <div class="col-xl-12">
-                <div class="footer-copy-right text-center">
-                  <p>
-                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                    Copyright &copy;
-                    <script>
-                      document.write(new Date().getFullYear());
-                    </script>
-                    All rights reserved | This template is made with
-                    <i class="fa fa-heart" aria-hidden="true"></i> by
-                    <a href="https://colorlib.com" target="_blank">Colorlib</a>
-                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Footer End-->
+            <!-- Footer End-->
     </footer>
+
+
     <!--? Search model Begin -->
     <div class="search-model-box">
         <div class="h-100 d-flex align-items-center justify-content-center">
@@ -496,6 +577,7 @@ include 'connection.php';
         </div>
     </div>
     <!-- Search model end -->
+
     <!-- Scroll Up -->
     <div id="back-top">
         <a title="Go to Top" href="#"> <i class="fas fa-level-up-alt"></i></a>
@@ -503,264 +585,693 @@ include 'connection.php';
 
     <!-- JS here -->
     <!-- Jquery, Popper, Bootstrap -->
-    <script src="./assets/js/vendor/modernizr-3.5.0.min.js"></script>
-    <script src="./assets/js/vendor/jquery-1.12.4.min.js"></script>
-    <script src="./assets/js/popper.min.js"></script>
-    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="{{ asset('assets/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+    <script src="{{ asset('assets/js/vendor/jquery-1.12.4.min.js') }}"></script>
+    <script src="{{ asset('assets/js/popper.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
 
     <!-- Slick-slider , Owl-Carousel ,slick-nav -->
-    <script src="./assets/js/owl.carousel.min.js"></script>
-    <script src="./assets/js/slick.min.js"></script>
-    <script src="./assets/js/jquery.slicknav.min.js"></script>
+    <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('assets/js/slick.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.slicknav.min.js') }}"></script>
 
     <!-- One Page, Animated-HeadLin, Date Picker -->
-    <script src="./assets/js/wow.min.js"></script>
-    <script src="./assets/js/animated.headline.js"></script>
-    <script src="./assets/js/jquery.magnific-popup.js"></script>
-    <script src="./assets/js/gijgo.min.js"></script>
+    <script src="{{ asset('assets/js/wow.min.js') }}"></script>
+    <script src="{{ asset('assets/js/animated.headline.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.magnific-popup.js') }}"></script>
+    <script src="{{ asset('assets/js/gijgo.min.js') }}"></script>
 
     <!-- Nice-select, sticky,Progress -->
-    <script src="./assets/js/jquery.nice-select.min.js"></script>
-    <script src="./assets/js/jquery.sticky.js"></script>
-    <script src="./assets/js/jquery.barfiller.js"></script>
+    <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.sticky.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.barfiller.js') }}"></script>
 
     <!-- counter , waypoint,Hover Direction -->
-    <script src="./assets/js/jquery.counterup.min.js"></script>
-    <script src="./assets/js/waypoints.min.js"></script>
-    <script src="./assets/js/jquery.countdown.min.js"></script>
-    <script src="./assets/js/hover-direction-snake.min.js"></script>
+    <script src="{{ asset('assets/js/jquery.counterup.min.js') }}"></script>
+    <script src="{{ asset('assets/js/waypoints.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.countdown.min.js') }}"></script>
+    <script src="{{ asset('assets/js/hover-direction-snake.min.js') }}"></script>
 
     <!-- contact js -->
-    <script src="./assets/js/contact.js"></script>
-    <script src="./assets/js/jquery.form.js"></script>
-    <script src="./assets/js/jquery.validate.min.js"></script>
-    <script src="./assets/js/mail-script.js"></script>
-    <script src="./assets/js/jquery.ajaxchimp.min.js"></script>
+    <script src="{{ asset('assets/js/contact.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.form.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('assets/js/mail-script.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.ajaxchimp.min.js') }}"></script>
 
     <!-- Jquery Plugins, main Jquery -->
-    <script src="./assets/js/plugins.js"></script>
-    <script src="./assets/js/main.js"></script>
-    <script>
-      const logocartlogin = document.querySelector('.logocart-login');
-      const containercartlogin = document.querySelector('.cart-container-login');
-      const btnclose = document.querySelector('.close.login');
-      const closecart = document.querySelector('.close.cart');
-      const full = document.querySelector('.full-wrapper');
-      const signuphere = document.querySelector('.signuphere a u');
-      const backlogin = document.querySelector('.backlogin u');
-      const isiSignup = document.querySelector('.isisignup');
-      const login = document.querySelector('.isilogin');
-      const navprofile = document.querySelector('.slicknav_menu a.navprofile');
-      const logocart = document.querySelector('.logocart');
-      const containercart = document.querySelector('.cart-container');
-      const navv = document.querySelector('a.navprofile');
+    <script src="{{ asset('assets/js/plugins.js') }}"></script>
+    <script src="{{ asset('assets/js/main.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
+    @if (session('customer_id'))
+        @php
+            $loginTime = session('login_time');
+            $currentTime = time();
+            $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
+        @endphp
 
-      // containercart.style.display = "none";
+        @if ($remainingTime > 0)
+            <script>
+                  $('#addressSelect').on('change', function() {
+                    // Ambil harga pengiriman dari database berdasarkan opsi yang dipilih
+                    var deliveryName = $(this).val();
 
-      full.style.overflow = 'visible';
-      isiSignup.style.display = 'none';
-      navprofile.style.display = 'none';
-      navv.style.display = 'none';
+                    // Mengirim permintaan AJAX ke server untuk mendapatkan harga pengiriman
+                    $.ajax({
+                        url: '/getDeliveryCost', // Ganti dengan URL endpoint yang sesuai
+                        method: 'POST',
+                        data: { deliveryName: deliveryName },
+                        success: function(response) {
+                        // Mengupdate nilai IDR dengan harga pengiriman yang diterima dari server
+                        var formattedCost = response.deliveryCost.toLocaleString('en-ID');
+                        $('#shippingCost').text('+ IDR ' + formattedCost);
+                        }
+                    });
+                    });
 
-      backlogin.addEventListener('click', function(event) {
-      event.preventDefault();
-      isiSignup.style.display = 'none';
-      login.style.display="block";
+                    function continueToPayment() {
+                    var shippingMethod = $('#shippingCost').text();
 
-      });
+                    if (shippingMethod === '') {
+                        alert('Please choose your shipping method.');
+                    } else {
+                        window.location.href = '/payment';
+                    }
+                    }
 
-      signuphere.addEventListener('click', function(event) {
-      event.preventDefault();
-      isiSignup.style.display = 'block';
-      login.style.display="none";
+                    
+                    $(document).ready(function() {
+                    $(".quantityInput").on("input", function() {
+                        updateQuantity($(this));
+                    });
 
-      });
+                    $(".remove-btn").on("click", function() {
+                        var productId = $(this).data("product-id");
+                        removeProduct(productId);
+                        location.reload();
+                    });
+                    
+                    
 
-      function updateNavbar(screenWidth) {
-        $('.logocart-login').on('click', function() {
-            $(this).addClass('active');
-        });
-        $('.close.login').on('click', function() {
-            $(".logocart-login.active").removeClass('active');
-        });
-          // Add event listener to detect media query change
-          if (window.innerWidth >= 415 && window.innerWidth <= 576) {
-              logocartlogin.addEventListener('click', function(event) {
-                event.preventDefault();
-                // containercart.style.display = 'none';
+
+                    function updateQuantity(input) {
+                        // ... kode logika perhitungan subtotal ...
+                    }
+
+                    function removeProduct(productId) {
+                        $.ajax({
+                        url: "/remove-product", // Ubah URL sesuai dengan endpoint yang dituju
+                        method: "POST",
+                        data: { product_id: productId },
+                        success: function(response) {
+                            console.log(response);
+                            // Lakukan tindakan setelah produk dihapus, misalnya memperbarui tampilan atau memuat ulang halaman
+                        },
+                        error: function(error) {
+                            console.log(error);
+                            // Tangani kesalahan jika ada
+                        }
+                        });
+                    }
+                    });
+                    $(document).ready(function() {
+                    $('.quantityInput').on('change', function() {
+                        var productId = $(this).data('product-id');
+                        var quantity = $(this).val();
+
+                        // Kirim permintaan AJAX untuk memperbarui nilai di database
+                        $.ajax({
+                        url: '/update_quantity', // Ganti dengan URL yang sesuai
+                        method: 'POST',
+                        data: {
+                            productId: productId,
+                            quantity: quantity
+                        },
+                        success: function(response) {
+                            console.log('Nilai kuantitas berhasil diperbarui di database.');
+                        },
+                        error: function(xhr, status, error) {
+                            console.log('Terjadi kesalahan saat memperbarui nilai kuantitas di database.');
+                            console.log(error);
+                        }
+                        });
+                    });
+                    });
+                    $(document).ready(function() {
+                    $('.apply').click(function(event) {
+                        event.preventDefault();
+                        var voucherCode = $('.vocer').val().toUpperCase();
+                        console.log("Voucher Code: " + voucherCode);
+
+                        // Send the voucher code to the server-side PHP script using AJAX
+                        $.ajax({
+                        url: '/cart', // Replace with the actual path to your PHP script
+                        type: 'POST',
+                        data: { voucherCode: voucherCode },
+                        success: function(response) {
+                            console.log("Response from PHP: " + response);
+                            // Perform further actions based on the response from PHP
+                        },
+                        error: function() {
+                            console.log("Error occurred during AJAX request.");
+                        }
+                        });
+                        location.reload()
+                    });
+                    });
+                    $(document).ready(function() {
+                    // Menghitung total saat halaman dimuat
+                    calculateTotal();
+
+                    $(".quantityInput").on("input", function() {
+                        calculateTotal();
+                    });
+
+                    function calculateTotal() {
+                        var total = 0;
+                        var n = 10; // Nilai n yang sesuai
+                        total2 = BigInt(total);
+
+                        // Menghitung subtotal untuk setiap item
+                        $(".quantityInput").each(function() {
+                        let harga = $(this).closest(".cart-item").find(".price").text();
+                        let quantity = $(this).val();
+                        let substr = harga.substring(10); // Menghapus "IDR " dari substring
+                        let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
+
+                        // Menghitung subtotal berdasarkan quantity dan price
+                        let subtotal = quantity * parsedInt;
+                        let subtotalId = $(this).data("subtotal-id");
+                        $("#" + subtotalId).text("IDR " + subtotal);
+
+                        total2 += BigInt(subtotal);
+                        });
+
+                        var subtotalFormatted = total2.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\./g, ',');
+
+                        $('.subtotal-cart').text(subtotalFormatted);
+                        var decimalValue = new Decimal(0.05);
+                        var result = decimalValue.times(total2.toString());
+                        var formattedResult = result.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                        $('.totalCart').text("IDR "+subtotalFormatted);
+                        $('.pajakCart').text("IDR "+formattedResult);
+                        let diskon = $(".isivocer").find("p").text();
+                        subsdis = diskon.substring(5);
+                        var subsdis2 = BigInt(subsdis.replace(/,/g, ''));
+                        resultDiskon = BigInt(subsdis2.toString());
+                        var resultBigInt = BigInt(result.toString());
+
+                    // Penjumlahan variabel total2 dan resultBigInt
+                        var total = total2 + resultBigInt - resultDiskon;
+                        var totalNumber = Number(total);
+                        $('.TotalAll').text('IDR ' + totalNumber.toLocaleString('en-ID'));
+                        // Cetak hasil
+                    }
+                    });
+
+
+                    $(document).ready(function() {
+                    // Event listener untuk perubahan dropdown
+                    
+                    $('#addressSelect').on('change', function() {
+                        // Ambil harga pengiriman dari database berdasarkan opsi yang dipilih
+                        var deliveryName = $(this).val();
+
+                        // Mengirim permintaan AJAX ke server untuk mendapatkan harga pengiriman
+                        $.ajax({
+                        url: '/getDeliveryCost', // Ganti dengan URL endpoint yang sesuai
+                        method: 'POST',
+                        data: { deliveryName: deliveryName },
+                        success: function(response) {
+                            // Mengupdate nilai IDR dengan harga pengiriman yang diterima dari server
+                            var formattedCost = response.deliveryCost.toLocaleString('en-ID');
+                            $('#shippingCost').text('+ IDR ' + formattedCost);
+                            
+
+                            var total = 0;
+                        var n = 10; // Nilai n yang sesuai
+                        total2 = BigInt(total);
+
+                        // Menghitung subtotal untuk setiap item
+                        $(".quantityInput").each(function() {
+                        let harga = $(this).closest(".cart-item").find(".price").text();
+                        let quantity = $(this).val();
+                        let substr = harga.substring(10); // Menghapus "IDR " dari substring
+                        let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
+
+                        // Menghitung subtotal berdasarkan quantity dan price
+                        let subtotal = quantity * parsedInt;
+                        let subtotalId = $(this).data("subtotal-id");
+
+                        total2 += BigInt(subtotal);
+                        });
+
+                        var subtotalFormatted = total2.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\./g, ',');
+
+                        var decimalValue = new Decimal(0.05);
+                        var result = decimalValue.times(total2.toString());
+                        var formattedResult = result.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                        var resultBigInt = BigInt(result.toString());
+
+                        let diskon = $(".isivocer").find("p").text();
+                        subsdis = diskon.substring(5);
+                        var subsdis2 = BigInt(subsdis.replace(/,/g, ''));
+                        resultDiskon = BigInt(subsdis2.toString());
+
+                    
+
+                        let ongkir = $('#shippingCost').text();
+                        let resultOngkir = ongkir.substring(6);
+                        var subongkir = BigInt(resultOngkir.replace(/,/g, ''));
+                        ongkirFix = BigInt(subongkir.toString());
+
+                    // Penjumlahan variabel total2 dan resultBigInt
+                        var total = total2 + resultBigInt - resultDiskon + ongkirFix;
+                        var totalNumber = Number(total);
+                        $('.TotalAll').text('IDR ' + totalNumber.toLocaleString('en-ID'));
+                        // Cetak hasil
+                        console.log("Total: " + totalNumber );
+                        },
+                        error: function(xhr, status, error) {
+                            // Tangani error jika terjadi
+                            console.log(error);
+                        }
+                        });
+                    
+                    });
+                    $('.btnkepayment').click(function() {
+                        let totalproduktok = $('.totalCart').text();
+                        let totalpajaktok = $('.pajakCart').text();
+                        let diskontok = $(".isivocer").find("p").text();
+                        let shippingtok = $('#shippingCost').text();
+                        let totaltok = $('.TotalAll').text();
+                                // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+                                $.ajax({
+                                type: "POST",
+                                url: "/payment",
+                                data: { subtotalpayment: totalproduktok,
+                                pajakpayment: totalpajaktok,
+                                diskonpayment: diskontok,
+                                shippingpayment: shippingtok,
+                                totalshipment: totaltok
+                                },
+                                success: function(response) {
+                                    console.log(response);
+                                }
+                                });
+                            });
+                    });
+                const closecart = document.querySelector('.close.cart');
+                const full = document.querySelector('.full-wrapper');
+                const navprofile = document.querySelector('.slicknav_menu a.navprofile');
+                const logocart = document.querySelector('.logocart');
+                const containercart = document.querySelector('.cart-container');
+                const navv = document.querySelector('a.navprofile');
+
+                // containercart.style.display = "none";
+
                 full.style.overflow = 'visible';
-                containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              });
-              logocart.addEventListener('click', function(event) {
-                  event.preventDefault();
-                  // containercart.style.display = 'block';
-                  full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              });
+                navprofile.style.display = 'none';
+                navv.style.display = 'none';
 
-              $(".close.cart").on('click', function(event) {
-                event.preventDefault();
-                containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                full.style.overflow = 'visible';
-                if($('.logocart-login').hasClass('active')){
-                  full.style.overflow = 'hidden';
+                function updateNavbar(screenWidth) {
+                    // Add event listener to detect media query change
+                    if (window.innerWidth >= 415 && window.innerWidth <= 576) {
+                        logocart.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            // containercart.style.display = 'block';
+                            full.style.overflow = 'hidden';
+                            containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                        });
+
+                        $(".close.cart").on('click', function(event) {
+                            event.preventDefault();
+                            containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                            full.style.overflow = 'visible';
+                            if ($('.logocart-login').hasClass('active')) {
+                                full.style.overflow = 'hidden';
+                            }
+                        });
+                    } else if (window.innerWidth < 415) { // media query condition
+                        navprofile.style.display = 'block';
+                        logocart.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            // containercart.style.display = 'block';
+                            full.style.overflow = 'hidden';
+                            containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                        });
+                        navprofile.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            full.style.overflow = 'hidden';
+                            containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+
+                        });
+                    } else {
+                        navprofile.style.display = 'none';
+                        logocart.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            // containercart.style.display = 'block';
+                            full.style.overflow = 'hidden';
+                            containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                        });
+
+                        $(".close.cart").on('click', function(event) {
+                            event.preventDefault();
+                            containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                            full.style.overflow = 'visible';
+                            if ($('.logocart-login').hasClass('active')) {
+                                full.style.overflow = 'hidden';
+                            }
+                        });
+                    };
                 }
-              });
-              btnclose.addEventListener('click', function(event) {
-              event.preventDefault();
-              containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-              isiSignup.style.display = 'none';
-              login.style.display="block";
-              full.style.overflow = 'visible';
-              });
-          }
-          
-          else if (window.innerWidth < 415) { // media query condition
-              navprofile.style.display = 'block';
-              logocart.addEventListener('click', function(event) {
-                  event.preventDefault();
-                  // containercart.style.display = 'block';
-                  full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              });
 
-              logocartlogin.addEventListener('click', function(event) {
-              event.preventDefault();
-              full.style.overflow = 'hidden';
-              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              
-              });
-              navprofile.addEventListener('click', function(event) {
-              event.preventDefault();
-              full.style.overflow = 'hidden';
-              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              
-              });
+                updateNavbar(window.innerWidth);
+                // Check screen size on window resize
+                window.addEventListener("resize", function() {
+                    updateNavbar(window.innerWidth);
+                });
 
-              btnclose.addEventListener('click', function(event) {
-              event.preventDefault();
-              containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-              isiSignup.style.display = 'none';
-              login.style.display="block";
-              full.style.overflow = 'visible';
-              });
-          } else {
-              navprofile.style.display = 'none';
-              logocart.addEventListener('click', function(event) {
-                  event.preventDefault();
-                  // containercart.style.display = 'block';
-                  full.style.overflow = 'hidden';
-                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              });
+                function updateImageSrc(screenWidth) {
+                    // Select elemen gambar
+                    const imgHeart = document.getElementById('heart');
+                    const imgCard = document.getElementById('cart');
+                    // Add event listener to detect media query change
 
-              $(".close.cart").on('click', function(event) {
-                event.preventDefault();
-                containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                full.style.overflow = 'visible';
-                if($('.logocart-login').hasClass('active')){
-                  full.style.overflow = 'hidden';
+                    if (window.innerWidth <= 576) { // media query condition
+                        imgHeart.src = 'assets/images/logo/heart-black.svg';
+                        imgCard.src = 'assets/images/logo/cart-black.svg';
+                    } else {
+                        imgHeart.src = 'assets/images/logo/heart.svg';
+                        imgCard.src = 'assets/images/logo/card.svg';
+                    };
                 }
-              });
 
-              logocartlogin.addEventListener('click', function(event) {
-              event.preventDefault();
-              full.style.overflow = 'hidden';
-              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-              // $('.cart-container-login').one('animationend', function() {
-              //     $(document).on('click', function(event) {
-              //         if ($('.cart-container-login').css('right') === '0px') {
-              //         const container = $('.cart-container-login');
-              //         const iconcart = $('.logocart-login');
+                updateImageSrc(window.innerWidth);
+                // Check screen size on window resize
+                window.addEventListener("resize", function() {
+                    updateImageSrc(window.innerWidth);
+                });
 
-              //         if (!container.is(event.target) && container.has(event.target).length === 0 && !iconcart.is(event.target) && iconcart.has(event.target).length === 0) {
-              //             // Click was outside the div, do something here
-              //             event.preventDefault();
-              //             containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-              //             isiSignup.style.display = 'none';
-              //             login.style.display="block";
-              //             full.style.overflow = 'visible';
-              //         }
-              //         }
-              //     });
-              // });
-              
-              });
+                $('.footer-tittle.categ ul li a').click(function() {
+                    // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+                    let isiShopNow = $(this).text();
+                    $.ajax({
+                        type: "POST",
+                        url: "/shop",
+                        data: {
+                            shopnow: isiShopNow
+                        },
+                        success: function() {
+                            console.log("Data berhasil dikirim ke PHP");
+                        }
+                    });
+                });
 
-              btnclose.addEventListener('click', function(event) {
-              event.preventDefault();
-              containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-              isiSignup.style.display = 'none';
-              login.style.display="block";
-              full.style.overflow = 'visible';
-              });
-          };
-      }
+                $('.browsemore').click(function() {
+                    // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+                    $.ajax({
+                        type: "POST",
+                        url: "/shop",
+                        data: {
+                            shopnow: ""
+                        },
+                        success: function() {
+                            console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+                        }
+                    });
+                    // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+                    $.ajax({
+                        type: "POST",
+                        url: "linksess.php",
+                        data: {
+                            shopnow: ""
+                        },
+                        success: function() {
+                            console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+                        }
+                    });
+                });
 
-      updateNavbar(window.innerWidth);
-      // Check screen size on window resize
-      window.addEventListener("resize", function() {
-          updateNavbar(window.innerWidth);
-      });
-      
-      function updateImageSrc(screenWidth) {
-            // Select elemen gambar
-            const imgHeart = document.getElementById('heart');
-            const imgCard = document.getElementById('cart');
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+            </script>
+        @endif
+    @else
+        <script>
+            const logocartlogin = document.querySelector('.logocart-login');
+            const containercartlogin = document.querySelector('.cart-container-login');
+            const btnclose = document.querySelector('.close.login');
+            const closecart = document.querySelector('.close.cart');
+            const full = document.querySelector('.full-wrapper');
+            const signuphere = document.querySelector('.signuphere a u');
+            const backlogin = document.querySelector('.backlogin u');
+            const isiSignup = document.querySelector('.isisignup');
+            const login = document.querySelector('.isilogin');
+            const navprofile = document.querySelector('.slicknav_menu a.navprofile');
+            const logocart = document.querySelector('.logocart');
+            const containercart = document.querySelector('.cart-container');
+            const navv = document.querySelector('a.navprofile');
+
+            // containercart.style.display = "none";
+
+            full.style.overflow = 'visible';
+            isiSignup.style.display = 'none';
+            navprofile.style.display = 'none';
+            navv.style.display = 'none';
+
+            backlogin.addEventListener('click', function(event) {
+                event.preventDefault();
+                isiSignup.style.display = 'none';
+                login.style.display = "block";
+
+            });
+
+            signuphere.addEventListener('click', function(event) {
+                event.preventDefault();
+                isiSignup.style.display = 'block';
+                login.style.display = "none";
+
+            });
             // Add event listener to detect media query change
-            
-            if (window.innerWidth <= 576) { // media query condition
-                imgHeart.src = 'assets/images/logo/heart-black.svg';
-                imgCard.src = 'assets/images/logo/cart-black.svg';
+            if (window.innerWidth >= 415 && window.innerWidth <= 576) {
+                logocartlogin.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    // containercart.style.display = 'none';
+                    full.style.overflow = 'visible';
+                    containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                });
+                logocart.addEventListener('click', function(event) {
+                    // event.preventDefault();
+                    // // containercart.style.display = 'block';
+                    // full.style.overflow = 'hidden';
+                    // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                    event.preventDefault();
+                    // containercart.style.display = 'none';
+                    full.style.overflow = 'visible';
+                    containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                });
+
+                // $(".close.cart").on('click', function(event) {
+                //   event.preventDefault();
+                //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                //   full.style.overflow = 'visible';
+                //   if($('.logocart-login').hasClass('active')){
+                //     full.style.overflow = 'hidden';
+                //   }
+                // });
+                btnclose.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+                    isiSignup.style.display = 'none';
+                    login.style.display = "block";
+                    full.style.overflow = 'visible';
+                });
+            } else if (window.innerWidth < 415) { // media query condition
+                navprofile.style.display = 'block';
+                logocart.addEventListener('click', function(event) {
+                    // event.preventDefault();
+                    // // containercart.style.display = 'block';
+                    // full.style.overflow = 'hidden';
+                    // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                    event.preventDefault();
+                    full.style.overflow = 'hidden';
+                    containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                });
+
+                $(".close.cart").on('click', function(event) {
+                    event.preventDefault();
+                    containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                    full.style.overflow = 'visible';
+                    if ($('.logocart-login').hasClass('active')) {
+                        full.style.overflow = 'hidden';
+                    }
+                });
+                btnclose.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+                    isiSignup.style.display = 'none';
+                    login.style.display = "block";
+                    full.style.overflow = 'visible';
+                });
+            } else if (window.innerWidth < 415) { // media query condition
+                navprofile.style.display = 'block';
+                logocart.addEventListener('mouseenter', function(event) {
+                    event.preventDefault();
+                    // containercart.style.display = 'block';
+                    full.style.overflow = 'hidden';
+                    containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                });
+                // logocartlogin.addEventListener('mouseenter', function(event) {
+                //     event.preventDefault();
+                //     // containercart.style.display = 'none';
+                //     full.style.overflow = 'visible';
+                //     containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                // });
+
+                btnclose.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+                    isiSignup.style.display = 'none';
+                    login.style.display = "block";
+                    full.style.overflow = 'visible';
+                });
             } else {
-                imgHeart.src = 'assets/images/logo/heart.svg';
-                imgCard.src = 'assets/images/logo/card.svg';
+                navprofile.style.display = 'none';
+                logocart.addEventListener('click', function(event) {
+                    // event.preventDefault();
+                    // // containercart.style.display = 'block';
+                    // full.style.overflow = 'hidden';
+                    // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                    event.preventDefault();
+                    full.style.overflow = 'hidden';
+                    containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                });
+
+                // $(".close.cart").on('click', function(event) {
+                //   event.preventDefault();
+                //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                //   full.style.overflow = 'visible';
+                //   if($('.logocart-login').hasClass('active')){
+                //     full.style.overflow = 'hidden';
+                //   }
+                // });
+
+                logocartlogin.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    full.style.overflow = 'hidden';
+                    containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                });
+
+                btnclose.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+                    isiSignup.style.display = 'none';
+                    login.style.display = "block";
+                    full.style.overflow = 'visible';
+                });
+            } else {
+                navprofile.style.display = 'none';
+                logocart.addEventListener('mouseenter', function(event) {
+                    event.preventDefault();
+                    // containercart.style.display = 'block';
+                    full.style.overflow = 'hidden';
+                    containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                });
+
+                updateNavbar(window.innerWidth);
+                // Check screen size on window resize
+                window.addEventListener("resize", function() {
+                    updateNavbar(window.innerWidth);
+                })
             };
-        }
 
-        updateImageSrc(window.innerWidth);
-        // Check screen size on window resize
-        window.addEventListener("resize", function() {
+
+            function updateImageSrc(screenWidth) {
+                // Select elemen gambar
+                const imgHeart = document.getElementById('heart');
+                const imgCard = document.getElementById('cart');
+                // Add event listener to detect media query change
+
+                if (window.innerWidth <= 576) { // media query condition
+                    imgHeart.src = 'assets/images/logo/heart-black.svg';
+                    imgCard.src = 'assets/images/logo/cart-black.svg';
+                } else {
+                    imgHeart.src = 'assets/images/logo/heart.svg';
+                    imgCard.src = 'assets/images/logo/card.svg';
+                };
+            }
+
             updateImageSrc(window.innerWidth);
-        });
-        
+            // Check screen size on window resize
+            window.addEventListener("resize", function() {
+                updateImageSrc(window.innerWidth);
+            });
 
-        $('.btn.shopnow').click(function() {
-          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-          let isiShopNow = $(this).closest('.single-popular-items').find('.img-cap span').text();
-          $.ajax({
-            type: "POST",
-            url: "linksess.php",
-            data: { shopnow: isiShopNow },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP");
-            }
-          });
-        });
-        $('.footer-tittle.categ ul li a').click(function() {
-          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-          let isiShopNow = $(this).text();
-          $.ajax({
-            type: "POST",
-            url: "linksess.php",
-            data: { shopnow: isiShopNow },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP");
-            }
-          });
-        });
-        
-        $('.browsemore').click(function() {
-          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-          $.ajax({
-            type: "POST",
-            url: "linksess.php",
-            data: { shopnow: "" },
-            success: function() {
-              console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-            }
-          });
-        });
-    </script>
+            $('.btn.shopnow').click(function() {
+                // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+                let isiShopNow = $(this).closest('.single-popular-items').find('.img-cap span').text();
+                $.ajax({
+                    method: "POST",
+                    url: "/shop",
+                    data: {
+                        shopnow: isiShopNow
+                    },
+                    success: function(response) {
+                        console.log("Data berhasil dikirim ke PHP");
+                        console.log(response);
+                    }
+                });
+            });
+            $('.footer-tittle.categ ul li a').click(function() {
+                // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+                let isiShopNow = $(this).text();
+                $.ajax({
+                    type: "POST",
+                    url: "/shop",
+                    data: {
+                        shopnow: isiShopNow
+                    },
+                    success: function() {
+                        console.log("Data berhasil dikirim ke PHP");
+                    }
+                });
+            });
+
+            $('.browsemore').click(function() {
+                // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+                $.ajax({
+                    type: "POST",
+                    url: "/shop",
+                    data: {
+                        shopnow: ""
+                    },
+                    success: function() {
+                        console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+                    }
+                });
+                // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+                $.ajax({
+                    type: "POST",
+                    url: "linksess.php",
+                    data: {
+                        shopnow: ""
+                    },
+                    success: function() {
+                        console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+                    }
+                });
+            });
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+        </script>
 </body>
 
 </html>
