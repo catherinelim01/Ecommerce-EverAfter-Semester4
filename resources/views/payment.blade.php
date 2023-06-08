@@ -1,3 +1,4 @@
+<?php session('subtotalpayment'); ?>
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
   <head>
@@ -29,6 +30,9 @@
     <link rel="stylesheet" href="assets/css/slick.css" />
     <link rel="stylesheet" href="assets/css/nice-select-profile.css" />
     <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+
   </head>
   <body class="full-wrapper">
     @csrf
@@ -41,9 +45,8 @@
       <p>All transaction are secured & encrypted.</p>
       </div>
       <br><br>
-
-    
-
+      
+      
       <div class="row cartpage">
   <div class="col-12 col-lg-9">
 
@@ -51,48 +54,83 @@
   <div class="col-12 col-lg-11 isicart">
     <br>
     <div id="description1" class="paymentdesc">Description for Menu 1</div>
-    <!-- Penambahan kode berikut -->
-    @php
+     <!-- Penambahan kode berikut -->
+     @php
     use App\Models\Payment;
     $payments = Payment::select('PAYMENT_METHOD', 'PAYMENT_DETAIL')->get();
-@endphp
+    @endphp
 
-@foreach ($payments as $payment)
-    <div class="pilihpayment navbar-light bg-light">
-        <input type="radio" class="navbar-toggler-input" id="menu{{ $loop->iteration + 1 }}" name="menu" onclick="toggleDescription({{ $loop->iteration + 1 }})">
-        <label class="jenispayment navbar-toggler-label" for="menu{{ $loop->iteration + 1 }}">{{ $payment->PAYMENT_METHOD }}</label>
-        <div id="description{{ $loop->iteration + 1 }}" class="paymentdesc">{!! nl2br($payment->PAYMENT_DETAIL) !!}</div>
-    </div><br>
-@endforeach
+    @foreach ($payments as $payment)
+        <div class="pilihpayment navbar-light bg-light">
+            <input type="radio" class="navbar-toggler-input" id="menu{{ $loop->iteration + 1 }}" name="menu" onclick="toggleDescription({{ $loop->iteration + 1 }})">
+            <label class="jenispayment navbar-toggler-label" for="menu{{ $loop->iteration + 1 }}">{{ $payment->PAYMENT_METHOD }}</label>
+            <div id="description{{ $loop->iteration + 1 }}" class="paymentdesc">{!! nl2br($payment->PAYMENT_DETAIL) !!}</div>
+        </div><br>
+    @endforeach
     <!-- Penambahan kode berakhir -->
 
-    <div class="checkout-wrapper text-center">
-      <a href="payment.php"><button class="btn btn-primary co">PLACE ORDER</button></a>
+
+ <div class="checkout-wrapper text-center">
+      <a href="#"><button class="btn btn-primary co" onclick="validatePayment()">PLACE ORDER</button></a>
+    </div>
+</div>
+
+
     </div>
     <br></br>
   </div>
-</div>
- 
-  </div>
-
 
 
     <div class="col-12 col-lg-3 mt-5">
     <h5>Your Bag</h5>
   <div class="card">
+
+
     <div class="card-body">
+  <?php
+          $sql="SELECT FORMAT((p.PRODUCT_PRICE * '" . session('value') . "'),0) AS SUBTOTAL,pc.QTY, p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' ORDER BY p.PRODUCT_ID desc;";
+          $result= DB::select($sql);
+        
+          if (count($result) > 0) {
+            $response = [];
+            foreach ($result as $row) {
+                $dt = new stdClass();
+                $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+                $dt->size = $row->size;
+                $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+                $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                $dt->SUBTOTAL = $row->SUBTOTAL;
+                $dt->QTY = $row->QTY;
+                
+                $response[] = $dt;
+            }
+            
+            $hasil_json=json_encode($response);
+            $data = json_decode($hasil_json,true);
+            for($i = 0; $i < count($data); $i++) { 
+              ?>
     <table class="summarytable">
-    <tr>
-        <td class="graytext">Kai Ripped Jacket</td>
-        <td class="text-right graytext">x1</td>
-    </tr>
-    <tr>
-        <td class="graytext">Kaelyn Checkered Sheer Top</td>
-        <td class="text-right graytext">x2</td>
-    </tr>
+   
+          <tr>
+            <td class="graytext"><?php echo $data[$i]["PRODUCT_NAME"]; ?></td>
+            <td class="text-right graytext">x<?php echo $data[$i]["QTY"]; ?></td>
+          </tr>
+        <?php } ?>
+      <?php } ?>
     </table>
     </div>
   </div>
+
+<!-- 
+  <div class="card">
+  <div class="card-body">
+    <table class="summarytable">
+      
+    </table>
+  </div>
+</div> -->
+
+
 
   <br><br> 
 
@@ -100,24 +138,22 @@
   <div class="card">
     <div class="card-body">
       <table class="summarytable">
-       
+      @csrf
         <tr>
           <td>Subtotal</td>
-          <td class="text-right">IDR 440,000</td>
+          <td class="text-right"><?php echo session('subtotalpayment') ?></td>
         </tr>
         <tr>
           <td class="graytext">Tax(5%)</td>
-          <td class="text-right graytext">+ IDR 22,000</td>
+          <td class="text-right graytext">+<?php echo session('pajakpayment') ?></td>
         </tr>
         <tr>
           <td class="graytext">Shipping</td>
-          <td class="text-right graytext">+ IDR 10,000</td>
+          <td class="text-right graytext"><?php echo session('shippingpayment') ?></td>
         </tr>
         <tr>
-          <td class="graytext">
-            Promo: WOMENDAY
-          </td>
-          <td class="text-right graytext">- IDR 94,000</td>
+          <td class="graytext">Discount</td>
+          <td class="text-right graytext"><?php echo session('diskonpayment') ?></td>
 
         </tr>
         <tr>
@@ -125,12 +161,13 @@
         </tr>
         <tr>
           <td class="boldtext">TOTAL</td>
-          <td class="text-right boldtext">IDR 378,000</td>
+          <td class="text-right boldtext"><?php echo session('totalshipment') ?></td>
         </tr>
       </table>
-      
+      </div>
     </div>
   </div>
+</div>
 </div>
 
 
@@ -190,7 +227,8 @@
       
   <!-- cart login end -->
  
-  <!-- cart -->
+  
+  <!-- side cart -->
   <div class="cart-container">
   <a class="close cart" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -201,7 +239,7 @@
     <hr class="garisunderline">
     <div class="cart-items">
   <?php 
-          $sql="SELECT p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.PRODUCT_PRICE, PRODUCT_URL , size;";
+          $sql="SELECT p.product_id,p.PRODUCT_NAME,pc.QTY, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.product_id, p.PRODUCT_PRICE, PRODUCT_URL , size, pc.QTY;";
           $result= DB::select($sql);
         
           if (count($result) > 0) {
@@ -212,36 +250,32 @@
                 $dt->size = $row->size;
                 $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
                 $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                $dt->product_id = $row->product_id;
+                $dt->QTY = $row->QTY;
                 
                 $response[] = $dt;
             }
             
             $hasil_json=json_encode($response);
             $data = json_decode($hasil_json,true);
-            for($i = 0; $i < count($data); $i++) { 
-              ?>
-
-      <div class="row cart-item">
-        <div class="col-5 item-image">
-        <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
-        </div>
-        <div class=" col-7 item-details">
-          <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
-          <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
-          <p>Size: <?php echo $data[$i]["size"]; ?></p>
-          <div style="display: flex; align-items: center;">
-  <p style="margin-right: 10px; ">Quantity:</p>
-  <input type="number" name="quantity" min="1" max="10" value="1" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" style="width: 60px; height: 24px;">
-</div>
-          
-          <button class="remove-btn mt-4">Remove</button>
-        </div>
-      </div>
-      
-      
-      
-    
-  <?php } ?>
+            for ($i = 0; $i < count($data); $i++) { ?>
+              <div class="row cart-item">
+                <div class="col-5 item-image">
+                  <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
+                </div>
+                <div class="col-7 item-details">
+                  <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
+                  <p class="price">Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+                  <p>Size: <?php echo $data[$i]["size"]; ?></p>
+                  <div style="display: flex; align-items: center;">
+                    <p style="margin-right: 10px; ">Quantity:</p>
+                    <input type="number" name="quantity" min="1" max="10" value="<?php echo $data[$i]["QTY"]; ?>" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" data-product-id="<?php echo $data[$i]['product_id']; ?>" style="width: 60px; height: 24px;">
+                  </div>
+                  <button class="remove-btn mt-4" data-product-id="<?php echo $data[$i]['product_id']; ?>">Remove</button>
+                </div>
+              </div>
+              <p style="display:none;" id="subtotal<?php echo $i?>">IDR</p>
+            <?php } ?>
     <?php } ?>
     </div>
     <div class="cart-summary">
@@ -279,7 +313,7 @@ WHERE
         <tr>
         
           <td><h3>SUBTOTAL: </h3></td>
-          <td><h3>IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
+          <td><h3 class = "subtotal-cart">IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
         </tr>
         <?php } ?>
         <!-- <tr class="total">
@@ -449,6 +483,8 @@ WHERE
     <!-- Jquery Plugins, main Jquery -->
     <script src="./assets/js/plugins.js"></script>
     <script src="./assets/js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
+    
     @if(session('customer_id'))
 @php
     $loginTime = session('login_time');
@@ -458,11 +494,353 @@ WHERE
 
 @if($remainingTime > 0)
 <script>
+  function validatePayment() {
+    var paymentOptions = document.getElementsByName('menu');
+    var isChecked = false;
+
+    for (var i = 0; i < paymentOptions.length; i++) {
+      if (paymentOptions[i].checked) {
+        isChecked = true;
+        break;
+      }
+    }
+
+    if (!isChecked) {
+      alert('Please choose your payment method first.');
+    } else {
+      showPopup();
+    }
+
+    function showPopup() {
+    // Add your logic to show the popup
+    console.log('Showing popup...');
+    Swal.fire({
+    title: 'Place Order',
+    text: 'Are you sure you want to place the order?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, place order',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Kode yang ingin dijalankan jika pengguna mengklik "Yes, place order"
+      // Contoh: redirect ke halaman pembayaran
+      Swal.fire(
+        'Thank you for your order!',
+        'We will send you the receipt via email within 24 hours after your order has been placed :)',
+        'success'
+      ).then(() => {
+        window.location.href = '/index';
+      });
+    }
+    placeOrder()
+  });
+  }
+  }
+  // function showPopup() {
+  //   alert("Thank you for your order! We will send you the receipt via email within 24 hours after your order has been placed:)");
+  // }
+//   function showPopup() {
+ 
+// }
+
 $(document).ready(function() {
+
+  // Fungsi untuk memperbarui nilai shippingCost
+  // function updateShippingCost() {
+  //   $.ajax({
+  //     url: '/payment', // Ganti URL_ENDPOINT_AJAX dengan URL endpoint Ajax Anda
+  //     method: 'GET',
+  //     success: function(response) {
+  //       $('#shippingCost').text('IDR ' + response); // Memperbarui nilai kolom shippingCost
+  //     },
+  //     error: function(xhr, status, error) {
+  //       console.log(error); // Menangani kesalahan jika terjadi
+  //     }
+  //   });
+  // }
+
+  // // Panggil fungsi updateShippingCost saat halaman dimuat
+  // updateShippingCost();
+
+  // // Fungsi untuk memperbarui nilai TotalAll
+  // function updateTotalAll() {
+  //   $.ajax({
+  //     url: '/payment', // Ganti URL_ENDPOINT_AJAX dengan URL endpoint Ajax Anda
+  //     method: 'GET',
+  //     success: function(response) {
+  //       $('.TotalAll').text('IDR ' + response); // Memperbarui nilai kolom TotalAll
+  //     },
+  //     error: function(xhr, status, error) {
+  //       console.log(error); // Menangani kesalahan jika terjadi
+  //     }
+  //   });
+  // }
+
+  // // Panggil fungsi updateTotalAll saat halaman dimuat
+  // updateTotalAll();
+
+  // // Panggil fungsi updateShippingCost dan updateTotalAll saat terjadi perubahan pada select
+  // $('#addressSelect').on('change', function() {
+  //   updateShippingCost();
+  //   updateTotalAll();
+  // });
+
   // Menyembunyikan semua elemen dengan kelas "paymentdesc"
   $(".paymentdesc").hide();
 });
 
+  $('#addressSelect').on('change', function() {
+    // Ambil harga pengiriman dari database berdasarkan opsi yang dipilih
+    var deliveryName = $(this).val();
+
+    // Mengirim permintaan AJAX ke server untuk mendapatkan harga pengiriman
+    $.ajax({
+      url: '/getDeliveryCost', // Ganti dengan URL endpoint yang sesuai
+      method: 'POST',
+      data: { deliveryName: deliveryName },
+      success: function(response) {
+        // Mengupdate nilai IDR dengan harga pengiriman yang diterima dari server
+        var formattedCost = response.deliveryCost.toLocaleString('en-ID');
+        $('#shippingCost').text('+ IDR ' + formattedCost);
+      }
+    });
+  });
+
+  function continueToPayment() {
+    var shippingMethod = $('#shippingCost').text();
+
+    if (shippingMethod === '') {
+      alert('Please choose your shipping method.');
+    } else {
+      window.location.href = '/payment';
+    }
+  }
+
+    
+    $(document).ready(function() {
+    $(".quantityInput").on("input", function() {
+      updateQuantity($(this));
+    });
+
+    $(".remove-btn").on("click", function() {
+      var productId = $(this).data("product-id");
+      removeProduct(productId);
+      location.reload();
+    });
+  
+    
+
+
+    function updateQuantity(input) {
+      // ... kode logika perhitungan subtotal ...
+    }
+
+    function removeProduct(productId) {
+      $.ajax({
+        url: "/remove-product", // Ubah URL sesuai dengan endpoint yang dituju
+        method: "POST",
+        data: { product_id: productId },
+        success: function(response) {
+          console.log(response);
+          // Lakukan tindakan setelah produk dihapus, misalnya memperbarui tampilan atau memuat ulang halaman
+        },
+        error: function(error) {
+          console.log(error);
+          // Tangani kesalahan jika ada
+        }
+      });
+    }
+  });
+    $(document).ready(function() {
+    $('.quantityInput').on('change', function() {
+      var productId = $(this).data('product-id');
+      var quantity = $(this).val();
+
+      // Kirim permintaan AJAX untuk memperbarui nilai di database
+      $.ajax({
+        url: '/update_quantity', // Ganti dengan URL yang sesuai
+        method: 'POST',
+        data: {
+          productId: productId,
+          quantity: quantity
+        },
+        success: function(response) {
+          console.log('Nilai kuantitas berhasil diperbarui di database.');
+        },
+        error: function(xhr, status, error) {
+          console.log('Terjadi kesalahan saat memperbarui nilai kuantitas di database.');
+          console.log(error);
+        }
+      });
+    });
+  });
+    $(document).ready(function() {
+    $('.apply').click(function(event) {
+      event.preventDefault();
+      var voucherCode = $('.vocer').val().toUpperCase();
+      console.log("Voucher Code: " + voucherCode);
+
+      // Send the voucher code to the server-side PHP script using AJAX
+      $.ajax({
+        url: '/cart', // Replace with the actual path to your PHP script
+        type: 'POST',
+        data: { voucherCode: voucherCode },
+        success: function(response) {
+          console.log("Response from PHP: " + response);
+          // Perform further actions based on the response from PHP
+        },
+        error: function() {
+          console.log("Error occurred during AJAX request.");
+        }
+      });
+      location.reload()
+    });
+  });
+  $(document).ready(function() {
+    // Menghitung total saat halaman dimuat
+    calculateTotal();
+
+    $(".quantityInput").on("input", function() {
+      calculateTotal();
+    });
+
+    function calculateTotal() {
+      var total = 0;
+      var n = 10; // Nilai n yang sesuai
+      total2 = BigInt(total);
+
+      // Menghitung subtotal untuk setiap item
+      $(".quantityInput").each(function() {
+        let harga = $(this).closest(".cart-item").find(".price").text();
+        let quantity = $(this).val();
+        let substr = harga.substring(10); // Menghapus "IDR " dari substring
+        let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
+
+        // Menghitung subtotal berdasarkan quantity dan price
+        let subtotal = quantity * parsedInt;
+        let subtotalId = $(this).data("subtotal-id");
+        $("#" + subtotalId).text("IDR " + subtotal);
+
+        total2 += BigInt(subtotal);
+      });
+
+      var subtotalFormatted = total2.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\./g, ',');
+
+      $('.subtotal-cart').text(subtotalFormatted);
+      var decimalValue = new Decimal(0.05);
+      var result = decimalValue.times(total2.toString());
+      var formattedResult = result.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      $('.totalCart').text("IDR "+subtotalFormatted);
+      $('.pajakCart').text("IDR "+formattedResult);
+      let diskon = $(".isivocer").find("p").text();
+      subsdis = diskon.substring(5);
+      var subsdis2 = BigInt(subsdis.replace(/,/g, ''));
+      resultDiskon = BigInt(subsdis2.toString());
+      var resultBigInt = BigInt(result.toString());
+
+  // Penjumlahan variabel total2 dan resultBigInt
+      var total = total2 + resultBigInt - resultDiskon;
+      var totalNumber = Number(total);
+      $('.TotalAll').text('IDR ' + totalNumber.toLocaleString('en-ID'));
+      // Cetak hasil
+    }
+  });
+
+
+  $(document).ready(function() {
+    // Event listener untuk perubahan dropdown
+    
+    $('#addressSelect').on('change', function() {
+      // Ambil harga pengiriman dari database berdasarkan opsi yang dipilih
+      var deliveryName = $(this).val();
+
+      // Mengirim permintaan AJAX ke server untuk mendapatkan harga pengiriman
+      $.ajax({
+        url: '/getDeliveryCost', // Ganti dengan URL endpoint yang sesuai
+        method: 'POST',
+        data: { deliveryName: deliveryName },
+        success: function(response) {
+          // Mengupdate nilai IDR dengan harga pengiriman yang diterima dari server
+          var formattedCost = response.deliveryCost.toLocaleString('en-ID');
+          $('#shippingCost').text('+ IDR ' + formattedCost);
+          
+
+          var total = 0;
+      var n = 10; // Nilai n yang sesuai
+      total2 = BigInt(total);
+
+      // Menghitung subtotal untuk setiap item
+      $(".quantityInput").each(function() {
+        let harga = $(this).closest(".cart-item").find(".price").text();
+        let quantity = $(this).val();
+        let substr = harga.substring(10); // Menghapus "IDR " dari substring
+        let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
+
+        // Menghitung subtotal berdasarkan quantity dan price
+        let subtotal = quantity * parsedInt;
+        let subtotalId = $(this).data("subtotal-id");
+
+        total2 += BigInt(subtotal);
+      });
+
+      var subtotalFormatted = total2.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\./g, ',');
+
+      var decimalValue = new Decimal(0.05);
+      var result = decimalValue.times(total2.toString());
+      var formattedResult = result.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      var resultBigInt = BigInt(result.toString());
+
+      let diskon = $(".isivocer").find("p").text();
+      subsdis = diskon.substring(5);
+      var subsdis2 = BigInt(subsdis.replace(/,/g, ''));
+      resultDiskon = BigInt(subsdis2.toString());
+
+    
+
+      let ongkir = $('#shippingCost').text();
+      let resultOngkir = ongkir.substring(6);
+      var subongkir = BigInt(resultOngkir.replace(/,/g, ''));
+      ongkirFix = BigInt(subongkir.toString());
+
+  // Penjumlahan variabel total2 dan resultBigInt
+      var total = total2 + resultBigInt - resultDiskon + ongkirFix;
+      var totalNumber = Number(total);
+      $('.TotalAll').text('IDR ' + totalNumber.toLocaleString('en-ID'));
+      // Cetak hasil
+      console.log("Total: " + totalNumber );
+        },
+        error: function(xhr, status, error) {
+          // Tangani error jika terjadi
+          console.log(error);
+        }
+      });
+    
+    });
+    $('.btnkepayment').click(function() {
+      let totalproduktok = $('.totalCart').text();
+      let totalpajaktok = $('.pajakCart').text();
+        let diskontok = $(".isivocer").find("p").text();
+        let shippingtok = $('#shippingCost').text();
+        let totaltok = $('.TotalAll').text();
+              // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+              $.ajax({
+                type: "POST",
+                url: "/payment",
+                data: { subtotalpayment: totalproduktok,
+                pajakpayment: totalpajaktok,
+                diskonpayment: diskontok,
+                shippingpayment: shippingtok,
+                totalshipment: totaltok
+                },
+                success: function(response) {
+                  console.log(response);
+                }
+              });
+            });
+  });
       const closecart = document.querySelector('.close.cart');
       const full = document.querySelector('.full-wrapper');
       const navprofile = document.querySelector('.slicknav_menu a.navprofile');

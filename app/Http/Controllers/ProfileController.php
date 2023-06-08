@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 // use Illuminate\Support\Facades\Request;
 
 class ProfileController extends Controller
@@ -79,5 +80,13 @@ class ProfileController extends Controller
         
             // Redirect ke halaman login atau halaman lain setelah log out
             return redirect('/index'); // Ganti "login" dengan rute yang sesuai dalam aplikasi Anda
+    }
+    public function city(Request $request)
+    {
+        $selectedTitle = $request->input('selectedTitle');
+        session(['selectedTitle' => $selectedTitle]);
+        $view = View::make('profile-city')->render();
+        // Berikan respons atau lakukan tindakan lain yang diinginkan
+        return response()->json(['success' => true, 'link' => $selectedTitle, 'content' => $view]);
     }
 }

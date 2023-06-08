@@ -70,6 +70,27 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
 </div>
 @endif
   @include('header')
+  @if ($errors->any())
+  <div class="alert alert-danger alert-dismissible">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+      <ul>
+          @foreach ($errors->all() as $error)
+          <li>{{ $error }}</li>
+          @endforeach
+      </ul>
+  </div>
+  @endif
+
+  @if (session('success'))
+  <div class="alert alert-success alert-dismissible">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+      {{ session('success') }}
+  </div>
+  @endif
   <main>
     <!-- breadcrumb Start-->
     <div class="page-notification">
@@ -120,7 +141,7 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
             <!-- Select City items start -->
          
 
-            <form method="get" action="">
+            <form method="get" action="/shop">
     <div class="select-job-items2">
         <select name="select2" onchange="this.form.submit()">
             <option value="">Category</option>
@@ -158,61 +179,29 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
 
 
     <div class="select-job-items2">
-  <select name="select4"onchange="this.form.submit()">
-    <option value="">Price range</option>
-    <?php
+ <?php
+ $minPrice = DB::table('product')->min('product_price');
+ $maxPrice = DB::table('product')->max('product_price');?>
+ <select name="select4" onchange="this.form.submit()">
+ <option value="">Price range</option>
+ <?php
+ $rangeMin = floor($minPrice / 100000) * 100000;
+ $rangeMax = ceil($maxPrice / 100000) * 100000;
 
-$prices = DB::table('product')
-    ->select('product_price')
-    ->distinct()
-    ->orderBy('product_price', 'asc')
-    ->get();
+ for ($price = $rangeMin; $price <= $rangeMax; $price += 100000) {
+     $priceMin = number_format($price, 0, ",", ".");
+     $priceMax = number_format($price + 99999, 0, ",", ".");
+     $priceRange = $priceMin . '-' . $priceMax;
+     $selected = (isset($_GET['select4']) && $_GET['select4'] === $priceRange) ? 'selected' : '';
+     echo '<option value="' . $priceRange . '" ' . $selected . '>';
+     echo 'Rp' . $priceMin . ' - Rp' . $priceMax;
+     echo '</option>';
+ }
+ ?>
+</select>
 
-$previous_price = null;
-
-foreach ($prices as $row) {
-    $price = $row->product_price;
-
-    if ($previous_price !== null) {
-        $price_min = number_format($previous_price, 0, ",", ".");
-        $price_max = number_format($price - 1, 0, ",", ".");
-        $price_range = $price_min . '-' . $price_max;
-        $selected = (isset($_GET['select4']) && $_GET['select4'] === $price_range) ? 'selected' : '';
-        echo '<option value="' . $price_range . '" ' . $selected . '>';
-        echo 'Rp' . $price_min . ' - Rp' . $price_max;
-        echo '</option>';
-
-        // Calculate number of intermediate price ranges
-        $num_ranges = ($price - $previous_price - 1) / 100000;
-
-        // Add intermediate price ranges
-        for ($i = 1; $i <= $num_ranges; $i++) {
-            $range_min = number_format($previous_price + ($i * 100000), 0, ",", ".");
-            $range_max = number_format($previous_price + (($i + 1) * 100000) - 1, 0, ",", ".");
-            $range = $range_min . '-' . $range_max;
-            $selected = (isset($_GET['select4']) && $_GET['select4'] === $range) ? 'selected' : '';
-            echo '<option value="' . $range . '" ' . $selected . '>';
-            echo 'Rp' . $range_min . ' - Rp' . $range_max;
-            echo '</option>';
-        }
-    }
-
-    $previous_price = $price;
-}
-
-// Handle last price range
-if ($previous_price !== null) {
-    $price_min = number_format($previous_price, 0, ",", ".");
-    $price_max = number_format($previous_price + 99999, 0, ",", ".");
-    $price_range = $price_min . '-' . $price_max;
-    $selected = (isset($_GET['select4']) && $_GET['select4'] === $price_range) ? 'selected' : '';
-    echo '<option value="' . $price_range . '" ' . $selected . '>';
-    echo 'Rp' . $price_min . ' - Rp' . $price_max;
-    echo '</option>';
-}
-
-    ?>
-  </select>
+ 
+ 
 </div>
 
 
@@ -262,7 +251,14 @@ if ($previous_price !== null) {
               $selected_price_range = request()->get('select4') ?? '';
               $price_range = explode('-', $selected_price_range);
               $price_min = str_replace(['Rp', '.'], '', $price_range[0]);
-              $price_max = str_replace(['Rp', '.'], '', $price_range[0]);
+              // $price_max = str_replace(['Rp', '.'], '', $price_range[1]); // Menggunakan indeks 1, bukan 0
+              if (isset($price_range[1])) {
+                $price_max = str_replace(['Rp', '.'], '', $price_range[1]);
+            } else {
+                // Tetapkan nilai default jika indeks 1 tidak ada
+                $price_max = $price_min;
+            }
+                          
           
               if (empty($selected_category) && empty($selected_size) && empty($selected_price_range)) {
                   $total_products = DB::table('product')->distinct('product_name')->count();
@@ -429,7 +425,13 @@ if ($previous_price !== null) {
                                   <?php if ($i == $current_page): ?>
                                       <a href="#" class="page-btn current-page">{{ $i }}</a>
                                   <?php else: ?>
-                                      <a href="{{ route('shop', ['page' => $i]) }}" class="page-btn">{{ $i }}</a>
+                                    <a href="{{ route('shop', [
+                                        'page' => $i,
+                                        'select2' => isset($_GET['select2']) ? $_GET['select2'] : '',
+                                        'select3' => isset($_GET['select3']) ? $_GET['select3'] : '',
+                                        'select4' => isset($_GET['select4']) ? $_GET['select4'] : ''
+                                    ]) }}" class="page-btn">{{ $i }}</a>
+
                                   <?php endif; ?>
                               <?php endfor; ?>
                           </div>
@@ -623,7 +625,8 @@ if ($previous_price !== null) {
       
   <!-- cart login end -->
  
-  <!-- cart -->
+  
+  <!-- side cart -->
   <div class="cart-container">
   <a class="close cart" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -634,7 +637,7 @@ if ($previous_price !== null) {
     <hr class="garisunderline">
     <div class="cart-items">
   <?php 
-          $sql="SELECT p.PRODUCT_NAME, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.PRODUCT_PRICE, PRODUCT_URL , size;";
+          $sql="SELECT p.product_id,p.PRODUCT_NAME,pc.QTY, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.product_id, p.PRODUCT_PRICE, PRODUCT_URL , size, pc.QTY;";
           $result= DB::select($sql);
         
           if (count($result) > 0) {
@@ -645,36 +648,32 @@ if ($previous_price !== null) {
                 $dt->size = $row->size;
                 $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
                 $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                $dt->product_id = $row->product_id;
+                $dt->QTY = $row->QTY;
                 
                 $response[] = $dt;
             }
             
             $hasil_json=json_encode($response);
             $data = json_decode($hasil_json,true);
-            for($i = 0; $i < count($data); $i++) { 
-              ?>
-
-      <div class="row cart-item">
-        <div class="col-5 item-image">
-        <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
-        </div>
-        <div class=" col-7 item-details">
-          <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
-          <p>Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
-          <p>Size: <?php echo $data[$i]["size"]; ?></p>
-          <div style="display: flex; align-items: center;">
-  <p style="margin-right: 10px; ">Quantity:</p>
-  <input type="number" name="quantity" min="1" max="10" value="1" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" style="width: 60px; height: 24px;">
-</div>
-          
-          <button class="remove-btn mt-4">Remove</button>
-        </div>
-      </div>
-      
-      
-      
-    
-  <?php } ?>
+            for ($i = 0; $i < count($data); $i++) { ?>
+              <div class="row cart-item">
+                <div class="col-5 item-image">
+                  <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
+                </div>
+                <div class="col-7 item-details">
+                  <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
+                  <p class="price">Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+                  <p>Size: <?php echo $data[$i]["size"]; ?></p>
+                  <div style="display: flex; align-items: center;">
+                    <p style="margin-right: 10px; ">Quantity:</p>
+                    <input type="number" name="quantity" min="1" max="10" value="<?php echo $data[$i]["QTY"]; ?>" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" data-product-id="<?php echo $data[$i]['product_id']; ?>" style="width: 60px; height: 24px;">
+                  </div>
+                  <button class="remove-btn mt-4" data-product-id="<?php echo $data[$i]['product_id']; ?>">Remove</button>
+                </div>
+              </div>
+              <p style="display:none;" id="subtotal<?php echo $i?>">IDR</p>
+            <?php } ?>
     <?php } ?>
     </div>
     <div class="cart-summary">
@@ -712,7 +711,7 @@ WHERE
         <tr>
         
           <td><h3>SUBTOTAL: </h3></td>
-          <td><h3>IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
+          <td><h3 class = "subtotal-cart">IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
         </tr>
         <?php } ?>
         <!-- <tr class="total">
@@ -891,6 +890,7 @@ WHERE
    <!-- Jquery Plugins, main Jquery -->
    <script src="{{ asset('assets/js/plugins.js') }}"></script>
    <script src="{{ asset('assets/js/main.js') }}"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
    @if(session('customer_id'))
 @php
     $loginTime = session('login_time');
@@ -900,7 +900,256 @@ WHERE
 
 @if($remainingTime > 0)
 <script>
-           const closecart = document.querySelector('.close.cart');
+    $('#addressSelect').on('change', function() {
+      // Ambil harga pengiriman dari database berdasarkan opsi yang dipilih
+      var deliveryName = $(this).val();
+
+      // Mengirim permintaan AJAX ke server untuk mendapatkan harga pengiriman
+      $.ajax({
+        url: '/getDeliveryCost', // Ganti dengan URL endpoint yang sesuai
+        method: 'POST',
+        data: { deliveryName: deliveryName },
+        success: function(response) {
+          // Mengupdate nilai IDR dengan harga pengiriman yang diterima dari server
+          var formattedCost = response.deliveryCost.toLocaleString('en-ID');
+          $('#shippingCost').text('+ IDR ' + formattedCost);
+        }
+      });
+    });
+
+    function continueToPayment() {
+      var shippingMethod = $('#shippingCost').text();
+
+      if (shippingMethod === '') {
+        alert('Please choose your shipping method.');
+      } else {
+        window.location.href = '/payment';
+      }
+    }
+
+      
+      $(document).ready(function() {
+      $(".quantityInput").on("input", function() {
+        updateQuantity($(this));
+      });
+
+      $(".remove-btn").on("click", function() {
+        var productId = $(this).data("product-id");
+        removeProduct(productId);
+        location.reload();
+      });
+    
+      
+
+
+      function updateQuantity(input) {
+        // ... kode logika perhitungan subtotal ...
+      }
+
+      function removeProduct(productId) {
+        $.ajax({
+          url: "/remove-product", // Ubah URL sesuai dengan endpoint yang dituju
+          method: "POST",
+          data: { product_id: productId },
+          success: function(response) {
+            console.log(response);
+            // Lakukan tindakan setelah produk dihapus, misalnya memperbarui tampilan atau memuat ulang halaman
+          },
+          error: function(error) {
+            console.log(error);
+            // Tangani kesalahan jika ada
+          }
+        });
+      }
+    });
+      $(document).ready(function() {
+      $('.quantityInput').on('change', function() {
+        var productId = $(this).data('product-id');
+        var quantity = $(this).val();
+
+        // Kirim permintaan AJAX untuk memperbarui nilai di database
+        $.ajax({
+          url: '/update_quantity', // Ganti dengan URL yang sesuai
+          method: 'POST',
+          data: {
+            productId: productId,
+            quantity: quantity
+          },
+          success: function(response) {
+            console.log('Nilai kuantitas berhasil diperbarui di database.');
+          },
+          error: function(xhr, status, error) {
+            console.log('Terjadi kesalahan saat memperbarui nilai kuantitas di database.');
+            console.log(error);
+          }
+        });
+      });
+    });
+      $(document).ready(function() {
+      $('.apply').click(function(event) {
+        event.preventDefault();
+        var voucherCode = $('.vocer').val().toUpperCase();
+        console.log("Voucher Code: " + voucherCode);
+
+        // Send the voucher code to the server-side PHP script using AJAX
+        $.ajax({
+          url: '/cart', // Replace with the actual path to your PHP script
+          type: 'POST',
+          data: { voucherCode: voucherCode },
+          success: function(response) {
+            console.log("Response from PHP: " + response);
+            // Perform further actions based on the response from PHP
+          },
+          error: function() {
+            console.log("Error occurred during AJAX request.");
+          }
+        });
+        location.reload()
+      });
+    });
+    $(document).ready(function() {
+      // Menghitung total saat halaman dimuat
+      calculateTotal();
+
+      $(".quantityInput").on("input", function() {
+        calculateTotal();
+      });
+
+      function calculateTotal() {
+        var total = 0;
+        var n = 10; // Nilai n yang sesuai
+        total2 = BigInt(total);
+
+        // Menghitung subtotal untuk setiap item
+        $(".quantityInput").each(function() {
+          let harga = $(this).closest(".cart-item").find(".price").text();
+          let quantity = $(this).val();
+          let substr = harga.substring(10); // Menghapus "IDR " dari substring
+          let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
+
+          // Menghitung subtotal berdasarkan quantity dan price
+          let subtotal = quantity * parsedInt;
+          let subtotalId = $(this).data("subtotal-id");
+          $("#" + subtotalId).text("IDR " + subtotal);
+
+          total2 += BigInt(subtotal);
+        });
+
+        var subtotalFormatted = total2.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\./g, ',');
+
+        $('.subtotal-cart').text(subtotalFormatted);
+        var decimalValue = new Decimal(0.05);
+        var result = decimalValue.times(total2.toString());
+        var formattedResult = result.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        $('.totalCart').text("IDR "+subtotalFormatted);
+        $('.pajakCart').text("IDR "+formattedResult);
+        let diskon = $(".isivocer").find("p").text();
+        subsdis = diskon.substring(5);
+        var subsdis2 = BigInt(subsdis.replace(/,/g, ''));
+        resultDiskon = BigInt(subsdis2.toString());
+        var resultBigInt = BigInt(result.toString());
+
+    // Penjumlahan variabel total2 dan resultBigInt
+        var total = total2 + resultBigInt - resultDiskon;
+        var totalNumber = Number(total);
+        $('.TotalAll').text('IDR ' + totalNumber.toLocaleString('en-ID'));
+        // Cetak hasil
+      }
+    });
+
+
+    $(document).ready(function() {
+      // Event listener untuk perubahan dropdown
+      
+      $('#addressSelect').on('change', function() {
+        // Ambil harga pengiriman dari database berdasarkan opsi yang dipilih
+        var deliveryName = $(this).val();
+
+        // Mengirim permintaan AJAX ke server untuk mendapatkan harga pengiriman
+        $.ajax({
+          url: '/getDeliveryCost', // Ganti dengan URL endpoint yang sesuai
+          method: 'POST',
+          data: { deliveryName: deliveryName },
+          success: function(response) {
+            // Mengupdate nilai IDR dengan harga pengiriman yang diterima dari server
+            var formattedCost = response.deliveryCost.toLocaleString('en-ID');
+            $('#shippingCost').text('+ IDR ' + formattedCost);
+            
+
+            var total = 0;
+        var n = 10; // Nilai n yang sesuai
+        total2 = BigInt(total);
+
+        // Menghitung subtotal untuk setiap item
+        $(".quantityInput").each(function() {
+          let harga = $(this).closest(".cart-item").find(".price").text();
+          let quantity = $(this).val();
+          let substr = harga.substring(10); // Menghapus "IDR " dari substring
+          let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
+
+          // Menghitung subtotal berdasarkan quantity dan price
+          let subtotal = quantity * parsedInt;
+          let subtotalId = $(this).data("subtotal-id");
+
+          total2 += BigInt(subtotal);
+        });
+
+        var subtotalFormatted = total2.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\./g, ',');
+
+        var decimalValue = new Decimal(0.05);
+        var result = decimalValue.times(total2.toString());
+        var formattedResult = result.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        var resultBigInt = BigInt(result.toString());
+
+        let diskon = $(".isivocer").find("p").text();
+        subsdis = diskon.substring(5);
+        var subsdis2 = BigInt(subsdis.replace(/,/g, ''));
+        resultDiskon = BigInt(subsdis2.toString());
+
+      
+
+        let ongkir = $('#shippingCost').text();
+        let resultOngkir = ongkir.substring(6);
+        var subongkir = BigInt(resultOngkir.replace(/,/g, ''));
+        ongkirFix = BigInt(subongkir.toString());
+
+    // Penjumlahan variabel total2 dan resultBigInt
+        var total = total2 + resultBigInt - resultDiskon + ongkirFix;
+        var totalNumber = Number(total);
+        $('.TotalAll').text('IDR ' + totalNumber.toLocaleString('en-ID'));
+        // Cetak hasil
+        console.log("Total: " + totalNumber );
+          },
+          error: function(xhr, status, error) {
+            // Tangani error jika terjadi
+            console.log(error);
+          }
+        });
+      
+      });
+      $('.btnkepayment').click(function() {
+        let totalproduktok = $('.totalCart').text();
+        let totalpajaktok = $('.pajakCart').text();
+          let diskontok = $(".isivocer").find("p").text();
+          let shippingtok = $('#shippingCost').text();
+          let totaltok = $('.TotalAll').text();
+                // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+                $.ajax({
+                  type: "POST",
+                  url: "/payment",
+                  data: { subtotalpayment: totalproduktok,
+                  pajakpayment: totalpajaktok,
+                  diskonpayment: diskontok,
+                  shippingpayment: shippingtok,
+                  totalshipment: totaltok
+                  },
+                  success: function(response) {
+                    console.log(response);
+                  }
+                });
+              });
+    });
+      const closecart = document.querySelector('.close.cart');
       const full = document.querySelector('.full-wrapper');
       const navprofile = document.querySelector('.slicknav_menu a.navprofile');
       const logocart = document.querySelector('.logocart');
