@@ -86,7 +86,7 @@ Route::get('/shop/page/{page}', function ($page) {
 Route::match(['get', 'post'],'/shop/search', [App\Http\Controllers\ProductController::class, 'search'])->name('shop.search');
 
 
-Route::post('/save-address', [AddressController::class, 'saveAddress'])->name('save.address');
+Route::post('/profile', [App\Http\Controllers\AddressController::class, 'saveAddress']);
 
 // Route::get('/shop/search/{search}', function ($search) {
 //     return view('shop', ['search' => $search]);
@@ -252,15 +252,14 @@ Route::get('/wishlist/page/{page}', function ($page) {
     return view('wishlist', ['page' => $page]);
 })->name('wishlist.page');
   
-use App\Http\Controllers\MailController;
 
 Route::get('/email', [App\Http\Controllers\MailController::class, 'create']);
 Route::match(['get', 'post'], '/email', [App\Http\Controllers\MailController::class, 'sendEmail'])->name('send.email');
 
-//Route::get('/shop/search', [App\Http\Controllers\ProductController::class, 'search'])->name('shop.search');
-Route::get('/shop/search/{search}', function ($search) {
-    return view('shop', ['search' => $search]);
-})->name('shop.search');
+Route::get('/shop/search', [App\Http\Controllers\ProductController::class, 'search'])->name('shop.search');
+// Route::get('/shop/search/{search}', function ($search) {
+//     return view('shop', ['search' => $search]);
+// })->name('shop.search');
 
 Route::get('/order_detail', function () {
     return view('order_detail');
@@ -276,7 +275,7 @@ Route::post('/getDeliveryCost', [App\Http\Controllers\DeliveryController::class,
 Route::post('/payment', [App\Http\Controllers\PaymentController::class, 'getPayment']);
 
 // Route::post('/profile', [App\Http\Controllers\ProfileController::class, 'EditProfile']);
-use App\Http\Controllers\ProfileController;
+
 Route::post('/profile-city', [ProfileController::class, 'city']);
 Route::post('/profile', function (Illuminate\Http\Request $request) {
     $action = $request->input('action');

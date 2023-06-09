@@ -366,7 +366,7 @@
                   <img src="{{ asset($data[$i]['product_url']) }}" alt="" />
                     <div class="favorit-items">
                       <!-- <span class="flaticon-heart"></span> -->
-                      <img src="{{ asset('assets/images/logo/love.png') }}" alt="" />
+                      
                     </div>
                   </div>
                   <div class="popular-caption">

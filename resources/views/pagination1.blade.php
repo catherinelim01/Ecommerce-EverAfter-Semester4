@@ -98,8 +98,7 @@ if (count($result) > 0) {
             <h3><a href="product_details.php"><?php echo $data2[$i]['product_name']; ?></a></h3>
             <span>Rp. <?php echo number_format($data2[$i]['product_price'], 0, ',', '.'); ?></span>
             <br>
-            <button id="open-popup" type="submit" class="btn btn-primary detailkiri details" onclick="none">Check
-                Out</button>
+            <button id="open-popup" type="submit" class="btn btn-primary detailkiri details" onclick="none">Add to Cart</button>
         </div>
     </div>
 </div>
@@ -140,7 +139,7 @@ if (count($result) > 0) {
 
             var wishlist_id = elem.dataset.wishlist;
             var product_id = elem.dataset.product;
-            alert("wishlist_id: " + wishlist_id + "\nproduct_id: " + product_id);
+            //alert("wishlist_id: " + wishlist_id + "\nproduct_id: " + product_id);
             
 
             $.ajax({

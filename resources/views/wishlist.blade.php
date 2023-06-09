@@ -390,109 +390,108 @@
                                             <!-- cart login end -->
 
                                             
-  <!-- side cart -->
-  <div class="cart-container">
-  <a class="close cart" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-      </svg></a>
-    <div class="cart-header">
-      <h2>Shopping Cart</h2>
-    </div>
-    <hr class="garisunderline">
-    <div class="cart-items">
-  <?php 
-          $sql="SELECT p.product_id,p.PRODUCT_NAME,pc.QTY, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.product_id, p.PRODUCT_PRICE, PRODUCT_URL , size, pc.QTY;";
+   <!-- side cart -->
+   <div class="cart-container">
+    <a class="close cart" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg></a>
+      <div class="cart-header">
+        <h2>Shopping Cart</h2>
+      </div>
+      <hr class="garisunderline">
+      <div class="cart-items">
+    <?php 
+            $sql="SELECT p.product_id,p.PRODUCT_NAME,pc.QTY, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.product_id, p.PRODUCT_PRICE, PRODUCT_URL , size, pc.QTY;";
+            $result= DB::select($sql);
+          
+            if (count($result) > 0) {
+              $response = [];
+              foreach ($result as $row) {
+                  $dt = new stdClass();
+                  $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
+                  $dt->size = $row->size;
+                  $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
+                  $dt->PRODUCT_URL = $row->PRODUCT_URL;
+                  $dt->product_id = $row->product_id;
+                  $dt->QTY = $row->QTY;
+                  
+                  $response[] = $dt;
+              }
+              
+              $hasil_json=json_encode($response);
+              $data = json_decode($hasil_json,true);
+              for ($i = 0; $i < count($data); $i++) { ?>
+                <div class="row cart-item">
+                  <div class="col-5 item-image">
+                    <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
+                  </div>
+                  <div class="col-7 item-details">
+                    <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
+                    <p class="price">Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
+                    <p>Size: <?php echo $data[$i]["size"]; ?></p>
+                    <div style="display: flex; align-items: center;">
+                      <p style="margin-right: 10px; ">Quantity:</p>
+                      <input type="number" name="quantity" min="1" max="10" value="<?php echo $data[$i]["QTY"]; ?>" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" data-product-id="<?php echo $data[$i]['product_id']; ?>" style="width: 60px; height: 24px;">
+                    </div>
+                    <button class="remove-btn mt-4" data-product-id="<?php echo $data[$i]['product_id']; ?>">Remove</button>
+                  </div>
+                </div>
+                <p style="display:none;" id="subtotal<?php echo $i?>">IDR</p>
+              <?php } ?>
+      <?php } ?>
+      </div>
+      <div class="cart-summary">
+        <table>
+          <?php
+          $sql="SELECT
+    c.CART_ID,
+    FORMAT(
+      (
+        SELECT SUM(p.PRODUCT_PRICE)
+        FROM PRODUCT p
+        JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID
+        WHERE pc.CART_ID = c.CART_ID
+      ),
+      0
+    ) AS subtotal
+  FROM
+    CART c
+  WHERE
+    c.CUSTOMER_ID = '" . session('customer_id') . "';
+          ";
           $result= DB::select($sql);
         
           if (count($result) > 0) {
             $response = [];
             foreach ($result as $row) {
                 $dt = new stdClass();
-                $dt->PRODUCT_NAME = $row->PRODUCT_NAME;
-                $dt->size = $row->size;
-                $dt->PRODUCT_PRICE = $row->PRODUCT_PRICE;
-                $dt->PRODUCT_URL = $row->PRODUCT_URL;
-                $dt->product_id = $row->product_id;
-                $dt->QTY = $row->QTY;
-                
                 $dt->subtotal = $row->subtotal;
                 $response[] = $dt;
             }
             
             $hasil_json=json_encode($response);
             $data = json_decode($hasil_json,true);
-            for ($i = 0; $i < count($data); $i++) { ?>
-              <div class="row cart-item">
-                <div class="col-5 item-image">
-                  <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
-                </div>
-                <div class="col-7 item-details">
-                  <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
-                  <p class="price">Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
-                  <p>Size: <?php echo $data[$i]["size"]; ?></p>
-                  <div style="display: flex; align-items: center;">
-                    <p style="margin-right: 10px; ">Quantity:</p>
-                    <input type="number" name="quantity" min="1" max="10" value="<?php echo $data[$i]["QTY"]; ?>" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" data-product-id="<?php echo $data[$i]['product_id']; ?>" style="width: 60px; height: 24px;">
-                  </div>
-                  <button class="remove-btn mt-4" data-product-id="<?php echo $data[$i]['product_id']; ?>">Remove</button>
-                </div>
-              </div>
-              <p style="display:none;" id="subtotal<?php echo $i?>">IDR</p>
-            <?php } ?>
-    <?php } ?>
-    </div>
-    <div class="cart-summary">
-      <table>
-        <?php
-        $sql="SELECT
-  c.CART_ID,
-  FORMAT(
-    (
-      SELECT SUM(p.PRODUCT_PRICE)
-      FROM PRODUCT p
-      JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID
-      WHERE pc.CART_ID = c.CART_ID
-    ),
-    0
-  ) AS subtotal
-FROM
-  CART c
-WHERE
-  c.CUSTOMER_ID = '" . session('customer_id') . "';
-        ";
-        $result= DB::select($sql);
-      
-        if (count($result) > 0) {
-          $response = [];
-          foreach ($result as $row) {
-              $dt = new stdClass();
-              $dt->subtotal = $row->subtotal;
-              $response[] = $dt;
-          }
+              ?>
+          <tr>
           
-          $hasil_json=json_encode($response);
-          $data = json_decode($hasil_json,true);
-            ?>
-        <tr>
-        
-          <td><h3>SUBTOTAL: </h3></td>
-          <td><h3 class = "subtotal-cart">IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
-        </tr>
-        <?php } ?>
-        <!-- <tr class="total">
-          <td>Total:</td>
-          <td>IDR 260,000</td> -->
-        </tr>
-      </table>
+            <td><h3>SUBTOTAL: </h3></td>
+            <td><h3 class = "subtotal-cart">IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
+          </tr>
+          <?php } ?>
+          <!-- <tr class="total">
+            <td>Total:</td>
+            <td>IDR 260,000</td> -->
+          </tr>
+        </table>
+      </div>
+  
+      
+      <div class="cart-actions">
+        <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
+        <a href="/shop"><button class="continue-shopping">CONTINUE SHOPPING</button></a>
+      </div>
     </div>
-
-    
-    <div class="cart-actions">
-      <a href="{{ url('cart') }}"><button class="checkout-btn">CHECKOUT</button></a> 
-      <a href="/shop"><button class="continue-shopping">CONTINUE SHOPPING</button></a>
-    </div>
-  </div>
-<!-- cart end -->
+  <!-- cart end -->
 
     </main>
     <footer>

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use App\Http\Alert;
 
 
 class AddressController extends Controller
@@ -27,8 +28,6 @@ class AddressController extends Controller
 {
     // Validasi inputan jika diperlukan
     $validatedData = $request->validate([
-        'first_name' => 'required',
-        'last_name' => 'required',
         'country' => 'required',
         'province' => 'required',
         'city' => 'required',
@@ -39,31 +38,34 @@ class AddressController extends Controller
     ]);
 
     // Mendapatkan nilai input
-    $addressid = $request->input('addressid');
     $phone = $request->input('phone');
     $country = $request->input('country');
     $province = $request->input('province');
-    $city = $request->input('city');
-    $subdistrict = $request->input('subdistrict');
-    $postalCode = $request->input('postal_code');
+    $city = $request->input('City');
+    $subdistrict = $request->input('Subdistrict');
+    $postalCode = $request->input('postalcode');
     $street = $request->input('street');
 
     // Menggabungkan alamat menjadi satu string
     $address =  $street . ',' . $subdistrict . ', ' . $province . ', ' . $city . ', ' . $postalCode . ', ' . $country;
     // Melakukan proses penyimpanan alamat ke database atau operasi lain yang diinginkan
     // Misalnya, menghasilkan ID alamat baru menggunakan metode tertentu
+    
 
     // Melakukan insert ke dalam tabel address
-    DB::table('address')->insert([
-        'address_id' => 'A00001',
+    DB::table('address')
+    ->where('address_id', 'A00002')
+    ->update([
         'customer_id' => session('customer_id'),
         'phone' => $phone,
         'address' => $address,
         'is_primary' => 0,
     ]);
 
+
     // Setelah selesai, Anda dapat mengembalikan respons atau melakukan pengalihan halaman jika perlu
-    return redirect()->back()->with('success', 'Address saved successfully.');
+    return redirect('/profile')->with('success', 'Address saved successfully.');
+
 }
 
 

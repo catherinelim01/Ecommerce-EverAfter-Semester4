@@ -354,7 +354,7 @@ if (Session::has('customer_id')) {
             </div>
 
             <?php
-            $sql = "SELECT * FROM address a left join customer c on a.customer_id = c.customer_id WHERE a.customer_id ='C00001';";
+            $sql = "SELECT * FROM address a left join customer c on a.customer_id = c.customer_id WHERE a.customer_id ='C00002';";
             $result = DB::select($sql);
             
             if (count($result) > 0) {
@@ -416,26 +416,29 @@ if (Session::has('customer_id')) {
                             <div class="preview-add">
                                 <p><?php echo $data2[1]['phone']; ?></p>
                                 <p><?php
-                                $string = $data2[1]['address'];
-                                $substring = str_replace(', Indonesia', '', $string);
-                                echo $substring;
+                                $string = 'Jl HR Rasuna Said Kav H 1-2 Puri Matari Dki Jakarta, 12920,Indonesia';
+                                $substring = str_replace(',Indonesia', '', $string);
+                                echo $substring; // Output: Jl HR Rasuna Said Kav H 1-2 Puri Matari Dki Jakarta, 12920
+                                
                                 ?></p>
                                 </p>
                                 <p><?php
-                                $string = $data2[1]['address'];
-                                $substring = substr($string, strrpos($string, ', ') + 2);
-                                echo $substring;
+                                $string = 'Jl HR Rasuna Said Kav H 1-2 Puri Matari Dki Jakarta, 12920, Indonesia';
+                                $lastCommaPosition = strrpos($string, ',');
+                                $country = substr($string, $lastCommaPosition + 2);
+                                
+                                echo $country;
                                 ?></p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-
                 <div class="row dalemeditaddress isi mb-40 mt-20">
-                    <form action="{{ route('save.address') }}" method="POST">
+                    <form action="/profile" method="POST">
+                        @csrf
                         <label class="editprofile mb-10">EDIT SHIPPING ADDRESS</label>
-                        
+
                         <select name="country" required class="mt-20 country">
                             <option value="" disabled selected>Country *</option>
                             <option value="Indonesia">Indonesia</option>
@@ -468,15 +471,17 @@ if (Session::has('customer_id')) {
                                 </select><br><br>
                             </div>
                             <div class="col mt-20">
-                                <input type="text" class="form-control" required placeholder="Postal Code *">
+                                <input type="text" class="form-control" required placeholder="Postal Code *" name="postalcode">
                             </div>
                         </div>
                         <div class="form-group mt-20">
-                            <input type="text" class="form-control" id="street" required
+                            <input type="text" class="form-control" id="street" required name ="street"
                                 placeholder="Street, Street Number, Apartment *">
                         </div>
                         <div class="form-group mt-20">
-                            <input type="text" class="form-control" id="phone" required placeholder="Phone *" title="Please enter numbers only" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <input type="text" class="form-control" id="phone" required name ="phone" placeholder="Phone *"
+                                title="Please enter numbers only"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         </div>
                         <div class="butt d-flex" style="justify-content: space-between;">
                             <button type="submit" class="btn btn-primary mt-10 pb-20 login">SAVE ADDRESS</button>
@@ -494,144 +499,47 @@ if (Session::has('customer_id')) {
                     <h1>Orders</h1>
                 </div>
 
-                <?php 
-          $sql="SELECT 
-  DATE_FORMAT(MAX(o.order_date), '%d %b %Y') AS tanggal,
-  o.order_id,
-  MAX(p.product_name) AS product_name,
-  IF(SUBSTR(MAX(po.product_id), 5, 1) = '0', 'All Size', SUBSTR(MAX(po.product_id), 5, 1)) AS size,
-  FORMAT(MAX(p.product_price), 0) AS product_price,
-  (
-    SELECT po.qty
-    FROM product_order po, customer c, `order` o
-    WHERE o.CUSTOMER_ID = c.customer_id
-      AND o.CUSTOMER_ID = 'C00002'
-      AND po.ORDER_ID = o.order_id
-    ORDER BY 1 ASC
-    LIMIT 1
-  ) AS qty_item,
-  SUM(po.qty) AS qty,
-  MAX(d.delivery_name) AS delivery_name,
-  FORMAT(MAX(d.delivery_cost), 0) AS delivery_cost,
-  MAX(a.address) AS address,
-  FORMAT(
-    o.grand_total - (o.grand_total * (v.discount / 100)) + ((5/100) * (o.grand_total - (o.grand_total * (v.discount / 100)))) + d.delivery_cost,
-    0
-  ) AS total,
-  (
-    SELECT p.PRODUCT_URL
-    FROM product p, product_order po, customer c, `order` o
-    WHERE po.PRODUCT_ID = p.PRODUCT_ID
-      AND o.CUSTOMER_ID = c.customer_id
-      AND o.CUSTOMER_ID = 'C00002'
-      AND po.ORDER_ID = o.order_id
-    ORDER BY 1 ASC
-    LIMIT 1
-  ) AS product_url
-FROM `order` AS `o`
-LEFT JOIN `product_order` AS `po` ON `o`.`order_id` = `po`.`order_id`
-LEFT JOIN `product` AS `p` ON `po`.`product_id` = `p`.`product_id`
-LEFT JOIN `delivery` AS `d` ON `d`.`delivery_id` = `o`.`delivery_id`
-LEFT JOIN `address` AS `a` ON `a`.`CUSTOMER_ID` = `o`.`CUSTOMER_ID` AND `a`.`ADDRESS_ID` = `o`.`ADDRESS_ID`
-LEFT JOIN voucher v ON v.VOUCHER_ID = o.VOUCHER_ID
-WHERE `o`.`CUSTOMER_ID` = 'C00002'
-GROUP BY `o`.`order_id`, o.grand_total, v.discount, d.delivery_cost
-ORDER BY `o`.`order_id` ASC;
-
-            <select name="country" required class="mt-20 country">
-              <option value="Indonesia">Indonesia</option>
-            </select><br><br>
-
-            <select name="province" required class="mt-20 province">
-            <option value="">Province *</option>
-            <?php 
-          $sql="SELECT title, province_id FROM `provinces`;";
-          $result= DB::select($sql);
+                <?php
+        $customer_id = session('customer_id');
         
-          if (count($result) > 0) {
-            $response = [];
-            foreach ($result as $row) {
-                $dt = new stdClass();
-                $dt->title = $row->title;
-                $dt->province_id = $row->province_id;
-                
-                $response[] = $dt;
-            }
-            
-            $hasil_json=json_encode($response);
-            $data = json_decode($hasil_json,true);
-            for($i = 0; $i < count($data); $i++) { ?>
-              
-              <option><?php echo $data[$i]["title"] ?></option>
-              <?php }} ?>
-            </select><br><br>
-
-            <select name="CityTes" required class="mt-20 CityTes">
-            <option disabled selected>Town/City *</option>
-              <!-- <option value="" disabled selected>Town/City *</option> -->
-              <?php 
-          // $sql2="SELECT title, province_id FROM `cities` where province_id = (SELECT province_id from provinces where title = '" . session('selectedTitle') . "') ;";
-          // $result2= DB::select($sql2);
-          // echo $sql2;
+        $sql = "SELECT 
+                DATE_FORMAT(MAX(o.order_date), '%d %b %Y') as tanggal, 
+                o.order_id, 
+                MAX(p.product_name) as product_name, 
+                IF(SUBSTR(MAX(po.product_id), 5, 1) = '0', 'All Size', SUBSTR(MAX(po.product_id), 5, 1)) as size, 
+                FORMAT(MAX(p.product_price), 0) as product_price, 
+                (SELECT po.qty 
+                 FROM product_order po, customer c, `order` o 
+                 WHERE o.CUSTOMER_ID = c.customer_id 
+                   AND o.CUSTOMER_ID = '$customer_id' 
+                   AND po.ORDER_ID = o.order_id 
+                 ORDER BY 1 ASC 
+                 LIMIT 1) as qty_item, 
+                SUM(po.qty) as qty, 
+                MAX(d.delivery_name) as delivery_name, 
+                FORMAT(MAX(d.delivery_cost), 0) as delivery_cost, 
+                MAX(a.address) as address, 
+                FORMAT(o.grand_total - (o.grand_total * (v.discount / 100)) + (CONVERT((5 / 100) * (o.grand_total - (o.grand_total * (v.discount / 100))), SIGNED INTEGER)) + d.delivery_cost, 0) as total, 
+                (SELECT p.PRODUCT_URL 
+                 FROM product p, product_order po, customer c, `order` o 
+                 WHERE po.PRODUCT_ID = p.PRODUCT_ID 
+                   AND o.CUSTOMER_ID = c.customer_id 
+                   AND o.CUSTOMER_ID = '$customer_id' 
+                   AND po.ORDER_ID = o.order_id 
+                 ORDER BY 1 ASC 
+                 LIMIT 1) as product_url
+                FROM `order` as `o`
+                LEFT JOIN `product_order` as `po` ON `o`.`order_id` = `po`.`order_id`
+                LEFT JOIN `product` as `p` ON `po`.`product_id` = `p`.`product_id`
+                LEFT JOIN `delivery` as `d` ON `d`.`delivery_id` = `o`.`delivery_id`
+                LEFT JOIN `address` as `a` ON `a`.`CUSTOMER_ID` = `o`.`CUSTOMER_ID` AND a.ADDRESS_ID = o.ADDRESS_ID
+                LEFT JOIN voucher v ON v.VOUCHER_ID = o.VOUCHER_ID
+                WHERE `o`.`CUSTOMER_ID` = '$customer_id'
+                GROUP BY `o`.`order_id`, o.grand_total, v.discount, d.delivery_cost
+                ORDER BY `o`.`order_id` ASC";
         
-          // if (count($result2) > 0) {
-          //   $response2 = [];
-          //   foreach ($result2 as $row) {
-          //       $dt = new stdClass();
-          //       $dt->title = $row->title;
-          //       $dt->province_id = $row->province_id;
-          //       $response2[] = $dt;
-          //   }
-            
-          //   $hasil_json2=json_encode($response2);
-          //   $data2 = json_decode($hasil_json2,true);
-          //   for($i = 0; $i < count($data2); $i++) { ?>
-          
-              <?php
-            //  }} 
-             ?>
-            </select><br><br>
-
-            <div class="form-row">
-              <div class="col mt-20">
-              <input type="text" class="form-control" required placeholder="Subdistrict *">
-              
-              </div>
-              <div class="col mt-20">
-                <input type="text" class="form-control" required placeholder="Postal Code *">
-              </div>
-            </div>
-            <div class="form-group mt-20">
-              <input type="text" class="form-control" id="street" required placeholder="Street, Street Number, Apartment *">
-            </div>
-            <div class="butt d-flex" style="justify-content: space-between;">
-            <button type="submit" class="btn btn-primary mt-10 pb-20 login">SAVE ADDRESS</button>
-            <a class="btn btn-primary mt-10 pb-20 login btnback" href="#">BACK</a>
-            </div>
-          </form>
-
-        </div>
-
-      </div>
-
-<!-- orders -->
-      <div class="cartpage col-12 col-md-7 mb-30">
-        <div class="row profiletitle">
-          <h1>Orders</h1>
-        </div>
+        $result = DB::select($sql);
         
-      <?php 
-          $sql="SELECT DATE_FORMAT(MAX(o.order_date), '%d %b %Y') as tanggal, o.order_id, MAX(p.product_name) as product_name, IF(SUBSTR(MAX(po.product_id), 5, 1) = '0', 'All Size', SUBSTR(MAX(po.product_id), 5, 1)) as size, FORMAT(MAX(p.product_price), 0) as product_price, (select po.qty from product_order po, customer c,`order` o where o.CUSTOMER_ID = c.customer_id and o.CUSTOMER_ID = '" . session('customer_id') . "' and po.ORDER_ID = o.order_id order by 1 asc limit 1) as qty_item , SUM(po.qty) as qty, MAX(d.delivery_name) as delivery_name, FORMAT(MAX(d.delivery_cost), 0) as delivery_cost, MAX(a.address) as address, format(o.grand_total - (o.grand_total*(v.discount/100)) + (convert((5/100)*(o.grand_total-(o.grand_total*(v.discount/100))),int)) + d.delivery_cost,0) as total,(select p.PRODUCT_URL from product p ,product_order po, customer c,`order` o where po.PRODUCT_ID = p.PRODUCT_ID and o.CUSTOMER_ID = c.customer_id and o.CUSTOMER_ID = '" . session('customer_id') . "' and po.ORDER_ID = o.order_id order by 1 asc limit 1) as product_url
-          FROM `order` as `o`
-          LEFT JOIN `product_order` as `po` ON `o`.`order_id` = `po`.`order_id`
-          LEFT JOIN `product` as `p` ON `po`.`product_id` = `p`.`product_id`
-          LEFT JOIN `delivery` as `d` ON `d`.`delivery_id` = `o`.`delivery_id`
-          LEFT JOIN `address` as `a` ON `a`.`CUSTOMER_ID` = `o`.`CUSTOMER_ID` AND a.ADDRESS_ID = o.ADDRESS_ID
-          LEFT JOIN voucher v on v.VOUCHER_ID = o.VOUCHER_ID
-          WHERE `o`.`CUSTOMER_ID` = '" . session('customer_id') . "'
-          GROUP BY `o`.`order_id` , o.grand_total, v.discount, d.delivery_cost
-          ORDER BY `o`.`order_id` asc
-          ";
 
 
           $result= DB::select($sql);
@@ -714,44 +622,83 @@ ORDER BY `o`.`order_id` ASC;
 
             </div>
         </div>
-        <div class="col-12 isisignup">
-          <div class="cart-header login">
-              <h2>Sign Up</h2>
-          </div>
-          <form class="formsignup" action="{{ route('register') }}" method="POST">
-              @csrf
-              <div class="form-group mt-20 regis">
-                <label for="inputEmailRegis">Name *</label>
-                <input type="text" class="form-control" id="inputNameRegis" name="customer_name" required aria-describedby="emailHelp">
-            </div>
-              <div class="form-group mt-10 regis">
-                  <label for="inputEmailRegis">Email address *</label>
-                  <input type="email" class="form-control" id="inputEmailRegis" name="customer_email" required aria-describedby="emailHelp">
-              </div>
-              <div class="form-group mt-10 regis">
-                  <label for="inputPasswordRegis">Password *</label>
-                  <input type="password" class="form-control" id="inputPasswordRegis" name="customer_password" required>
-              </div>
-              <small id="info" class="form-text">By providing your personal information, you allow us to enhance your shopping experience and securely manage your account.</small>
-              <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
-              <a href="/registration" class="backlogin mt-3"><u>Back to Login</u></a>
-          </form>
-      </div>
-      
-  <!-- cart login end -->
- 
-  
-  <!-- side cart -->
-  <div class="cart-container">
-  <a class="close cart" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-      </svg></a>
-    <div class="cart-header">
-      <h2>Shopping Cart</h2>
-    </div>
-    <hr class="garisunderline">
-    <div class="cart-items">
-  <?php 
+        </div>
+        </div>
+
+        <!-- cart -->
+        <div class="cart-container-login geser">
+            <a class="close login" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30"
+                    height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                    <path
+                        d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                </svg></a>
+
+            <div class="row formlogin ">
+                <div class="col-12 isilogin">
+                    <div class="cart-header login">
+                        <h2>Log in</h2>
+                    </div>
+                    <form class="formlogin" action="{{ route('login') }}" method="POST">
+                        @csrf
+                        <div class="form-group mt-20">
+                            <input type="email" class="form-control" name="customer_email" required
+                                placeholder="Username or email address *" aria-describedby="emailHelp">
+                        </div>
+                        <div class="form-group mt-20">
+                            <input type="password" class="form-control" name="customer_password" required
+                                placeholder="Password *" id="inputPassword">
+                        </div>
+                        <!-- Tambahkan elemen lain yang diperlukan untuk form login -->
+                        <button type="submit" class="btn btn-primary mt-10 login">LOG IN</button>
+                        <p class="signuphere mt-3">Don't have an account? <a href="/login"><u>Sign Up</u></a> Here
+                        </p>
+                    </form>
+
+                </div>
+                <div class="col-12 isisignup">
+                    <div class="cart-header login">
+                        <h2>Sign Up</h2>
+                    </div>
+                    <form class="formsignup" action="{{ route('register') }}" method="POST">
+                        @csrf
+                        <div class="form-group mt-20 regis">
+                            <label for="inputEmailRegis">Name *</label>
+                            <input type="text" class="form-control" id="inputNameRegis" name="customer_name"
+                                required aria-describedby="emailHelp">
+                        </div>
+                        <div class="form-group mt-10 regis">
+                            <label for="inputEmailRegis">Email address *</label>
+                            <input type="email" class="form-control" id="inputEmailRegis" name="customer_email"
+                                required aria-describedby="emailHelp">
+                        </div>
+                        <div class="form-group mt-10 regis">
+                            <label for="inputPasswordRegis">Password *</label>
+                            <input type="password" class="form-control" id="inputPasswordRegis"
+                                name="customer_password" required>
+                        </div>
+                        <small id="info" class="form-text">By providing your personal information, you allow us
+                            to enhance your shopping experience and securely manage your account.</small>
+                        <button type="submit" class="btn btn-primary login mt-10">REGISTER</button>
+                        <a href="/registration" class="backlogin mt-3"><u>Back to Login</u></a>
+                    </form>
+                </div>
+
+                <!-- cart login end -->
+
+
+                <!-- side cart -->
+                <div class="cart-container">
+                    <a class="close cart" href="#"><svg xmlns="http://www.w3.org/2000/svg" width="30"
+                            height="32" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                            <path
+                                d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                        </svg></a>
+                    <div class="cart-header">
+                        <h2>Shopping Cart</h2>
+                    </div>
+                    <hr class="garisunderline">
+                    <div class="cart-items">
+                        <?php 
           $sql="SELECT p.product_id,p.PRODUCT_NAME,pc.QTY, FORMAT(p.PRODUCT_PRICE,0) AS PRODUCT_PRICE, p.PRODUCT_URL, IF(substr(p.PRODUCT_ID, 5, 1) = '0', 'All Size', IF(substr(p.PRODUCT_ID, 5, 1) = 'S', 'S', IF(substr(p.PRODUCT_ID, 5, 1) = 'M', 'M', 'L'))) AS size FROM PRODUCT p JOIN PRODUCT_CART pc ON p.PRODUCT_ID = pc.PRODUCT_ID JOIN `CART` c ON c.CART_ID = pc.CART_ID JOIN customer cu ON cu.CUSTOMER_ID = c.CUSTOMER_ID WHERE cu.CUSTOMER_ID = '" . session('customer_id') . "' GROUP BY p.PRODUCT_NAME, p.product_id, p.PRODUCT_PRICE, PRODUCT_URL , size, pc.QTY;";
           $result= DB::select($sql);
         
@@ -772,28 +719,31 @@ ORDER BY `o`.`order_id` ASC;
             $hasil_json=json_encode($response);
             $data = json_decode($hasil_json,true);
             for ($i = 0; $i < count($data); $i++) { ?>
-              <div class="row cart-item">
-                <div class="col-5 item-image">
-                  <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
-                </div>
-                <div class="col-7 item-details">
-                  <h3><?php echo $data[$i]["PRODUCT_NAME"]; ?></h3>
-                  <p class="price">Price: IDR <?php echo $data[$i]["PRODUCT_PRICE"]; ?></p>
-                  <p>Size: <?php echo $data[$i]["size"]; ?></p>
-                  <div style="display: flex; align-items: center;">
-                    <p style="margin-right: 10px; ">Quantity:</p>
-                    <input type="number" name="quantity" min="1" max="10" value="<?php echo $data[$i]["QTY"]; ?>" class="form-control quantityInput" data-subtotal-id="subtotal<?php echo $i?>" data-product-id="<?php echo $data[$i]['product_id']; ?>" style="width: 60px; height: 24px;">
-                  </div>
-                  <button class="remove-btn mt-4" data-product-id="<?php echo $data[$i]['product_id']; ?>">Remove</button>
-                </div>
-              </div>
-              <p style="display:none;" id="subtotal<?php echo $i?>">IDR</p>
-            <?php } ?>
-    <?php } ?>
-    </div>
-    <div class="cart-summary">
-      <table>
-        <?php
+                        <div class="row cart-item">
+                            <div class="col-5 item-image">
+                                <img src="<?php echo $data[$i]['PRODUCT_URL']; ?>" alt="" />
+                            </div>
+                            <div class="col-7 item-details">
+                                <h3><?php echo $data[$i]['PRODUCT_NAME']; ?></h3>
+                                <p class="price">Price: IDR <?php echo $data[$i]['PRODUCT_PRICE']; ?></p>
+                                <p>Size: <?php echo $data[$i]['size']; ?></p>
+                                <div style="display: flex; align-items: center;">
+                                    <p style="margin-right: 10px; ">Quantity:</p>
+                                    <input type="number" name="quantity" min="1" max="10"
+                                        value="<?php echo $data[$i]['QTY']; ?>" class="form-control quantityInput"
+                                        data-subtotal-id="subtotal<?php echo $i; ?>"
+                                        data-product-id="<?php echo $data[$i]['product_id']; ?>" style="width: 60px; height: 24px;">
+                                </div>
+                                <button class="remove-btn mt-4" data-product-id="<?php echo $data[$i]['product_id']; ?>">Remove</button>
+                            </div>
+                        </div>
+                        <p style="display:none;" id="subtotal<?php echo $i; ?>">IDR</p>
+                        <?php } ?>
+                        <?php } ?>
+                    </div>
+                    <div class="cart-summary">
+                        <table>
+                            <?php
         $sql="SELECT
   c.CART_ID,
   FORMAT(
@@ -823,13 +773,17 @@ WHERE
           $hasil_json=json_encode($response);
           $data = json_decode($hasil_json,true);
             ?>
-        <tr>
-        
-          <td><h3>SUBTOTAL: </h3></td>
-          <td><h3 class = "subtotal-cart">IDR <?php echo $data[0]["subtotal"]; ?></h3></td>
-        </tr>
-        <?php } ?>
-        <!-- <tr class="total">
+                            <tr>
+
+                                <td>
+                                    <h3>SUBTOTAL: </h3>
+                                </td>
+                                <td>
+                                    <h3 class="subtotal-cart">IDR <?php echo $data[0]['subtotal']; ?></h3>
+                                </td>
+                            </tr>
+                            <?php } ?>
+                            <!-- <tr class="total">
           <td>Total:</td>
           <td>IDR 260,000</td> -->
                             </tr>
@@ -998,301 +952,326 @@ WHERE
     <script src="{{ asset('assets/js/mail-script.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.ajaxchimp.min.js') }}"></script>
 
-<!-- Jquery Plugins, main Jquery -->
-<script src="{{ asset('assets/js/plugins.js') }}"></script>
-<script src="{{ asset('assets/js/main.js') }}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
-@if(session('customer_id'))
-@php
-    $loginTime = session('login_time');
-    $currentTime = time();
-    $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
-@endphp
+    <!-- Jquery Plugins, main Jquery -->
+    <script src="{{ asset('assets/js/plugins.js') }}"></script>
+    <script src="{{ asset('assets/js/main.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
+    @if (session('customer_id'))
+        @php
+            $loginTime = session('login_time');
+            $currentTime = time();
+            $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
+        @endphp
 
-@if($remainingTime > 0)
-<script>
-  $(document).ready(function() {
-  $('.province').change(function() {
-    $('.CityTes .current').text('Town/City *');
-    // Mendapatkan nilai dari pilihan yang dipilih
-    const selectedTitle = $(this).find('option:selected').text();
-    // Mengirim data melalui AJAX ke endpoint /profile
-    $.ajax({
-      url: '/profile-city',
-      type: 'POST',
-      data: { selectedTitle: selectedTitle },
-      success: function(response) {
-        console.log(response);
-        $(".CityTes ul").html(response.content).show(); // Respons berhasil diterima dari server
-        // $(".CityTes").remove();
-        // $(".CityTes").hide();
+        @if ($remainingTime > 0)
+            <script>
+                $(document).ready(function() {
+                    $('.province').change(function() {
+                        $('.CityTes .current').text('Town/City *');
+                        // Mendapatkan nilai dari pilihan yang dipilih
+                        const selectedTitle = $(this).find('option:selected').text();
+                        // Mengirim data melalui AJAX ke endpoint /profile
+                        $.ajax({
+                            url: '/profile-city',
+                            type: 'POST',
+                            data: {
+                                selectedTitle: selectedTitle
+                            },
+                            success: function(response) {
+                                console.log(response);
+                                $(".CityTes ul").html(response.content)
+                                    .show(); // Respons berhasil diterima dari server
+                                // $(".CityTes").remove();
+                                // $(".CityTes").hide();
 
-      },
-      error: function(xhr, status, error) {
-        console.error('Terjadi kesalahan saat mengirim data.');
-      }
-    });
-  
-
-  });
-  
-});
-
-    $('#addressSelect').on('change', function() {
-      // Ambil harga pengiriman dari database berdasarkan opsi yang dipilih
-      var deliveryName = $(this).val();
-
-      // Mengirim permintaan AJAX ke server untuk mendapatkan harga pengiriman
-      $.ajax({
-        url: '/getDeliveryCost', // Ganti dengan URL endpoint yang sesuai
-        method: 'POST',
-        data: { deliveryName: deliveryName },
-        success: function(response) {
-          // Mengupdate nilai IDR dengan harga pengiriman yang diterima dari server
-          var formattedCost = response.deliveryCost.toLocaleString('en-ID');
-          $('#shippingCost').text('+ IDR ' + formattedCost);
-        }
-      });
-    });
-
-    function continueToPayment() {
-      var shippingMethod = $('#shippingCost').text();
-
-      if (shippingMethod === '') {
-        alert('Please choose your shipping method.');
-      } else {
-        window.location.href = '/payment';
-      }
-    }
-
-      
-      $(document).ready(function() {
-      $(".quantityInput").on("input", function() {
-        updateQuantity($(this));
-      });
-
-      $(".remove-btn").on("click", function() {
-        var productId = $(this).data("product-id");
-        removeProduct(productId);
-        location.reload();
-      });
-    
-      
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Terjadi kesalahan saat mengirim data.');
+                            }
+                        });
 
 
-      function updateQuantity(input) {
-        // ... kode logika perhitungan subtotal ...
-      }
+                    });
 
-      function removeProduct(productId) {
-        $.ajax({
-          url: "/remove-product", // Ubah URL sesuai dengan endpoint yang dituju
-          method: "POST",
-          data: { product_id: productId },
-          success: function(response) {
-            console.log(response);
-            // Lakukan tindakan setelah produk dihapus, misalnya memperbarui tampilan atau memuat ulang halaman
-          },
-          error: function(error) {
-            console.log(error);
-            // Tangani kesalahan jika ada
-          }
-        });
-      }
-    });
-      $(document).ready(function() {
-      $('.quantityInput').on('change', function() {
-        var productId = $(this).data('product-id');
-        var quantity = $(this).val();
-
-        // Kirim permintaan AJAX untuk memperbarui nilai di database
-        $.ajax({
-          url: '/update_quantity', // Ganti dengan URL yang sesuai
-          method: 'POST',
-          data: {
-            productId: productId,
-            quantity: quantity
-          },
-          success: function(response) {
-            console.log('Nilai kuantitas berhasil diperbarui di database.');
-          },
-          error: function(xhr, status, error) {
-            console.log('Terjadi kesalahan saat memperbarui nilai kuantitas di database.');
-            console.log(error);
-          }
-        });
-      });
-    });
-      $(document).ready(function() {
-      $('.apply').click(function(event) {
-        event.preventDefault();
-        var voucherCode = $('.vocer').val().toUpperCase();
-        console.log("Voucher Code: " + voucherCode);
-
-        // Send the voucher code to the server-side PHP script using AJAX
-        $.ajax({
-          url: '/cart', // Replace with the actual path to your PHP script
-          type: 'POST',
-          data: { voucherCode: voucherCode },
-          success: function(response) {
-            console.log("Response from PHP: " + response);
-            // Perform further actions based on the response from PHP
-          },
-          error: function() {
-            console.log("Error occurred during AJAX request.");
-          }
-        });
-        location.reload()
-      });
-    });
-    $(document).ready(function() {
-      // Menghitung total saat halaman dimuat
-      calculateTotal();
-
-      $(".quantityInput").on("input", function() {
-        calculateTotal();
-      });
-
-      function calculateTotal() {
-        var total = 0;
-        var n = 10; // Nilai n yang sesuai
-        total2 = BigInt(total);
-
-        // Menghitung subtotal untuk setiap item
-        $(".quantityInput").each(function() {
-          let harga = $(this).closest(".cart-item").find(".price").text();
-          let quantity = $(this).val();
-          let substr = harga.substring(10); // Menghapus "IDR " dari substring
-          let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
-
-          // Menghitung subtotal berdasarkan quantity dan price
-          let subtotal = quantity * parsedInt;
-          let subtotalId = $(this).data("subtotal-id");
-          $("#" + subtotalId).text("IDR " + subtotal);
-
-          total2 += BigInt(subtotal);
-        });
-
-        var subtotalFormatted = total2.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\./g, ',');
-
-        $('.subtotal-cart').text(subtotalFormatted);
-        var decimalValue = new Decimal(0.05);
-        var result = decimalValue.times(total2.toString());
-        var formattedResult = result.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        $('.totalCart').text("IDR "+subtotalFormatted);
-        $('.pajakCart').text("IDR "+formattedResult);
-        let diskon = $(".isivocer").find("p").text();
-        subsdis = diskon.substring(5);
-        var subsdis2 = BigInt(subsdis.replace(/,/g, ''));
-        resultDiskon = BigInt(subsdis2.toString());
-        var resultBigInt = BigInt(result.toString());
-
-    // Penjumlahan variabel total2 dan resultBigInt
-        var total = total2 + resultBigInt - resultDiskon;
-        var totalNumber = Number(total);
-        $('.TotalAll').text('IDR ' + totalNumber.toLocaleString('en-ID'));
-        // Cetak hasil
-      }
-    });
-
-
-    $(document).ready(function() {
-      // Event listener untuk perubahan dropdown
-      
-      $('#addressSelect').on('change', function() {
-        // Ambil harga pengiriman dari database berdasarkan opsi yang dipilih
-        var deliveryName = $(this).val();
-
-        // Mengirim permintaan AJAX ke server untuk mendapatkan harga pengiriman
-        $.ajax({
-          url: '/getDeliveryCost', // Ganti dengan URL endpoint yang sesuai
-          method: 'POST',
-          data: { deliveryName: deliveryName },
-          success: function(response) {
-            // Mengupdate nilai IDR dengan harga pengiriman yang diterima dari server
-            var formattedCost = response.deliveryCost.toLocaleString('en-ID');
-            $('#shippingCost').text('+ IDR ' + formattedCost);
-            
-
-            var total = 0;
-        var n = 10; // Nilai n yang sesuai
-        total2 = BigInt(total);
-
-        // Menghitung subtotal untuk setiap item
-        $(".quantityInput").each(function() {
-          let harga = $(this).closest(".cart-item").find(".price").text();
-          let quantity = $(this).val();
-          let substr = harga.substring(10); // Menghapus "IDR " dari substring
-          let parsedInt = parseInt(substr.replace(",", ""), 10); // Menghapus koma dan mengonversi ke integer
-
-          // Menghitung subtotal berdasarkan quantity dan price
-          let subtotal = quantity * parsedInt;
-          let subtotalId = $(this).data("subtotal-id");
-
-          total2 += BigInt(subtotal);
-        });
-
-        var subtotalFormatted = total2.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/\./g, ',');
-
-        var decimalValue = new Decimal(0.05);
-        var result = decimalValue.times(total2.toString());
-        var formattedResult = result.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        var resultBigInt = BigInt(result.toString());
-
-        let diskon = $(".isivocer").find("p").text();
-        subsdis = diskon.substring(5);
-        var subsdis2 = BigInt(subsdis.replace(/,/g, ''));
-        resultDiskon = BigInt(subsdis2.toString());
-
-      
-
-        let ongkir = $('#shippingCost').text();
-        let resultOngkir = ongkir.substring(6);
-        var subongkir = BigInt(resultOngkir.replace(/,/g, ''));
-        ongkirFix = BigInt(subongkir.toString());
-
-    // Penjumlahan variabel total2 dan resultBigInt
-        var total = total2 + resultBigInt - resultDiskon + ongkirFix;
-        var totalNumber = Number(total);
-        $('.TotalAll').text('IDR ' + totalNumber.toLocaleString('en-ID'));
-        // Cetak hasil
-        console.log("Total: " + totalNumber );
-          },
-          error: function(xhr, status, error) {
-            // Tangani error jika terjadi
-            console.log(error);
-          }
-        });
-      
-      });
-      $('.btnkepayment').click(function() {
-        let totalproduktok = $('.totalCart').text();
-        let totalpajaktok = $('.pajakCart').text();
-          let diskontok = $(".isivocer").find("p").text();
-          let shippingtok = $('#shippingCost').text();
-          let totaltok = $('.TotalAll').text();
-                // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-                $.ajax({
-                  type: "POST",
-                  url: "/payment",
-                  data: { subtotalpayment: totalproduktok,
-                  pajakpayment: totalpajaktok,
-                  diskonpayment: diskontok,
-                  shippingpayment: shippingtok,
-                  totalshipment: totaltok
-                  },
-                  success: function(response) {
-                    console.log(response);
-                  }
                 });
-              });
-    });
-    const closecart = document.querySelector('.close.cart');
-      const full = document.querySelector('.full-wrapper');
-      const navprofile = document.querySelector('.slicknav_menu a.navprofile');
-      const logocart = document.querySelector('.logocart');
-      const containercart = document.querySelector('.cart-container');
-      const navv = document.querySelector('a.navprofile');
+
+                $('#addressSelect').on('change', function() {
+                    // Ambil harga pengiriman dari database berdasarkan opsi yang dipilih
+                    var deliveryName = $(this).val();
+
+                    // Mengirim permintaan AJAX ke server untuk mendapatkan harga pengiriman
+                    $.ajax({
+                        url: '/getDeliveryCost', // Ganti dengan URL endpoint yang sesuai
+                        method: 'POST',
+                        data: {
+                            deliveryName: deliveryName
+                        },
+                        success: function(response) {
+                            // Mengupdate nilai IDR dengan harga pengiriman yang diterima dari server
+                            var formattedCost = response.deliveryCost.toLocaleString('en-ID');
+                            $('#shippingCost').text('+ IDR ' + formattedCost);
+                        }
+                    });
+                });
+
+                function continueToPayment() {
+                    var shippingMethod = $('#shippingCost').text();
+
+                    if (shippingMethod === '') {
+                        alert('Please choose your shipping method.');
+                    } else {
+                        window.location.href = '/payment';
+                    }
+                }
+
+
+                $(document).ready(function() {
+                    $(".quantityInput").on("input", function() {
+                        updateQuantity($(this));
+                    });
+
+                    $(".remove-btn").on("click", function() {
+                        var productId = $(this).data("product-id");
+                        removeProduct(productId);
+                        location.reload();
+                    });
+
+
+
+
+                    function updateQuantity(input) {
+                        // ... kode logika perhitungan subtotal ...
+                    }
+
+                    function removeProduct(productId) {
+                        $.ajax({
+                            url: "/remove-product", // Ubah URL sesuai dengan endpoint yang dituju
+                            method: "POST",
+                            data: {
+                                product_id: productId
+                            },
+                            success: function(response) {
+                                console.log(response);
+                                // Lakukan tindakan setelah produk dihapus, misalnya memperbarui tampilan atau memuat ulang halaman
+                            },
+                            error: function(error) {
+                                console.log(error);
+                                // Tangani kesalahan jika ada
+                            }
+                        });
+                    }
+                });
+                $(document).ready(function() {
+                    $('.quantityInput').on('change', function() {
+                        var productId = $(this).data('product-id');
+                        var quantity = $(this).val();
+
+                        // Kirim permintaan AJAX untuk memperbarui nilai di database
+                        $.ajax({
+                            url: '/update_quantity', // Ganti dengan URL yang sesuai
+                            method: 'POST',
+                            data: {
+                                productId: productId,
+                                quantity: quantity
+                            },
+                            success: function(response) {
+                                console.log('Nilai kuantitas berhasil diperbarui di database.');
+                            },
+                            error: function(xhr, status, error) {
+                                console.log(
+                                    'Terjadi kesalahan saat memperbarui nilai kuantitas di database.'
+                                );
+                                console.log(error);
+                            }
+                        });
+                    });
+                });
+                $(document).ready(function() {
+                    $('.apply').click(function(event) {
+                        event.preventDefault();
+                        var voucherCode = $('.vocer').val().toUpperCase();
+                        console.log("Voucher Code: " + voucherCode);
+
+                        // Send the voucher code to the server-side PHP script using AJAX
+                        $.ajax({
+                            url: '/cart', // Replace with the actual path to your PHP script
+                            type: 'POST',
+                            data: {
+                                voucherCode: voucherCode
+                            },
+                            success: function(response) {
+                                console.log("Response from PHP: " + response);
+                                // Perform further actions based on the response from PHP
+                            },
+                            error: function() {
+                                console.log("Error occurred during AJAX request.");
+                            }
+                        });
+                        location.reload()
+                    });
+                });
+                $(document).ready(function() {
+                    // Menghitung total saat halaman dimuat
+                    calculateTotal();
+
+                    $(".quantityInput").on("input", function() {
+                        calculateTotal();
+                    });
+
+                    function calculateTotal() {
+                        var total = 0;
+                        var n = 10; // Nilai n yang sesuai
+                        total2 = BigInt(total);
+
+                        // Menghitung subtotal untuk setiap item
+                        $(".quantityInput").each(function() {
+                            let harga = $(this).closest(".cart-item").find(".price").text();
+                            let quantity = $(this).val();
+                            let substr = harga.substring(10); // Menghapus "IDR " dari substring
+                            let parsedInt = parseInt(substr.replace(",", ""),
+                                10); // Menghapus koma dan mengonversi ke integer
+
+                            // Menghitung subtotal berdasarkan quantity dan price
+                            let subtotal = quantity * parsedInt;
+                            let subtotalId = $(this).data("subtotal-id");
+                            $("#" + subtotalId).text("IDR " + subtotal);
+
+                            total2 += BigInt(subtotal);
+                        });
+
+                        var subtotalFormatted = total2.toLocaleString('id-ID', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        }).replace(/\./g, ',');
+
+                        $('.subtotal-cart').text(subtotalFormatted);
+                        var decimalValue = new Decimal(0.05);
+                        var result = decimalValue.times(total2.toString());
+                        var formattedResult = result.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                        $('.totalCart').text("IDR " + subtotalFormatted);
+                        $('.pajakCart').text("IDR " + formattedResult);
+                        let diskon = $(".isivocer").find("p").text();
+                        subsdis = diskon.substring(5);
+                        var subsdis2 = BigInt(subsdis.replace(/,/g, ''));
+                        resultDiskon = BigInt(subsdis2.toString());
+                        var resultBigInt = BigInt(result.toString());
+
+                        // Penjumlahan variabel total2 dan resultBigInt
+                        var total = total2 + resultBigInt - resultDiskon;
+                        var totalNumber = Number(total);
+                        $('.TotalAll').text('IDR ' + totalNumber.toLocaleString('en-ID'));
+                        // Cetak hasil
+                    }
+                });
+
+
+                $(document).ready(function() {
+                    // Event listener untuk perubahan dropdown
+
+                    $('#addressSelect').on('change', function() {
+                        // Ambil harga pengiriman dari database berdasarkan opsi yang dipilih
+                        var deliveryName = $(this).val();
+
+                        // Mengirim permintaan AJAX ke server untuk mendapatkan harga pengiriman
+                        $.ajax({
+                            url: '/getDeliveryCost', // Ganti dengan URL endpoint yang sesuai
+                            method: 'POST',
+                            data: {
+                                deliveryName: deliveryName
+                            },
+                            success: function(response) {
+                                // Mengupdate nilai IDR dengan harga pengiriman yang diterima dari server
+                                var formattedCost = response.deliveryCost.toLocaleString('en-ID');
+                                $('#shippingCost').text('+ IDR ' + formattedCost);
+
+
+                                var total = 0;
+                                var n = 10; // Nilai n yang sesuai
+                                total2 = BigInt(total);
+
+                                // Menghitung subtotal untuk setiap item
+                                $(".quantityInput").each(function() {
+                                    let harga = $(this).closest(".cart-item").find(".price")
+                                        .text();
+                                    let quantity = $(this).val();
+                                    let substr = harga.substring(
+                                        10); // Menghapus "IDR " dari substring
+                                    let parsedInt = parseInt(substr.replace(",", ""),
+                                        10); // Menghapus koma dan mengonversi ke integer
+
+                                    // Menghitung subtotal berdasarkan quantity dan price
+                                    let subtotal = quantity * parsedInt;
+                                    let subtotalId = $(this).data("subtotal-id");
+
+                                    total2 += BigInt(subtotal);
+                                });
+
+                                var subtotalFormatted = total2.toLocaleString('id-ID', {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0
+                                }).replace(/\./g, ',');
+
+                                var decimalValue = new Decimal(0.05);
+                                var result = decimalValue.times(total2.toString());
+                                var formattedResult = result.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g,
+                                    ',');
+                                var resultBigInt = BigInt(result.toString());
+
+                                let diskon = $(".isivocer").find("p").text();
+                                subsdis = diskon.substring(5);
+                                var subsdis2 = BigInt(subsdis.replace(/,/g, ''));
+                                resultDiskon = BigInt(subsdis2.toString());
+
+
+
+                                let ongkir = $('#shippingCost').text();
+                                let resultOngkir = ongkir.substring(6);
+                                var subongkir = BigInt(resultOngkir.replace(/,/g, ''));
+                                ongkirFix = BigInt(subongkir.toString());
+
+                                // Penjumlahan variabel total2 dan resultBigInt
+                                var total = total2 + resultBigInt - resultDiskon + ongkirFix;
+                                var totalNumber = Number(total);
+                                $('.TotalAll').text('IDR ' + totalNumber.toLocaleString('en-ID'));
+                                // Cetak hasil
+                                console.log("Total: " + totalNumber);
+                            },
+                            error: function(xhr, status, error) {
+                                // Tangani error jika terjadi
+                                console.log(error);
+                            }
+                        });
+
+                    });
+                    $('.btnkepayment').click(function() {
+                        let totalproduktok = $('.totalCart').text();
+                        let totalpajaktok = $('.pajakCart').text();
+                        let diskontok = $(".isivocer").find("p").text();
+                        let shippingtok = $('#shippingCost').text();
+                        let totaltok = $('.TotalAll').text();
+                        // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+                        $.ajax({
+                            type: "POST",
+                            url: "/payment",
+                            data: {
+                                subtotalpayment: totalproduktok,
+                                pajakpayment: totalpajaktok,
+                                diskonpayment: diskontok,
+                                shippingpayment: shippingtok,
+                                totalshipment: totaltok
+                            },
+                            success: function(response) {
+                                console.log(response);
+                            }
+                        });
+                    });
+                });
+                const closecart = document.querySelector('.close.cart');
+                const full = document.querySelector('.full-wrapper');
+                const navprofile = document.querySelector('.slicknav_menu a.navprofile');
+                const logocart = document.querySelector('.logocart');
+                const containercart = document.querySelector('.cart-container');
+                const navv = document.querySelector('a.navprofile');
 
                 // containercart.style.display = "none";
 

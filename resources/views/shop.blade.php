@@ -1,7 +1,9 @@
 <?php
 
+
+
 session_start();
-session('searchTerm');
+
 $selected_category = $_SESSION['selected_category'] ?? '';
 $selected_size = $_SESSION['selected_size'] ?? '';
 $selected_price_range = $_SESSION['selected_price_range'] ?? '';
@@ -10,111 +12,49 @@ $selected_price_range = $_SESSION['selected_price_range'] ?? '';
 <html class="no-js" lang="zxx">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Ever After | Fashion</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="manifest" href="site.webmanifest">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Ever After | Fashion</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
 
-    <!-- CSS here -->
-    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
+     <!-- CSS here -->
+     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
 
 </head>
 <script>
-    window.addEventListener('load', function() {
-        for (var i = 0; i < sessionStorage.length; i++) {
-            var key = sessionStorage.key(i);
-            var value = sessionStorage.getItem(key);
-            if (key.startsWith('favorite-') && value == 'true') {
-                var index = key.substring(9);
-                var image = document.getElementById('favorite-' + index);
-                image.src = "assets/images/logo/love-full1.png";
-            }
-        }
-    });
+  window.addEventListener('load', function() {
+    for (var i = 0; i < sessionStorage.length; i++) {
+      var key = sessionStorage.key(i);
+      var value = sessionStorage.getItem(key);
+      if (key.startsWith('favorite-') && value == 'true') {
+        var index = key.substring(9);
+        var image = document.getElementById('favorite-' + index);
+        image.src = "assets/images/logo/love-full1.png";
+      }
+    }
+  });
 </script>
 
 <body class="full-wrapper">
-    @csrf
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+  @csrf
 
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-    @include('header')
-    <main>
-        <!-- breadcrumb Start-->
-        <div class="page-notification">
-            <div class="container">
-
-                <div class="row">
-                    <div class="col-lg-12">
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb justify-content-center">
-                                <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                                <li class="breadcrumb-item"><a href="#">Shop</a></li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- listing Area Start -->
-        <div class="category-area">
-            <!-- <div class="container"> -->
-            <div class="row">
-                <div class="col-xl-7 col-lg-8 col-md-10">
-                    <div class="section-tittle mb-50">
-                        <h2>Shop with us</h2>
-                        <?php
-                        
-                        use Illuminate\Support\Facades\DB;
-                        
-                        $totalProducts = DB::table('product')
-                            ->select(DB::raw('COUNT(DISTINCT product_name) as total'))
-                            ->first();
-                        if ($totalProducts) {
-                            echo '<p>Browse from ' . $totalProducts->total . ' latest items</p>';
-                        }
-                        
-                        ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div>
-
-@if (session('success'))
-<div class="alert alert-success">
-  {{ session('success') }}
-</div>
-@endif
   @include('header')
   @if ($errors->any())
   <div class="alert alert-danger alert-dismissible">
@@ -359,7 +299,7 @@ $results = $results->union($subQuery)
                   }
           
                   $total_products = $query->count();
-                  $results = $query->select('product_name', 'product_price', 'product_url', 'product_detail')
+                  $results = $query->select('product_id', 'product_name', 'product_price', 'product_url', 'product_detail')
                       ->limit($limit)
                       ->offset($offset)
                       ->get();
@@ -390,7 +330,7 @@ $results = $results->union($subQuery)
               }
           
               $total_products = $query->count();
-              $results = $query->select('product_name', 'product_price', 'product_url', 'product_detail')
+              $results = $query->select('product_id', 'product_name', 'product_price', 'product_url', 'product_detail')
                   ->limit($limit)
                   ->offset($offset)
                   ->get();
@@ -449,7 +389,7 @@ if ($results->count() > 0) {
         $product_price = $row->product_price;
         $product_url = $row->product_url;
         $product_detail = $row->product_detail;
-        $wishlist_id = $row->wishlist_id;
+        $wishlist_id = isset($row->wishlist_id) ? $row->wishlist_id : null;
         $product_id = $row->product_id;
         ?>
 
@@ -472,7 +412,6 @@ if ($results->count() > 0) {
                                 <div class="popular-caption">
                                     <h3><a href="{{ url('product_details') }}">{{ $product_name }}</a></h3>
                                     <span>Rp. {{ number_format($product_price, 0, ',', '.') }}</span>
-                                    <p><?php echo $item_number; ?></p>
                                     <div id="product-info"></div>
                                 </div>
                             </div>
@@ -485,7 +424,7 @@ if ($results->count() > 0) {
                                 var index = image.id.substring(9);
                                 var favoriteStatus = sessionStorage.getItem("favorite-" + index);
 
-                                alert(image.dataset.wishlist + ', ' + image.dataset.product);
+                                //alert(image.dataset.wishlist + ', ' + image.dataset.product);
 
                                 if (favoriteStatus == "true") {
                                     sessionStorage.setItem("favorite-" + index, "false");
@@ -550,114 +489,172 @@ if ($results->count() > 0) {
           ?>
 
                         <!-- HTML -->
-                        <div class="col-xl-9 col-lg-9 col-md-8 offset-md-1">
-                            <!-- HTML -->
-                            <div class="row justify-content-center" style="margin-bottom: 15px;">
-                                <div class="room-btn mt-20">
-                                    <?php if ($current_page > 1): 
-                      $filters = [
-                        'select2' => $selected_category,
-                        'select3' => $selected_size,
-                        'select4' => $selected_price_range
+          <div class="col-xl-9 col-lg-9 col-md-8 offset-md-1">
+            <!-- HTML -->
+            <div class="row justify-content-center" style="margin-bottom: 15px;">
+                <div class="room-btn mt-20">
+                    <?php if ($current_page > 1): 
+                    $filters = [
+                      'select2' => $selected_category,
+                      'select3' => $selected_size,
+                      'select4' => $selected_price_range
 
-                    ];
-                    
-                    $queryString = http_build_query($filters);
-                    
-                    
-                     ?>
-               <a style="padding-top: 2px; color: black;" class="page-btn" href="{{ route('shop', ['page' => ($current_page - 1)] + Request::query()) }}">
-                <i class="fas fa-chevron-left"></i>
-            </a>
-            
-                    
-                    
-                      
-                      <?php endif; ?>
+                  ];
+                  
+                  $queryString = http_build_query($filters);
+                  
+                  
+                   ?>
+             <a style="padding-top: 2px; color: black;" class="page-btn" href="{{ route('shop', ['page' => ($current_page - 1)] + Request::query()) }}">
+              <i class="fas fa-chevron-left"></i>
+          </a>
           
-                      <?php if ($results->count() > 0): ?>
-                          <div class="page-numbers">
-                              <?php
-                              $max_pages = 5;
-                              $start_page = max($current_page - 2, 1);
-                              $end_page = min($current_page + 2, $total_pages);
-                              ?>
-                              <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                                  <?php if ($i == $current_page): ?>
-                                      <a href="#" class="page-btn current-page">{{ $i }}</a>
-                                  <?php else: ?>
-                                    <a href="{{ route('shop', [
-                                        'page' => $i,
-                                        'select2' => isset($_GET['select2']) ? $_GET['select2'] : '',
-                                        'select3' => isset($_GET['select3']) ? $_GET['select3'] : '',
-                                        'select4' => isset($_GET['select4']) ? $_GET['select4'] : ''
-                                    ]) }}" class="page-btn">{{ $i }}</a>
+                  
+                  
+                    
+                    <?php endif; ?>
+        
+                    <?php if ($results->count() > 0): ?>
+                        <div class="page-numbers">
+                            <?php
+                            $max_pages = 5;
+                            $start_page = max($current_page - 2, 1);
+                            $end_page = min($current_page + 2, $total_pages);
+                            ?>
+                            <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                <?php if ($i == $current_page): ?>
+                                    <a href="#" class="page-btn current-page">{{ $i }}</a>
+                                <?php else: ?>
+                                  <a href="{{ route('shop', [
+                                      'page' => $i,
+                                      'select2' => isset($_GET['select2']) ? $_GET['select2'] : '',
+                                      'select3' => isset($_GET['select3']) ? $_GET['select3'] : '',
+                                      'select4' => isset($_GET['select4']) ? $_GET['select4'] : ''
+                                  ]) }}" class="page-btn">{{ $i }}</a>
 
-                                  <?php endif; ?>
-                              <?php endfor; ?>
-                          </div>
-                      <?php endif; ?>
-          
-                      <?php if ($current_page < $total_pages): ?>
-                          <a style="padding-top: 5px;color:black;" href="{{ route('shop', ['page' => ($current_page + 1)]) }}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
-                      <?php endif; ?>
-                  </div>
-              </div>
-          </div>
-          
-        </div>
-        </div>
-        </div>
-
-        <!-- Popular Items End -->
-        <!--? Services Area Start -->
-        <div class="categories-area section-padding40 gray-bg">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6">
-                        <div class="single-cat mb-50 wow fadeInUp" data-wow-duration="1s" data-wow-delay=".2s">
-                            <div class="cat-icon">
-                                <img src="assets/img/icon/services1.svg" alt="" />
-                            </div>
-                            <div class="cat-cap">
-                                <p>Fast Delivery</p>
-                            </div>
+                                <?php endif; ?>
+                            <?php endfor; ?>
                         </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6">
-                        <div class="single-cat mb-50 wow fadeInUp" data-wow-duration="1s" data-wow-delay=".2s">
-                            <div class="cat-icon">
-                                <img src="assets/img/icon/services2.svg" alt="" />
-                            </div>
-                            <div class="cat-cap">
-                                <p>Secure Payment</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6">
-                        <div class="single-cat mb-30 wow fadeInUp" data-wow-duration="1s" data-wow-delay=".4s">
-                            <div class="cat-icon">
-                                <img src="assets/img/icon/services3.svg" alt="" />
-                            </div>
-                            <div class="cat-cap">
-                                <p>Special Offers</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6">
-                        <div class="single-cat wow fadeInUp" data-wow-duration="1s" data-wow-delay=".5s">
-                            <div class="cat-icon">
-                                <img src="assets/img/icon/services4.svg" alt="" />
-                            </div>
-                            <div class="cat-cap">
-                                <p>Customer Support</p>
-                            </div>
-                        </div>
-                    </div>
+                    <?php endif; ?>
+        
+                    <?php if ($current_page < $total_pages): ?>
+                        <a style="padding-top: 5px;color:black;" href="{{ route('shop', ['page' => ($current_page + 1)]) }}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
-        <!--? Services Area End -->
+        
+      </div>
+        
+        
+
+            <!-- CSS -->
+            <style>
+              .room-btn {
+                  display: flex;
+                  justify-content: flex-end;
+                  align-items: flex-start;
+                  margin-top: 5px;
+              }
+
+              .page-btn {
+                  background-color: transparent;
+                  border: none;
+                  color: #333;
+                  font-weight: bold;
+                  text-decoration: none;
+                  margin-left: 10px;
+              }
+
+              .page-numbers {
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+              }
+
+              .page-numbers a {
+                  background-color: transparent;
+                  border: none;
+                  color: #333;
+                  font-weight: bold;
+                  text-decoration: none;
+                  margin: 0 5px;
+                  padding: 5px 10px;
+                  border-radius: 5px;
+              }
+
+              .page-numbers a:hover {
+                  background-color: #333;
+                  color: #fff;
+              }
+
+              .page-numbers .current-page {
+                  background-color: #333; /* Tambahkan atribut background-color */
+                  color: #fff;
+                  border-radius: 5px;
+                  padding: 5px 10px;
+              }
+
+            </style>
+         
+
+
+         <?php session()->forget('shop_now') ?>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popular Items End -->
+  <!--? Services Area Start -->
+  <div class="categories-area section-padding40 gray-bg">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="single-cat mb-50 wow fadeInUp" data-wow-duration="1s" data-wow-delay=".2s">
+            <div class="cat-icon">
+              <img src="assets/img/icon/services1.svg" alt="" />
+            </div>
+            <div class="cat-cap">
+              <p>Fast Delivery</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="single-cat mb-50 wow fadeInUp" data-wow-duration="1s" data-wow-delay=".2s">
+            <div class="cat-icon">
+              <img src="assets/img/icon/services2.svg" alt="" />
+            </div>
+            <div class="cat-cap">
+              <p>Secure Payment</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="single-cat mb-30 wow fadeInUp" data-wow-duration="1s" data-wow-delay=".4s">
+            <div class="cat-icon">
+              <img src="assets/img/icon/services3.svg" alt="" />
+            </div>
+            <div class="cat-cap">
+              <p>Special Offers</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="single-cat wow fadeInUp" data-wow-duration="1s" data-wow-delay=".5s">
+            <div class="cat-icon">
+              <img src="assets/img/icon/services4.svg" alt="" />
+            </div>
+            <div class="cat-cap">
+              <p>Customer Support</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--? Services Area End -->
         <!-- cart -->
         <div class="cart-container-login geser">
             <!-- {{-- @if (session('customer_id'))
@@ -990,7 +987,8 @@ WHERE
    <script src="{{ asset('assets/js/plugins.js') }}"></script>
    <script src="{{ asset('assets/js/main.js') }}"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
-   @if(session('customer_id'))
+   {{-- JESSIIIIII --}}
+@if(session('customer_id'))
 @php
     $loginTime = session('login_time');
     $currentTime = time();
@@ -1255,445 +1253,389 @@ WHERE
       const containercart = document.querySelector('.cart-container');
       const navv = document.querySelector('a.navprofile');
 
-    <!-- One Page, Animated-HeadLin, Date Picker -->
-    <script src="{{ asset('assets/js/wow.min.js') }}"></script>
-    <script src="{{ asset('assets/js/animated.headline.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.magnific-popup.js') }}"></script>
-    <script src="{{ asset('assets/js/gijgo.min.js') }}"></script>
+      // containercart.style.display = "none";
 
-    <!-- Nice-select, sticky,Progress -->
-    <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.sticky.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.barfiller.js') }}"></script>
+      full.style.overflow = 'visible';
+      navprofile.style.display = 'none';
+      navv.style.display = 'none';
 
-    <!-- counter , waypoint,Hover Direction -->
-    <script src="{{ asset('assets/js/jquery.counterup.min.js') }}"></script>
-    <script src="{{ asset('assets/js/waypoints.min.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.countdown.min.js') }}"></script>
-    <script src="{{ asset('assets/js/hover-direction-snake.min.js') }}"></script>
+      function updateNavbar(screenWidth) {
+          // Add event listener to detect media query change
+          if (window.innerWidth >= 415 && window.innerWidth <= 576) {
+              logocart.addEventListener('click', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'block';
+                  full.style.overflow = 'hidden';
+                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
 
-    <!-- contact js -->
-    <script src="{{ asset('assets/js/contact.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.form.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.validate.min.js') }}"></script>
-    <script src="{{ asset('assets/js/mail-script.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.ajaxchimp.min.js') }}"></script>
-
-    <!-- Jquery Plugins, main Jquery -->
-    <script src="{{ asset('assets/js/plugins.js') }}"></script>
-    <script src="{{ asset('assets/js/main.js') }}"></script>
-    @if (session('customer_id'))
-        @php
-            $loginTime = session('login_time');
-            $currentTime = time();
-            $remainingTime = $loginTime + 5 * 60 * 60 - $currentTime;
-        @endphp
-
-        @if ($remainingTime > 0)
-            <script>
-                const closecart = document.querySelector('.close.cart');
-                const full = document.querySelector('.full-wrapper');
-                const navprofile = document.querySelector('.slicknav_menu a.navprofile');
-                const logocart = document.querySelector('.logocart');
-                const containercart = document.querySelector('.cart-container');
-                const navv = document.querySelector('a.navprofile');
-
-                // containercart.style.display = "none";
-
+              $(".close.cart").on('click', function(event) {
+                event.preventDefault();
+                containercart.style.animation = 'slideInToRightMobile 1s forwards';
                 full.style.overflow = 'visible';
-                navprofile.style.display = 'none';
-                navv.style.display = 'none';
-
-                function updateNavbar(screenWidth) {
-                    // Add event listener to detect media query change
-                    if (window.innerWidth >= 415 && window.innerWidth <= 576) {
-                        logocart.addEventListener('click', function(event) {
-                            event.preventDefault();
-                            // containercart.style.display = 'block';
-                            full.style.overflow = 'hidden';
-                            containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                        });
-
-                        $(".close.cart").on('click', function(event) {
-                            event.preventDefault();
-                            containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                            full.style.overflow = 'visible';
-                            if ($('.logocart-login').hasClass('active')) {
-                                full.style.overflow = 'hidden';
-                            }
-                        });
-                    } else if (window.innerWidth < 415) { // media query condition
-                        navprofile.style.display = 'block';
-                        logocart.addEventListener('click', function(event) {
-                            event.preventDefault();
-                            // containercart.style.display = 'block';
-                            full.style.overflow = 'hidden';
-                            containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                        });
-                        navprofile.addEventListener('click', function(event) {
-                            event.preventDefault();
-                            full.style.overflow = 'hidden';
-                            containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-
-                        });
-                    } else {
-                        navprofile.style.display = 'none';
-                        logocart.addEventListener('click', function(event) {
-                            event.preventDefault();
-                            // containercart.style.display = 'block';
-                            full.style.overflow = 'hidden';
-                            containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                        });
-
-                        $(".close.cart").on('click', function(event) {
-                            event.preventDefault();
-                            containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                            full.style.overflow = 'visible';
-                            if ($('.logocart-login').hasClass('active')) {
-                                full.style.overflow = 'hidden';
-                            }
-                        });
-                    };
+                if($('.logocart-login').hasClass('active')){
+                  full.style.overflow = 'hidden';
                 }
+              });
+          }
+          else if (window.innerWidth < 415) { // media query condition
+              navprofile.style.display = 'block';
+              logocart.addEventListener('click', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'block';
+                  full.style.overflow = 'hidden';
+                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+              navprofile.addEventListener('click', function(event) {
+              event.preventDefault();
+              full.style.overflow = 'hidden';
+              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              
+              });
+          } else {
+              navprofile.style.display = 'none';
+              logocart.addEventListener('click', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'block';
+                  full.style.overflow = 'hidden';
+                  containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
 
-                updateNavbar(window.innerWidth);
-                // Check screen size on window resize
-                window.addEventListener("resize", function() {
-                    updateNavbar(window.innerWidth);
-                });
-                window.onpageshow = function(event) {
-                    if (event.persisted) {
-                        // Page is loaded from cache (user clicked back button)
-                        location.reload();
-                    }
-                };
-
-                function updateImageSrc(screenWidth) {
-                    // Select elemen gambar
-                    const imgHeart = document.getElementById('heart');
-                    const imgCard = document.getElementById('cart');
-                    // Add event listener to detect media query change
-
-                    if (window.innerWidth <= 576) { // media query condition
-                        imgHeart.src = 'assets/images/logo/heart-black.svg';
-                        imgCard.src = 'assets/images/logo/cart-black.svg';
-                    } else {
-                        imgHeart.src = 'assets/images/logo/heart.svg';
-                        imgCard.src = 'assets/images/logo/card.svg';
-                    };
-                }
-
-                updateImageSrc(window.innerWidth);
-                // Check screen size on window resize
-                window.addEventListener("resize", function() {
-                    updateImageSrc(window.innerWidth);
-                });
-                // Mengambil token CSRF dari meta tag
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-
-                let csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                $('h3 a').click(function(event) {
-                    let isiLink = $(this).text();
-
-                    // Mengirim permintaan AJAX dengan token CSRF
-                    $.ajax({
-                        method: "POST",
-                        url: "/product_details",
-                        data: {
-                            _token: csrfToken, // Menyertakan token CSRF dalam data permintaan
-                            link: isiLink
-                        },
-                        success: function(response) {
-                            // Menampilkan div dengan hasil respons di dalamnya
-                            console.log(response);
-                        },
-
-                    });
-                });
-
-                $('.footer-tittle.categ ul li a').click(function() {
-                    // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-                    let isiShopNow = $(this).text();
-                    $.ajax({
-                        type: "POST",
-                        url: "/shop",
-                        data: {
-                            shopnow: isiShopNow
-                        },
-                        success: function() {
-                            console.log("Data berhasil dikirim ke PHP");
-                        }
-                    });
-                });
-
-                $('.browsemore').click(function() {
-                    // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-                    $.ajax({
-                        type: "POST",
-                        url: "/shop",
-                        data: {
-                            shopnow: ""
-                        },
-                        success: function() {
-                            console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-                        }
-                    });
-                });
-
-
-                function updateSelectedText() {
-                    var select3 = document.getElementsByName('select3')[0];
-                    var selectedText = select3.options[select3.selectedIndex].text;
-                    var selectedTextElement = document.getElementById('selected-text');
-                    selectedTextElement.textContent = selectedText;
-                }
-            </script>
-        @endif
-    @else
-        <script>
-            const logocartlogin = document.querySelector('.logocart-login');
-            const containercartlogin = document.querySelector('.cart-container-login');
-            const btnclose = document.querySelector('.close.login');
-            const closecart = document.querySelector('.close.cart');
-            const full = document.querySelector('.full-wrapper');
-            const signuphere = document.querySelector('.signuphere a u');
-            const backlogin = document.querySelector('.backlogin u');
-            const isiSignup = document.querySelector('.isisignup');
-            const login = document.querySelector('.isilogin');
-            const navprofile = document.querySelector('.slicknav_menu a.navprofile');
-            const logocart = document.querySelector('.logocart');
-            const containercart = document.querySelector('.cart-container');
-            const navv = document.querySelector('a.navprofile');
-
-            // containercart.style.display = "none";
-
-            full.style.overflow = 'visible';
-            isiSignup.style.display = 'none';
-            navprofile.style.display = 'none';
-            navv.style.display = 'none';
-
-            backlogin.addEventListener('click', function(event) {
+              $(".close.cart").on('click', function(event) {
                 event.preventDefault();
-                isiSignup.style.display = 'none';
-                login.style.display = "block";
+                containercart.style.animation = 'slideInToRightMobile 1s forwards';
+                full.style.overflow = 'visible';
+                if($('.logocart-login').hasClass('active')){
+                  full.style.overflow = 'hidden';
+                }
+              });
+          };
+      }
 
-            });
+      updateNavbar(window.innerWidth);
+      // Check screen size on window resize
+      window.addEventListener("resize", function() {
+          updateNavbar(window.innerWidth);
+      });
+        window.onpageshow = function(event) {
+          if (event.persisted) {
+            // Page is loaded from cache (user clicked back button)
+            location.reload();
+          }
+        };
+        function updateImageSrc(screenWidth) {
+            // Select elemen gambar
+            const imgHeart = document.getElementById('heart');
+            const imgCard = document.getElementById('cart');
+            // Add event listener to detect media query change
+            
+            if (window.innerWidth <= 576) { // media query condition
+                imgHeart.src = 'assets/images/logo/heart-black.svg';
+                imgCard.src = 'assets/images/logo/cart-black.svg';
+            } else {
+                imgHeart.src = 'assets/images/logo/heart.svg';
+                imgCard.src = 'assets/images/logo/card.svg';
+            };
+        }
 
-            signuphere.addEventListener('click', function(event) {
-                event.preventDefault();
-                isiSignup.style.display = 'block';
-                login.style.display = "none";
-
-            });
-
-            function updateNavbar(screenWidth) {
-                $('.logocart-login').on('click', function() {
-                    $(this).addClass('active');
-                });
-                $('.close.login').on('click', function() {
-                    $(".logocart-login.active").removeClass('active');
-                });
-                // Add event listener to detect media query change
-                if (window.innerWidth >= 415 && window.innerWidth <= 576) {
-                    logocartlogin.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        // containercart.style.display = 'none';
-                        full.style.overflow = 'visible';
-                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                    });
-                    logocart.addEventListener('click', function(event) {
-                        // event.preventDefault();
-                        // // containercart.style.display = 'block';
-                        // full.style.overflow = 'hidden';
-                        // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                        event.preventDefault();
-                        // containercart.style.display = 'none';
-                        full.style.overflow = 'visible';
-                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                    });
-
-                    // $(".close.cart").on('click', function(event) {
-                    //   event.preventDefault();
-                    //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                    //   full.style.overflow = 'visible';
-                    //   if($('.logocart-login').hasClass('active')){
-                    //     full.style.overflow = 'hidden';
-                    //   }
-                    // });
-                    btnclose.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-                        isiSignup.style.display = 'none';
-                        login.style.display = "block";
-                        full.style.overflow = 'visible';
-                    });
-                } else if (window.innerWidth < 415) { // media query condition
-                    navprofile.style.display = 'block';
-                    logocart.addEventListener('click', function(event) {
-                        // event.preventDefault();
-                        // // containercart.style.display = 'block';
-                        // full.style.overflow = 'hidden';
-                        // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                        event.preventDefault();
-                        full.style.overflow = 'hidden';
-                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                    });
-
-                    logocartlogin.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        full.style.overflow = 'hidden';
-                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-
-                    });
-                    navprofile.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        full.style.overflow = 'hidden';
-                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-
-                    });
-
-                    btnclose.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-                        isiSignup.style.display = 'none';
-                        login.style.display = "block";
-                        full.style.overflow = 'visible';
-                    });
-                } else {
-                    navprofile.style.display = 'none';
-                    logocart.addEventListener('click', function(event) {
-                        // event.preventDefault();
-                        // // containercart.style.display = 'block';
-                        // full.style.overflow = 'hidden';
-                        // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                        event.preventDefault();
-                        full.style.overflow = 'hidden';
-                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                    });
-
-                    // $(".close.cart").on('click', function(event) {
-                    //   event.preventDefault();
-                    //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
-                    //   full.style.overflow = 'visible';
-                    //   if($('.logocart-login').hasClass('active')){
-                    //     full.style.overflow = 'hidden';
-                    //   }
-                    // });
-
-                    logocartlogin.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        full.style.overflow = 'hidden';
-                        containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
-                    });
-
-                    btnclose.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
-                        isiSignup.style.display = 'none';
-                        login.style.display = "block";
-                        full.style.overflow = 'visible';
-                    });
-                };
-            }
-
-            updateNavbar(window.innerWidth);
-            // Check screen size on window resize
-            window.addEventListener("resize", function() {
-                updateNavbar(window.innerWidth);
-            });
-
-            function updateImageSrc(screenWidth) {
-                // Select elemen gambar
-                const imgHeart = document.getElementById('heart');
-                const imgCard = document.getElementById('cart');
-                // Add event listener to detect media query change
-
-                if (window.innerWidth <= 576) { // media query condition
-                    imgHeart.src = 'assets/images/logo/heart-black.svg';
-                    imgCard.src = 'assets/images/logo/cart-black.svg';
-                } else {
-                    imgHeart.src = 'assets/images/logo/heart.svg';
-                    imgCard.src = 'assets/images/logo/card.svg';
-                };
-            }
-
+        updateImageSrc(window.innerWidth);
+        // Check screen size on window resize
+        window.addEventListener("resize", function() {
             updateImageSrc(window.innerWidth);
-            // Check screen size on window resize
-            window.addEventListener("resize", function() {
-                updateImageSrc(window.innerWidth);
-            });
-            // Mengambil token CSRF dari meta tag
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            let csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-            $('h3 a').click(function(event) {
-                let isiLink = $(this).text();
-
-                // Mengirim permintaan AJAX dengan token CSRF
-                $.ajax({
-                    method: "POST",
-                    url: "/product_details",
-                    data: {
-                        _token: csrfToken, // Menyertakan token CSRF dalam data permintaan
-                        link: isiLink
-                    },
-                    success: function(response) {
-                        // Menampilkan div dengan hasil respons di dalamnya
-                        console.log(response);
-                    },
-
-                });
-            });
-
-
-            $('.footer-tittle.categ ul li a').click(function() {
-                // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-                let isiShopNow = $(this).text();
-                $.ajax({
-                    type: "POST",
-                    url: "/shop",
-                    data: {
-                        shopnow: isiShopNow
-                    },
-                    success: function() {
-                        console.log("Data berhasil dikirim ke PHP");
-                    }
-                });
-            });
-
-            $('.browsemore').click(function() {
-                // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-                $.ajax({
-                    type: "POST",
-                    url: "/shop",
-                    data: {
-                        shopnow: ""
-                    },
-                    success: function() {
-                        console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
-                    }
-                });
-            });
-
-
-            function updateSelectedText() {
-                var select3 = document.getElementsByName('select3')[0];
-                var selectedText = select3.options[select3.selectedIndex].text;
-                var selectedTextElement = document.getElementById('selected-text');
-                selectedTextElement.textContent = selectedText;
+        });
+        
+        $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
+        $('.btn.shopnow').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          let isiShopNow = $(this).closest('.single-popular-items').find('.img-cap span').text();
+          $.ajax({
+            method: "POST",
+            url: "/shop",
+            data: { shopnow: isiShopNow },
+            success: function(response) {
+              console.log("Data berhasil dikirim ke PHP");
+              console.log(response);
             }
-        </script>
-    @endif
-</body>
+          });
+        });
+        $('.footer-tittle.categ ul li a').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          let isiShopNow = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: isiShopNow },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
+            }
+          });
+        });
+        
+        $('.browsemore').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: "" },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP yyyyyyyyyyyyyy");
+            }
+          });
+        });
 
+        $('h3 a').click(function() {
+          // Mengambil isi dari elemen a yang diklik
+          let isiLink = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "/product_details",
+            data: {
+              link: isiLink
+            },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
+            }
+          });
+        });
+        
+</script>
+@endif
+@else
+    <script>
+      const logocartlogin = document.querySelector('.logocart-login');
+      const containercartlogin = document.querySelector('.cart-container-login');
+      const btnclose = document.querySelector('.close.login');
+      const closecart = document.querySelector('.close.cart');
+      const full = document.querySelector('.full-wrapper');
+      const signuphere = document.querySelector('.signuphere a u');
+      const backlogin = document.querySelector('.backlogin u');
+      const isiSignup = document.querySelector('.isisignup');
+      const login = document.querySelector('.isilogin');
+      const navprofile = document.querySelector('.slicknav_menu a.navprofile');
+      const logocart = document.querySelector('.logocart');
+      const containercart = document.querySelector('.cart-container');
+      const navv = document.querySelector('a.navprofile');
+
+      // containercart.style.display = "none";
+
+      full.style.overflow = 'visible';
+      isiSignup.style.display = 'none';
+      navprofile.style.display = 'none';
+      navv.style.display = 'none';
+
+      backlogin.addEventListener('click', function(event) {
+      event.preventDefault();
+      isiSignup.style.display = 'none';
+      login.style.display="block";
+
+      });
+
+      signuphere.addEventListener('click', function(event) {
+      event.preventDefault();
+      isiSignup.style.display = 'block';
+      login.style.display="none";
+
+      });
+
+      function updateNavbar(screenWidth) {
+        $('.logocart-login').on('click', function() {
+            $(this).addClass('active');
+        });
+        $('.close.login').on('click', function() {
+            $(".logocart-login.active").removeClass('active');
+        });
+          // Add event listener to detect media query change
+          if (window.innerWidth >= 415 && window.innerWidth <= 576) {
+              logocartlogin.addEventListener('click', function(event) {
+                event.preventDefault();
+                // containercart.style.display = 'none';
+                full.style.overflow = 'visible';
+                containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+              logocart.addEventListener('click', function(event) {
+                  event.preventDefault();
+                  // containercart.style.display = 'none';
+                  full.style.overflow = 'visible';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+
+              // $(".close.cart").on('click', function(event) {
+              //   event.preventDefault();
+              //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+              //   full.style.overflow = 'visible';
+              //   if($('.logocart-login').hasClass('active')){
+              //     full.style.overflow = 'hidden';
+              //   }
+              // });
+              btnclose.addEventListener('click', function(event) {
+              event.preventDefault();
+              containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+              isiSignup.style.display = 'none';
+              login.style.display="block";
+              full.style.overflow = 'visible';
+              });
+          }
+          
+          else if (window.innerWidth < 415) { // media query condition
+              navprofile.style.display = 'block';
+              logocart.addEventListener('click', function(event) {
+                  event.preventDefault();
+                  full.style.overflow = 'hidden';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+
+              logocartlogin.addEventListener('click', function(event) {
+              event.preventDefault();
+              full.style.overflow = 'hidden';
+              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              
+              });
+              navprofile.addEventListener('click', function(event) {
+              event.preventDefault();
+              full.style.overflow = 'hidden';
+              containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              
+              });
+
+              btnclose.addEventListener('click', function(event) {
+              event.preventDefault();
+              containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+              isiSignup.style.display = 'none';
+              login.style.display="block";
+              full.style.overflow = 'visible';
+              });
+          } else {
+              navprofile.style.display = 'none';
+              logocart.addEventListener('click', function(event) {
+                  // event.preventDefault();
+                  // // containercart.style.display = 'block';
+                  // full.style.overflow = 'hidden';
+                  // containercart.style.animation = 'slideInFromRightMobile 0.5s forwards';
+                  event.preventDefault();
+                  full.style.overflow = 'hidden';
+                  containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+
+              // $(".close.cart").on('click', function(event) {
+              //   event.preventDefault();
+              //   containercart.style.animation = 'slideInToRightMobile 1s forwards';
+              //   full.style.overflow = 'visible';
+              //   if($('.logocart-login').hasClass('active')){
+              //     full.style.overflow = 'hidden';
+              //   }
+              // });
+
+              logocartlogin.addEventListener('click', function(event) {
+                event.preventDefault();
+                full.style.overflow = 'hidden';
+                containercartlogin.style.animation = 'slideInFromRightMobile 0.5s forwards';
+              });
+
+              btnclose.addEventListener('click', function(event) {
+              event.preventDefault();
+              containercartlogin.style.animation = 'slideInToRightMobile 1s forwards';
+              isiSignup.style.display = 'none';
+              login.style.display="block";
+              full.style.overflow = 'visible';
+              });
+          };
+      }
+
+      updateNavbar(window.innerWidth);
+      // Check screen size on window resize
+      window.addEventListener("resize", function() {
+          updateNavbar(window.innerWidth);
+      });
+
+
+        window.onpageshow = function(event) {
+          if (event.persisted) {
+            // Page is loaded from cache (user clicked back button)
+            location.reload();
+          }
+        };
+        function updateImageSrc(screenWidth) {
+            // Select elemen gambar
+            const imgHeart = document.getElementById('heart');
+            const imgCard = document.getElementById('cart');
+            // Add event listener to detect media query change
+            
+            if (window.innerWidth <= 576) { // media query condition
+                imgHeart.src = 'assets/images/logo/heart-black.svg';
+                imgCard.src = 'assets/images/logo/cart-black.svg';
+            } else {
+                imgHeart.src = 'assets/images/logo/heart.svg';
+                imgCard.src = 'assets/images/logo/card.svg';
+            };
+        }
+
+        updateImageSrc(window.innerWidth);
+        // Check screen size on window resize
+        window.addEventListener("resize", function() {
+            updateImageSrc(window.innerWidth);
+        });
+        
+        $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
+        $('.btn.shopnow').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          let isiShopNow = $(this).closest('.single-popular-items').find('.img-cap span').text();
+          $.ajax({
+            method: "POST",
+            url: "/shop",
+            data: { shopnow: isiShopNow },
+            success: function(response) {
+              console.log("Data berhasil dikirim ke PHP");
+              console.log(response);
+            }
+          });
+        });
+        $('.footer-tittle.categ ul li a').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          let isiShopNow = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: isiShopNow },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
+            }
+          });
+        });
+        
+        $('.browsemore').click(function() {
+          // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
+          $.ajax({
+            type: "POST",
+            url: "/shop",
+            data: { shopnow: "" }
+          });
+        });
+
+        $('h3 a').click(function() {
+          // Mengambil isi dari elemen a yang diklik
+          let isiLink = $(this).text();
+          $.ajax({
+            type: "POST",
+            url: "/product_details",
+            data: {
+              link: isiLink
+            },
+            success: function() {
+              console.log("Data berhasil dikirim ke PHP");
+            }
+          });
+        });
+        
+    </script>
+   {{-- JESSIIIIII --}}
+@endif
+  </body>
 </html>
