@@ -64,7 +64,7 @@
                 <li class="logocart">
                   <div class="card-stor">
                     <img id="cart" src="{{ asset('assets/images/logo/card.svg') }}" alt="" />
-                    <span>0</span>
+                    
                   </div>
                 </li>
                 

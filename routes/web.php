@@ -254,7 +254,10 @@ Route::post('/profile', function (Illuminate\Http\Request $request) {
         return app(ProfileController::class)->editProfile($request);
     } elseif ($action === 'logout') {
         return app(ProfileController::class)->logout($request);
+    }elseif ($action === 'updAddress') {
+        return app(AddressController::class)->saveAddress($request);
     }
+    
     // elseif ($action === 'updateCity') {
     //     return app(ProfileController::class)->city($request);
     // }

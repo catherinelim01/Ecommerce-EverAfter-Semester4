@@ -342,6 +342,24 @@ if (Session::has('customer_id')) {
           <?php } ?>
         </div>
 
+        <?php
+            $sql = "SELECT * FROM address a left join customer c on a.customer_id = c.customer_id WHERE a.customer_id ='" . session('customer_id') . "';";
+            $result = DB::select($sql);
+            
+            if (count($result) > 0) {
+                $response = [];
+                foreach ($result as $row) {
+                    $dt = new stdClass();
+                    $dt->customername = $row->CUSTOMER_NAME;
+                    $dt->phone = $row->PHONE;
+                    $dt->address = $row->ADDRESS;
+                    $response[] = $dt;
+                }
+                $hasil_json = json_encode($response);
+                $data2 = json_decode($hasil_json, true);
+            }
+            ?>
+
       </div>
       <div class="col-12 col-md-8 pr-20 address">
         <div class="row profiletitle address">
@@ -361,11 +379,18 @@ if (Session::has('customer_id')) {
                 </div>
               </div>
               <div class="preview-add">
-                <p>nama</p>
-                <p>tes</p>
-                <p>kota</p>
-                <p>indo</p>
-              </div>
+                                <p><?php echo $data2[0]['phone']; ?></p>
+                                <p><?php
+                                $string = $data2[0]['address'];
+                                $substring = str_replace(', Indonesia', '', $string);
+                                echo $substring;
+                                ?></p>
+                                <p><?php
+                                $string = $data2[0]['address'];
+                                $substring = substr($string, strrpos($string, ', ') + 2);
+                                echo $substring;
+                                ?></p>
+                            </div>
             </div>
           </div>
 
@@ -382,25 +407,31 @@ if (Session::has('customer_id')) {
                 </div>
               </div>
               <div class="preview-add">
-                <p>nama</p>
-                <p>tes</p>
-                <p>kota</p>
-                <p>indo</p>
-              </div>
+                                <p><?php echo $data2[1]['phone']; ?></p>
+                                <p><?php
+                                $string = 'Jl HR Rasuna Said Kav H 1-2 Puri Matari Dki Jakarta, 12920,Indonesia';
+                                $substring = str_replace(',Indonesia', '', $string);
+                                echo $substring; // Output: Jl HR Rasuna Said Kav H 1-2 Puri Matari Dki Jakarta, 12920
+                                
+                                ?></p>
+                                </p>
+                                <p><?php
+                                $string = 'Jl HR Rasuna Said Kav H 1-2 Puri Matari Dki Jakarta, 12920, Indonesia';
+                                $lastCommaPosition = strrpos($string, ',');
+                                $country = substr($string, $lastCommaPosition + 2);
+                                
+                                echo $country;
+                                ?></p>
+                            </div>
             </div>
           </div>
         </div>
+        
         <div class="row dalemeditaddress isi mb-40 mt-20">
-          <form action="">
+        <form action="/profile" method="POST">
+          @csrf
             <label class="editprofile mb-10">EDIT SHIPPING ADDRESS</label>
-            <div class="form-row">
-              <div class="col">
-                <input type="text" class="form-control" required placeholder="First name *">
-              </div>
-              <div class="col">
-                <input type="text" class="form-control" required placeholder="Last name *">
-              </div>
-            </div>
+
 
             <select name="country" required class="mt-20 country">
               <option value="Indonesia">Indonesia</option>
@@ -430,7 +461,7 @@ if (Session::has('customer_id')) {
               <?php }} ?>
             </select><br><br>
 
-            <select name="CityTes" required class="mt-20 CityTes">
+            <select name="CityTes"  class="mt-20 CityTes">
             <option disabled selected>Town/City *</option>
               <!-- <option value="" disabled selected>Town/City *</option> -->
               <?php 
@@ -458,18 +489,24 @@ if (Session::has('customer_id')) {
 
             <div class="form-row">
               <div class="col mt-20">
-              <input type="text" class="form-control" required placeholder="Subdistrict *">
+              <input type="text" name="subdistrict" class="form-control" required placeholder="Subdistrict *">
               
               </div>
               <div class="col mt-20">
-                <input type="text" class="form-control" required placeholder="Postal Code *">
+                <input type="text" name="postalCode" class="form-control" required placeholder="Postal Code *">
               </div>
             </div>
             <div class="form-group mt-20">
-              <input type="text" class="form-control" id="street" required placeholder="Street, Street Number, Apartment *">
+              <input type="text" class="form-control" name="street" id="street" required placeholder="Street, Street Number, Apartment *">
             </div>
+            <div class="form-group mt-20">
+                            <input type="text" class="form-control" id="phone" required name ="phone" placeholder="Phone *"
+                                title="Please enter numbers only"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        </div>
+
             <div class="butt d-flex" style="justify-content: space-between;">
-            <button type="submit" class="btn btn-primary mt-10 pb-20 login">SAVE ADDRESS</button>
+            <button type="submit" name="action" value="updAddress" class="btn btn-primary mt-10 pb-20 login">SAVE ADDRESS</button>
             <a class="btn btn-primary mt-10 pb-20 login btnback" href="#">BACK</a>
             </div>
           </form>
