@@ -183,12 +183,9 @@ if (isset($_POST['voucherCode'])) {
             }
         }
     
-        if (!$foundVoucher) {
-            echo "<script>alert('Invalid Promo Code!');</script>";
-            // Tambahkan penanganan lainnya jika diperlukan
-            // Berhenti eksekusi script karena kode promo tidak valid
-       
-        }
+        if (!$foundVoucher && session('voucherCode')) {
+    echo "<script>alert('Invalid Promo Code!');</script>";
+}
       }
         ?>
       <?php
@@ -712,6 +709,7 @@ WHERE
 
 @if($remainingTime > 0)
 <script>
+  
   $('#addressSelect').on('change', function() {
   // Ambil harga pengiriman dari database berdasarkan opsi yang dipilih
   var deliveryName = $(this).val();
@@ -854,7 +852,7 @@ $(document).ready(function() {
     var result = decimalValue.times(total2.toString());
     var formattedResult = result.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     $('.totalCart').text("IDR "+subtotalFormatted);
-    $('.pajakCart').text("IDR "+formattedResult);
+    $('.pajakCart').text("+ IDR "+formattedResult);
     let diskon = $(".isivocer").find("p").text();
     subsdis = diskon.substring(5);
     var subsdis2 = BigInt(subsdis.replace(/,/g, ''));
@@ -939,27 +937,42 @@ $(document).ready(function() {
     });
   
   });
-  $('.btnkepayment').click(function() {
-    let totalproduktok = $('.totalCart').text();
-    let totalpajaktok = $('.pajakCart').text();
-      let diskontok = $(".isivocer").find("p").text();
-      let shippingtok = $('#shippingCost').text();
-      let totaltok = $('.TotalAll').text();
-            // Mengambil isi dari elemen span yang merupakan sibling dari elemen .img-cap yang sama
-            $.ajax({
-              type: "POST",
-              url: "/payment",
-              data: { subtotalpayment: totalproduktok,
-              pajakpayment: totalpajaktok,
-              diskonpayment: diskontok,
-              shippingpayment: shippingtok,
-              totalshipment: totaltok
-              },
-              success: function(response) {
-                console.log(response);
-              }
-            });
-          });
+
+
+          $('.btnkepayment').click(function() {
+  let totalproduktok = $('.totalCart').text();
+  let totalpajaktok = $('.pajakCart').text();
+  let vouchername = $('#potonganVoucher').text();
+  let diskontok = $(".isivocer").find("p").text();
+  let shippingtok = $('#shippingCost').text();
+  let totaltok = $('.TotalAll').text();
+
+  let shippingAddress = $('input[name="shippingAddress"]:checked').closest('.card-address');
+  let customerName = shippingAddress.find('.preview-add p:nth-child(1)').text();
+  let address = shippingAddress.find('.preview-add p:nth-child(2)').text();
+  let phone = shippingAddress.find('.preview-add p:nth-child(3)').text();
+
+  // Mengirim data ke server menggunakan AJAX
+  $.ajax({
+    type: "POST",
+    url: "/payment",
+    data: {
+      subtotalpayment: totalproduktok,
+      pajakpayment: totalpajaktok,
+      diskonpayment: diskontok,
+      shippingpayment: shippingtok,
+      totalshipment: totaltok,
+      vouchername: vouchername,
+      customerName: customerName,
+      address: address,
+      phone: phone
+    },
+    success: function(response) {
+      console.log(response);
+    }
+  });
+});
+
 });
 // $(document).ready(function() {
 //   var formattedCost = null;

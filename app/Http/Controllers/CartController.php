@@ -26,6 +26,8 @@ class CartController extends Controller
     {
         $link_tes = request()->session()->get('link_tes');
         $customer_id = request()->session()->get('customer_id');
+        $btnSize = $request->input('btnSize');
+        $quantity = $request->input('quantity');
         if (empty($customer_id)) {
             return back()->withErrors(['message' => 'User not logged in']);
         }
@@ -36,91 +38,45 @@ class CartController extends Controller
         // $cart = Cart::where('customer_id', $customer_id)->pluck('cart_id');
         
         // Query untuk mendapatkan idcart dan sqlqty
-        $result = DB::select("SELECT pc.CART_ID AS idcart,pc.product_id AS idproduct, pc.qty AS sqlqty FROM product_cart pc, cart c, product p WHERE pc.cart_id = c.cart_id AND c.customer_id = :customer_id AND p.product_name = :product_name AND p.product_id = pc.product_id", ['customer_id' => $customer_id, 'product_name' => $link_tes]);
+       
+        $result = DB::select("SELECT pc.CART_ID AS idcart,p.product_id AS idproduct, pc.qty AS sqlqty FROM product_cart pc, cart c, product p WHERE pc.cart_id = c.cart_id AND p.product_name = :product_name AND p.product_id = pc.product_id", ['product_name' => $link_tes]);
+        $result2 = DB::select("SELECT pc.CART_ID AS idcart FROM product_cart pc, cart c, product p WHERE pc.cart_id = c.cart_id AND c.customer_id = :customer_id AND p.product_id = pc.product_id", ['customer_id' => $customer_id]);
+        $idcart = $result2[0]->idcart;
+        $idproduct = $result[0]->idproduct;
+        $sqlqty = $result[0]->sqlqty;
+        
+        if(!empty($btnSize)){
+            $result = DB::select("SELECT CONCAT(SUBSTRING( '{$idproduct}', 1, 4), '{$btnSize}', SUBSTRING('{$idproduct}', 6)) AS idproduct, pc.qty AS sqlqty FROM product_cart pc, cart c, product p WHERE pc.cart_id = c.cart_id AND p.product_name = :product_name AND p.product_id = pc.product_id", ['product_name' => $link_tes]);
+            $result2 = DB::select("SELECT pc.CART_ID AS idcart FROM product_cart pc, cart c, product p WHERE pc.cart_id = c.cart_id AND c.customer_id = :customer_id AND p.product_id = pc.product_id", ['customer_id' => $customer_id]);
+
+            $idcart = $result2[0]->idcart;
+            $idproduct = $result[0]->idproduct;
+            $sqlqty = $result[0]->sqlqty;
+        }
         
         if (!empty($result)) {
-            $idcart = $result[0]->idcart;
-$idproduct = $result[0]->idproduct;
-
-            $sqlqty = $result[0]->sqlqty;
-            
             // Query untuk mendapatkan sql1
-            $sql1 = DB::select("SELECT p.product_name FROM product_cart pc, cart c, product p WHERE pc.cart_id = c.cart_id AND pc.product_id = p.product_id AND c.customer_id = :customer_id", ['customer_id' => $customer_id]);
+            $sql1 = DB::select("SELECT p.product_name , p.product_id FROM product_cart pc, cart c, product p WHERE pc.cart_id = c.cart_id AND pc.product_id = p.product_id AND c.customer_id = :customer_id", ['customer_id' => $customer_id]);
+            $cek = 0;   
             foreach ($sql1 as $pname) {
             // Jika $sql1 = $link_tes, jalankan perintah UPDATE
-            if (!empty($sql1) && $pname->product_name === $link_tes) {
-                $newQty = (int) $sqlqty + 1;
+            if (!empty($sql1) && $pname->product_id === $idproduct) {
+                $newQty = (int) $sqlqty + $quantity;
                 DB::update("UPDATE product_cart SET QTY =  {$newQty} WHERE cart_id = :cart_id and product_id = :product_id ", ['cart_id' => (string) $idcart, 'product_id'=> (string) $idproduct]);
-                return response()->json(['message' => $idcart]);
+                $cek = 1;
+                return response()->json(['message' => $btnSize, 'message' => $idproduct]);
                 // DB::update("UPDATE product_cart SET QTY = :qty WHERE cart_id = :cart_id", ['qty' => $sqlqty, 'cart_id' => (string) $idcart]);
             }
+        }
+        if($cek === 0){
+            DB::insert("INSERT INTO product_cart (PRODUCT_ID, CART_ID, QTY) VALUES (?, ?, ?)", [$idproduct, $idcart, $quantity]);
+            return response()->json(['message' => 'Data inserted successfullyyyyyyy']);
         }
         }
         
  
     }
-//     public function addToCart(Request $request)
-//     {
-//         $link_tes = request()->session()->get('link_tes');
-//         $customer_id = request()->session()->get('customer_id');
-//         // dd($customer_id);
-//         // dd(request()->session()->all());
-//         if (empty($customer_id)) {
-//             // Jika customer_id tidak tersedia dalam session, kembalikan respon error
-//             return back()->withErrors(['message' => 'User not logged in']);
-//         }
-        
-//         // Dapatkan product_id berdasarkan $link_tes
-//         // $product = Product::where('product_name', $link_tes)->first();
-        
-//         // if (!$product) {
-//         //     // Jika product tidak ditemukan, kembalikan respon error
-//         //     return response()->json(['message' => 'Product not found'], 404);
-//         // }
-    
-//         $productId = Product::select('product_id')->where('product_name', $link_tes)->first();
-//         $query = Cart::where('customer_id', $customer_id);
-//         // Cari cart terakhir berdasarkan customer_id
-//         $cart = Cart::where('customer_id', $customer_id)->pluck('cart_id')->get();
-        
-        
 
-// // if ($cart) {
-// //     // Insert into PRODUCT_CART table with product_id and cart_id
-// //     return response()->json(['success' => true, 'cart' => $cart]);
-// //     // $productCart = new ProductCart;
-    
-// //     // $productCart->product_id = $productId;
-// //     // $productCart->cart_id = $cart->cart_id;
-// //     // $productCart->save();
-// // } else {
-// //     // If there is no previous cart, create a new cart
-// //     $cart = new Cart;
-// //     $cart->customer_id = $customer_id;
-// //     $cart->cart_status = 0;
-// //     $cart->delete_cart = 0;
-// //     $cart->save();
-// //     $cartId = 'CART00031';
-
-// //     // Set the cart_id generated by the database
-// //     $cartId = $cart->cart_id;
-
-// //     // Insert into PRODUCT_CART table with product_id and cart_id
-// //     $productCart = new ProductCart;
-// //     $productCart->product_id = $productId;
-// //     $productCart->cart_id = $cartId;
-// //     $productCart->save();
-// // }
-        
-    
-// //         // Lakukan operasi INSERT ke dalam tabel product_cart
-// //         $productCart = new ProductCart;
-// //         $productCart->product_id = $productId;
-// //         $productCart->cart_id = $cartId;
-// //         $productCart->save();
-    
-//         return response()->json(['message' => 'Product added to cart successfully']);
-//     }
     
 }
 
