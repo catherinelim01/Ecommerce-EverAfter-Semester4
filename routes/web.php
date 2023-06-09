@@ -26,6 +26,10 @@ use App\Http\Controllers\PaymentController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+use App\Http\Controllers\InsertOrderController;
+
+Route::post('/payment/2', [InsertOrderController::class, 'placeOrder']);
+
 Route::get('/getDeliveryCost', [DeliveryController::class, 'getProvinces']);
 Route::get('/', function () {
     return view('index');

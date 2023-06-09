@@ -77,7 +77,7 @@
 
 
     </div>
-    <br></br>
+    <br><br>
   </div>
 
 
@@ -145,7 +145,7 @@
         </tr>
         <tr>
           <td class="graytext">Tax(5%)</td>
-          <td class="text-right graytext">+<?php echo session('pajakpayment') ?></td>
+          <td class="text-right graytext"><?php echo session('pajakpayment') ?></td>
         </tr>
         <tr>
           <td class="graytext">Shipping</td>
@@ -494,51 +494,86 @@ WHERE
 
 @if($remainingTime > 0)
 <script>
-  function validatePayment() {
-    var paymentOptions = document.getElementsByName('menu');
-    var isChecked = false;
+     $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
 
-    for (var i = 0; i < paymentOptions.length; i++) {
-      if (paymentOptions[i].checked) {
-        isChecked = true;
-        break;
-      }
+let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+function validatePayment() {
+  console.log("halo");
+  var paymentOptions = document.getElementsByName('menu');
+  var isChecked = false;
+  var selectedPayment = '';
+
+  for (var i = 0; i < paymentOptions.length; i++) {
+    if (paymentOptions[i].checked) {
+      isChecked = true;
+      selectedPayment = paymentOptions[i].value;
+      break;
     }
+  }
 
-    if (!isChecked) {
-      alert('Please choose your payment method first.');
-    } else {
-      showPopup();
-    }
+  if (!isChecked) {
+    alert('Please choose your payment method first.');
+  } else {
+    showPopup();
+  }
 
-    function showPopup() {
+  function showPopup() {
     // Add your logic to show the popup
     console.log('Showing popup...');
     Swal.fire({
-    title: 'Place Order',
-    text: 'Are you sure you want to place the order?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, place order',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Kode yang ingin dijalankan jika pengguna mengklik "Yes, place order"
-      // Contoh: redirect ke halaman pembayaran
-      Swal.fire(
-        'Thank you for your order!',
-        'We will send you the receipt via email within 24 hours after your order has been placed :)',
-        'success'
-      ).then(() => {
-        window.location.href = '/index';
-      });
-    }
-    placeOrder()
-  });
+      title: 'Place Order',
+      text: 'Are you sure you want to place the order?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, place order',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Kode yang ingin dijalankan jika pengguna mengklik "Yes, place order"
+        // Kirim selectedPayment melalui AJAX menggunakan jQuery
+        var orderData = {
+         
+        };
+
+        $.ajax({
+          url: '/payment/2', // Ganti dengan URL endpoint API Anda
+          method: 'POST',
+          data: { ORDER_ID: 'ORD00026',PAYMENT_ID: selectedPayment,DELIVERY_ID: 'D00026',ORDER_DATE: '<?php echo date('Y-m-d') ?>',DELETE_ORDER: '0',STATUS:'0'
+         },
+          success: function(response) {
+            // Proses respons dari API jika berhasil
+            console.log(response);
+            Swal.fire(
+              'Thank you for your order!',
+              'We will send you the receipt via email within 24 hours after your order has been placed :)',
+              'success'
+            ).then(() => {
+              window.location.href = '/payment';
+            });
+          },
+          error: function(xhr, status, error) {
+            // Proses kesalahan jika terjadi kesalahan dalam permintaan AJAX
+            console.error(error);
+            Swal.fire(
+              'Oops!',
+              'An error occurred while placing the order. Please try again later.',
+              'error'
+            );
+          }
+        });
+      }
+    });
   }
-  }
+}
+
+
   // function showPopup() {
   //   alert("Thank you for your order! We will send you the receipt via email within 24 hours after your order has been placed:)");
   // }
